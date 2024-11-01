@@ -1,3 +1,19 @@
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+import GpxUpload from "$lib/GPXUpload.svelte";
+import LocalRoutesList from '$lib/LocalRoutesList.svelte';
+import RoutesViewer from '$lib/RoutesViewer.svelte';
+</script>
+
+<h1 class="text-xl font-bold">Svelte local gpx viewer</h1>
+
+<p>Upload a gpx file</p>
+
+<GpxUpload/>
+
+<p>Local Routes list</p>
+
+<LocalRoutesList />
+
+<p>Routes Viewer</p>
+
+<RoutesViewer />

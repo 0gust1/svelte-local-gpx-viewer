@@ -1,20 +1,18 @@
-# create-svelte
+# Svelte-local-gpx-viewer
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+A small collection of Svelte components to load GPX files (local first, persisted in browser's indexedDB) and display them.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+local-first database is powered by Dexie.
 
-## Creating a project
+gpx route display is powered by maplibre.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Using the components in a Svelte/Sveltekit project
 
-```bash
-# create a new project in the current directory
-npx sv create
+TODO
 
-# create a new project in my-app
-npx sv create my-app
-```
+## Using the components in pure JS
+
+TODO
 
 ## Developing
 
