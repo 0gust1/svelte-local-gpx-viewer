@@ -14,6 +14,7 @@ interface GeoJSONRoute {
 	data: FeatureCollection<Geometry, GeoJsonProperties>;
 	length?: number;
 	elevation?: {positive: number, negative: number};
+	visible?: boolean;
 }
 
 

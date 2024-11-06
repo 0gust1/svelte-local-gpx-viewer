@@ -1,6 +1,6 @@
 <script lang="ts">
 	let { files = $bindable(null), ...props }: { files: FileList | null } = $props();
-
+	let inputElmt: HTMLInputElement;
 	function handleDrop(event: DragEvent) {
 		files = event.dataTransfer?.files ?? null;
 		console.log('files', files);
@@ -9,10 +9,15 @@
 	function handleDragover(event: DragEvent) {
 		event.preventDefault();
 	}
+	$effect(() => {
+		if (!files) {
+			inputElmt.value = inputElmt.defaultValue;
+		}
+	});
 </script>
 
-<div class="drop-zone" role="button" tabindex="0" ondrop={handleDrop} ondragover={handleDragover}>
-	<input type="file" bind:files multiple accept=".gpx" />
+<div class="drop-zone" role="button" tabindex="0" ondrop={handleDrop} ondragover={handleDragover} onclick={()=>inputElmt.click()}>
+	<input bind:this={inputElmt} type="file" bind:files multiple accept=".gpx" />
 </div>
 
 {#if files}
