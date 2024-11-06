@@ -36,8 +36,10 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
+		"@inlang/paraglide-sveltekit": "^0.11.1",
 		"@playwright/test": "^1.45.3",
 		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-static": "^3.0.6",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/package": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
@@ -63,7 +65,6 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
-		"@inlang/paraglide-sveltekit": "^0.11.1",
 		"@tmcw/togeojson": "^5.8.1",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
