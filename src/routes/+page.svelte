@@ -4,9 +4,8 @@
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
 </script>
 
-<h1 class="text-2xl font-light mb-4">Svelte local gpx viewer</h1>
-<div class="flex w-full gap-2">
-	<div class=" w-1/3">
+<div class="flex w-full gap-3 flex-col sm:flex-row">
+	<div class="">
 		<GpxUpload />
 	</div>
 	<div class="grow">
@@ -14,7 +13,6 @@
 	</div>
 </div>
 
-<p>Routes Viewer</p>
-<div class="border">
+<div class="border w-10/12 mx-auto mt-3">
 <MapLibreWrapper />
 </div>

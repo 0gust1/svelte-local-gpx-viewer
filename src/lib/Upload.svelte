@@ -3,8 +3,7 @@
 	let inputElmt: HTMLInputElement;
 	function handleDrop(event: DragEvent) {
 		files = event.dataTransfer?.files ?? null;
-		console.log('files', files);
-		//loop through the files and add their text to the store
+		event.preventDefault();
 	}
 	function handleDragover(event: DragEvent) {
 		event.preventDefault();
@@ -16,9 +15,12 @@
 	});
 </script>
 
-<div class="drop-zone" role="button" tabindex="0" ondrop={handleDrop} ondragover={handleDragover} onclick={()=>inputElmt.click()}>
-	<input bind:this={inputElmt} type="file" bind:files multiple accept=".gpx" />
-</div>
+<label for="gpx_route_files" class="drop-zone" ondrop={handleDrop} ondragover={handleDragover}>
+	<span class="drop-zone_text">Drop your GPX files here</span>
+	or
+	<input id="gpx_route_files" bind:this={inputElmt} type="file" bind:files multiple accept=".gpx"
+	class="flex flex-wrap" />
+</label>
 
 {#if files}
 	<div>Files:</div>
@@ -43,10 +45,17 @@
 		@apply border bg-slate-200 px-1;
 	}
 	.drop-zone {
-		@apply border-2 border-dashed;
-		height: 200px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		@apply border-2 border-dashed rounded-lg bg-transparent;
+		@apply h-32;
+		@apply flex flex-col justify-center items-center;
 	}
+	.drop-zone:hover {
+		@apply border-slate-300 bg-slate-100;
+	}
+	.drop-zone input[type=file]{
+		@apply max-w-full w-11/12 bg-slate-200 p-3 text-slate-500;	
+		}
+		.drop-zone .drop-zone_text {
+		@apply text-lg font-semibold;
+		}
 </style>

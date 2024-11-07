@@ -26,7 +26,7 @@
       // test if bounding box is correct (array of numbers), because bbox can return [Infinity, Infinity, -Infinity, -Infinity]
       if(boundingBox && boundingBox.every((coord) => Number.isFinite(coord))){
         $map.fitBounds(boundingBox, {
-          padding: 20
+          padding: 40
         });
       }
     }
@@ -45,7 +45,8 @@
           }}
           paint={{
             'line-color': '#3887be',
-            'line-width': 5
+            'line-width': 5,
+            // 'line-gap-width': 5
           }}
         />
       </GeoJSON>

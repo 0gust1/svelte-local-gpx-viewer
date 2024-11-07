@@ -28,18 +28,6 @@
 		}
 	}
 
-	async function addToGpxRoutes(files: FileList) {
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
-			let text = await file.text();
-
-			await db.gpxRoutes.add({
-				name: file.name,
-				data: text
-			});
-		}
-	}
-
 	async function addToGeoJSONRoutes(files: FileList) {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
@@ -56,8 +44,9 @@
 					name: file.name.split('.').slice(0, -1).join('.'),
 					data: geojson,
 					length: routeLength,
-					elevation, 
-					visible : true
+					elevation,
+					visible: true,
+					originalGPXData: text
 				});
 			} catch (error) {
 				console.error('error', error);
@@ -67,12 +56,10 @@
 
 	$effect(() => {
 		if (files) {
-			addToGpxRoutes(files);
 			addToGeoJSONRoutes(files);
 			files = null;
 		}
 	});
 </script>
 
-<p>Select or drop GPX files</p>
 <Upload bind:files />
