@@ -4,7 +4,7 @@ A small collection of Svelte components to load GPX files (local first, persiste
 
 local-first database is powered by Dexie.
 
-gpx route display is powered by maplibre.
+gpx route display is powered by maplibre (and the svelte-maplibre wrapper).
 
 ## Using the components in a Svelte/Sveltekit project
 
@@ -29,13 +29,13 @@ Everything inside `src/lib` is part of your library, everything inside `src/rout
 
 ## Building
 
-To build your library:
+To build the library:
 
 ```bash
 npm run package
 ```
 
-To create a production version of your showcase app:
+To create a production version of the showcase app:
 
 ```bash
 npm run build
@@ -44,6 +44,23 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+### Vanilla JS
+
+To create a vanilla JS version of the library:
+
+```bash
+npm run build:vanilla
+```
+
+This will create a `dist-js` folder with the compiled library.
+
+- [] add an HTML file to the `dist-js` folder to test the integration of the library in a vanilla JS project.
+- [] add a `README.md` file to the `dist-js` folder to explain how to use the library in a vanilla JS project.
+
+refs:  
+- https://stackoverflow.com/questions/75832641/how-to-compile-svelte-3-components-into-iifes-that-can-be-used-in-vanilla-js/75895650#75895650
+- https://svelte.dev/docs/svelte/imperative-component-api
 
 ## Publishing
 
