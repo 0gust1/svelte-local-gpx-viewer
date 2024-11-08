@@ -18,8 +18,16 @@
 <label for="gpx_route_files" class="drop-zone" ondrop={handleDrop} ondragover={handleDragover}>
 	<span class="drop-zone_text">Drop your GPX files here</span>
 	or
-	<input id="gpx_route_files" bind:this={inputElmt} type="file" bind:files multiple accept=".gpx"
-	class="flex flex-wrap" />
+	<input
+		id="gpx_route_files"
+		bind:this={inputElmt}
+		type="file"
+		bind:files
+		multiple
+		accept=".gpx"
+		class=""
+	/>
+	<p class="text-xs text-slate-500">(Data will stay on your computer)</p>
 </label>
 
 {#if files}
@@ -45,17 +53,18 @@
 		@apply border bg-slate-200 px-1;
 	}
 	.drop-zone {
-		@apply border-2 border-dashed rounded-lg bg-transparent;
+		@apply rounded-lg border-2 border-dashed bg-transparent;
 		@apply h-32;
-		@apply flex flex-col justify-center items-center;
+		@apply flex flex-col items-center justify-center;
+		@apply text-slate-500 text-center;
 	}
 	.drop-zone:hover {
 		@apply border-slate-300 bg-slate-100;
 	}
-	.drop-zone input[type=file]{
-		@apply max-w-full w-11/12 bg-slate-200 p-3 text-slate-500;	
-		}
-		.drop-zone .drop-zone_text {
-		@apply text-lg font-semibold;
-		}
+	.drop-zone input[type='file'] {
+		@apply w-11/12 max-w-full bg-slate-200 p-3 text-xs text-slate-500;
+	}
+	.drop-zone .drop-zone_text {
+		@apply text-lg font-semibold sm:text-base;
+	}
 </style>

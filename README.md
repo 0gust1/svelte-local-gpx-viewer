@@ -6,9 +6,6 @@ local-first database is powered by Dexie.
 
 gpx route display is powered by maplibre (and the svelte-maplibre wrapper).
 
-
-[dataflow](https://raw.githubusercontent.com/0gust1/svelte-local-gpx-viewer/refs/heads/main/dataflow.svg)
-
 ## Using the components in a Svelte/Sveltekit project
 
 TODO
@@ -46,7 +43,6 @@ npm run build
 
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
 ### Vanilla JS
 

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { liveQuery } from 'dexie';
-	import { db, type GeoJSONRoute } from '$lib/db';
+	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
 
-	let geoJSONRoutes = liveQuery(() => db.geoJSONRoutes.toArray());
+	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray());
 
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);
@@ -14,8 +14,8 @@
 	async function switchVisibility(id: number, visibility: boolean) {
 		await db.geoJSONRoutes.update(id, { visible: visibility });
 	}
-	async function downloadGPX(id:number){
-		const route:GeoJSONRoute = await db.geoJSONRoutes.get(id);
+	async function downloadGPX(id: number) {
+		const route: LocalGeoJSONRouteEntity = await db.geoJSONRoutes.get(id);
 		const gpxData = route.originalGPXData;
 		const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
 		const url = URL.createObjectURL(blob);
@@ -25,8 +25,8 @@
 		a.click();
 		URL.revokeObjectURL(url);
 	}
-	async function downloadGeoJSON(id:number){
-		const route:GeoJSONRoute = await db.geoJSONRoutes.get(id);
+	async function downloadGeoJSON(id: number) {
+		const route: LocalGeoJSONRouteEntity = await db.geoJSONRoutes.get(id);
 		const geoJSONData = JSON.stringify(route.data);
 		const blob = new Blob([geoJSONData], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
@@ -51,7 +51,7 @@
 	</ul>
 </div>
 
-{#snippet routeItem(route: GeoJSONRoute)}
+{#snippet routeItem(route: LocalGeoJSONRouteEntity)}
 	<div class="routes-list-item {route.visible ? '' : 'bg-opacity-50'}">
 		<div class="button-set-1">
 			<button
@@ -59,7 +59,7 @@
 				onclick={() => {
 					deleteRoute(route.id);
 				}}
-				class="text-red-500/60 font-bold">X</button
+				class="font-bold text-red-500/60">X</button
 			>
 			<button
 				type="button"
@@ -80,8 +80,18 @@
 			</div>
 		</div>
 		<div class="button-set-2">
-			<button type="button" onclick={()=>{downloadGPX(route.id)}}>↓&nbsp;gpx</button>
-			<button type="button" onclick={()=>{downloadGeoJSON(route.id)}}>↓&nbsp;geojson</button>
+			<button
+				type="button"
+				onclick={() => {
+					downloadGPX(route.id);
+				}}>↓&nbsp;gpx</button
+			>
+			<button
+				type="button"
+				onclick={() => {
+					downloadGeoJSON(route.id);
+				}}>↓&nbsp;geojson</button
+			>
 		</div>
 	</div>
 {/snippet}
@@ -90,7 +100,7 @@
 	.routes-list-container {
 		@applyp font-normal flex;
 	}
-	.routes-list{
+	.routes-list {
 		@apply flex flex-col gap-0.5;
 	}
 	.routes-list-container-title {
@@ -109,14 +119,14 @@
 	.routes-list-item .button-set-1 {
 		@apply flex items-center gap-0.5;
 		button {
-			@apply border border-slate-200 rounded-md w-7 px-1;
+			@apply w-7 rounded-md border border-slate-200 px-1;
 		}
-		button:hover{
+		button:hover {
 			@apply bg-white;
 		}
 	}
 	.routes-list-item .button-set-2 {
-		@apply ml-auto flex grow-0 flex-col items-end gap-1 text-xs my-1;
+		@apply my-1 ml-auto flex grow-0 flex-col items-end gap-1 text-xs;
 		button {
 			@apply w-full border border-slate-200 bg-blue-400 bg-opacity-20 px-1 text-left;
 		}

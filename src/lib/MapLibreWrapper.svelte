@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { MapLibre } from 'svelte-maplibre';
 	import { liveQuery } from 'dexie';
-	import { db } from '$lib/db';
-	import RoutesViewer from '$lib/MapLibreRoutes.svelte';
+	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
 	
-	let geoJSONRoutes = liveQuery(() => db.geoJSONRoutes.toArray())
+	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray())
 
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Upload from '$lib/Upload.svelte';
-	import { db } from '$lib/db';
+	import { db } from '$lib/localDB';
 	import { length } from '@turf/turf';
 	import { gpx } from '@tmcw/togeojson';
-	import type { FeatureCollection, Feature, Geometry, GeoJsonProperties } from 'geojson';
+	import type { Feature } from 'geojson';
 
 	let files = $state<FileList | null>(null);
 
