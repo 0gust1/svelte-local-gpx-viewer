@@ -6,6 +6,10 @@ local-first database is powered by Dexie.
 
 gpx route display is powered by maplibre (and the svelte-maplibre wrapper).
 
+<picture>
+  <img src="static/dataflow.excalidraw.svg">
+</picture>
+
 ## Using the components in a Svelte/Sveltekit project
 
 TODO
