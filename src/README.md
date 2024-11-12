@@ -1,6 +1,16 @@
 ## Documentation
 
-This lib exposes a few components to load GPX routes files (local first, persisted in browser's indexedDB) and display them.
+This lib exposes a few svelte components to: 
+
+- load GPX/GeoJson routes files (local first, persisted in browser's indexedDB)
+- list the loaded routes (and hide/show, delete them)
+- display the routes on a map (using svelte-maplibre)
+
+See the demo above for a quick overview.
+
+This can be handy for hikers, bikepackers, travellers, outdoor enthusiasts or if you want to build an app for these users.
+
+### Components and Dataflow
 
 <img src="dataflow.excalidraw.svg">
 

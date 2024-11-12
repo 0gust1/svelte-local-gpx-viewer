@@ -6,7 +6,10 @@
 </script>
 
 <header class="site-header">
-	<h1 class="title">Svelte local gpx viewer</h1>
+	<h1 class="title">
+		<span>Svelte local gpx viewer</span>
+		<p>A small local-first GPX / geoJSON viewer</p>
+	</h1>
 	<a class="github-link" href="https://github.com/0gust1/svelte-local-gpx-viewer">
 		<svg viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"
 			><path
@@ -30,7 +33,13 @@
 		@apply flex items-center;
 	}
 	.title {
-		@apply text-2xl font-light text-stone-600;
+		@apply font-light text-stone-600;
+		span{
+			@apply text-2xl;
+		}
+		p{
+			@apply text-xs text-stone-500 mb-2;
+		}
 	}
 	.github-link {
 		@apply ml-auto flex items-center justify-center fill-stone-500 pr-2;

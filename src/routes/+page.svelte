@@ -6,7 +6,7 @@
 </script>
 
 
-<h2 class="text-2xl font-bold mb-6">Demo</h2>
+<h2 class="text-2xl font-bold mb-4">Demo</h2>
 <div class="flex w-full gap-3 flex-col sm:flex-row">
 	<div class="">
 		<GpxLoad />

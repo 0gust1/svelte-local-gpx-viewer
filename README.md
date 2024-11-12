@@ -2,9 +2,8 @@
 
 A small collection of Svelte components to load GPX files (local first, persisted in browser's indexedDB) and display them.
 
-local-first database is powered by Dexie.
-
-gpx route display is powered by maplibre (and the svelte-maplibre wrapper).
+- Local-first database is powered by [Dexie.js](https://dexie.org/).
+- Route and map display is powered by maplibre (and the [svelte-maplibre wrapper library](https://github.com/dimfeld/svelte-maplibre)).
 
 <picture>
   <img src="static/dataflow.excalidraw.svg">
@@ -12,7 +11,7 @@ gpx route display is powered by maplibre (and the svelte-maplibre wrapper).
 
 ## Using the components in a Svelte/Sveltekit project
 
-TODO
+See Documentation website: [https://0gust1.github.io/svelte-local-gpx-viewer/](https://0gust1.github.io/svelte-local-gpx-viewer/)
 
 ## Using the components in pure JS
 
@@ -46,7 +45,6 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
 
 ### Vanilla JS
 
