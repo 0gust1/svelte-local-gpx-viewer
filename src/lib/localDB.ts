@@ -9,7 +9,8 @@ interface LocalGeoJSONRouteEntity {
 	length?: number;
 	elevation?: { positive: number; negative: number };
 	visible?: boolean;
-	originalGPXData: string;
+	originalGPXData?: string;
+	color?: string;
 }
 
 const db = new Dexie('RoutesDatabase') as Dexietype & {

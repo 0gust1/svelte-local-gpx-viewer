@@ -28,6 +28,16 @@
 		}
 	}
 
+	function getRandomColor() {
+    // Generate random values for red, green, and blue within a range to avoid too light colors
+    const r = Math.floor(Math.random() * 156); // 0-155
+    const g = Math.floor(Math.random() * 130); // 0-155
+    const b = Math.floor(Math.random() * 156); // 0-155
+
+    // Convert to hexadecimal and return the color string
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
 	async function addToGeoJSONRoutes(files: FileList) {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
@@ -46,7 +56,9 @@
 					length: routeLength,
 					elevation,
 					visible: true,
-					originalGPXData: text
+					originalGPXData: text,
+					// add a nice color to the route
+					color: getRandomColor(),
 				});
 			} catch (error) {
 				console.error('error', error);

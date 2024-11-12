@@ -3,7 +3,7 @@
 	import { liveQuery } from 'dexie';
 	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
-	
+
 	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray())
 
 </script>
@@ -14,6 +14,12 @@
 	class="map"
 	standardControls
 	style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+	images={[
+		{
+			id: 'arrow_sm',
+			url: './arrow_sm.png'
+		},
+	]}
 >
 	{#if $geoJSONRoutes}
 		<RoutesViewer geoJSONRoutes={$geoJSONRoutes} />
