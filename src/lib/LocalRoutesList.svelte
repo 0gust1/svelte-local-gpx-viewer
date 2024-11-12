@@ -4,6 +4,8 @@
 
 	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray());
 
+	let routeListElem: HTMLDivElement;
+	
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);
 		return Math.round(value * multiplier) / multiplier;
@@ -36,9 +38,41 @@
 		a.click();
 		URL.revokeObjectURL(url);
 	}
+
+	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
+		const menu = event?.currentTarget?.nextElementSibling as HTMLElement;
+		// hide all other menus
+		routeListElem.querySelectorAll('.menu').forEach((menu) => {
+			menu.style.visibility = 'hidden';
+		});
+		menu.style.visibility = 'visible';
+		menu.focus();
+	} 
+
+	function handleMenuKeyDown(event: KeyboardEvent) {
+		const menu = event.currentTarget as HTMLElement;
+		const menuItems = Array.from(menu.querySelectorAll('button'));
+		let focusedIndex = menuItems.indexOf(document.activeElement as HTMLButtonElement);
+    if (event.key === "ArrowDown") {
+      focusedIndex = (focusedIndex + 1) % menuItems.length;
+      menuItems[focusedIndex].focus();
+    } else if (event.key === "ArrowUp") {
+      focusedIndex = (focusedIndex - 1 + menuItems.length) % menuItems.length;
+      menuItems[focusedIndex].focus();
+    } else if (event.key === "Enter" && focusedIndex >= 0) {
+      menuItems[focusedIndex].click();
+    }
+  }
+
+	function handleMenuFocusOut(event: FocusEvent) {
+		// if focus is outside the menu (or its subelements), hide it
+		if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+			event.currentTarget.style.visibility = 'hidden';
+		}
+	}
 </script>
 
-<div class="routes-list-container">
+<div class="routes-list-container" bind:this={routeListElem}>
 	<p class="routes-list-container-title">
 		Locally saved routes: ({$geoJSONRoutes ? $geoJSONRoutes.length : 0})
 	</p>
@@ -80,19 +114,38 @@
 			</div>
 		</div>
 		<div class="button-set-2">
-			<button
-				type="button"
-				onclick={() => {
-					downloadGPX(route.id);
-				}}>↓&nbsp;gpx</button
-			>
-			<button
-				type="button"
-				onclick={() => {
-					downloadGeoJSON(route.id);
-				}}>↓&nbsp;geojson</button
-			>
+			<button type="button" class="menu-btn" aria-haspopup="menu" onclick={handleMenuTrigger} onkeydown={handleMenuTrigger}> &hellip;</button>
+			{@render contextMenu(route)}
 		</div>
+	</div>
+{/snippet}
+
+{#snippet contextMenu(route: LocalGeoJSONRouteEntity)}
+	<div class="menu" role="menu" onkeydown={handleMenuKeyDown} onfocusout={handleMenuFocusOut} tabindex="0">
+		<ul class="">
+			{#if route.originalGPXData}
+				<li>
+					<button
+						role="menuitem"
+						type="button"
+						title="Download GPX file"
+						onclick={() => {
+							downloadGPX(route.id);
+						}}>↓&nbsp;gpx</button
+					>
+				</li>
+			{/if}
+			<li>
+				<button
+					role="menuitem"
+					type="button"
+					title="Download GeoJSON file"
+					onclick={() => {
+						downloadGeoJSON(route.id);
+					}}>↓&nbsp;geojson</button
+				>
+			</li>
+		</ul>
 	</div>
 {/snippet}
 
@@ -126,9 +179,22 @@
 		}
 	}
 	.routes-list-item .button-set-2 {
-		@apply my-1 ml-auto flex grow-0 flex-col items-end gap-1 text-xs;
-		button {
-			@apply w-full border border-slate-200 bg-blue-400 bg-opacity-20 px-1 text-left;
+		@apply my-1 ml-auto flex grow-0 flex-col items-end gap-1;
+		@apply relative;
+		.menu {
+			visibility: hidden;
+			@apply absolute bottom-0 right-6;
+			@apply bg-blue-100 text-xs shadow;
+		}
+		.menu-btn {
+			@apply mr-2 text-xl text-slate-500;
+		}
+		/* .menu-btn + .menu:active,
+		.menu-btn:focus + .menu {
+			visibility: visible;
+		} */
+		.menu button {
+			@apply w-full text-left hover:bg-slate-50/70 p-1;
 		}
 	}
 </style>
