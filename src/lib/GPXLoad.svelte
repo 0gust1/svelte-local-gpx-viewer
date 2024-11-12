@@ -29,14 +29,14 @@
 	}
 
 	function getRandomColor() {
-    // Generate random values for red, green, and blue within a range to avoid too light colors
-    const r = Math.floor(Math.random() * 156); // 0-155
-    const g = Math.floor(Math.random() * 130); // 0-155
-    const b = Math.floor(Math.random() * 156); // 0-155
+		// Generate random values for red, green, and blue within a range to avoid too light colors
+		const r = Math.floor(Math.random() * 156); // 0-155
+		const g = Math.floor(Math.random() * 130); // 0-155
+		const b = Math.floor(Math.random() * 156); // 0-155
 
-    // Convert to hexadecimal and return the color string
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
+		// Convert to hexadecimal and return the color string
+		return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+	}
 
 	async function addToGeoJSONRoutes(files: FileList) {
 		for (let i = 0; i < files.length; i++) {
@@ -44,8 +44,16 @@
 			let text = await file.text();
 
 			try {
-				const gpxData = new DOMParser().parseFromString(text, 'text/xml');
-				const geojson = gpx(gpxData);
+				// if file extension is GPX
+				let geojson = null;
+				const isGPX = file.name.split('.').pop() === 'gpx';
+				
+				if (isGPX) {
+					const gpxData = new DOMParser().parseFromString(text, 'text/xml');
+					geojson = gpx(gpxData);
+				} else {
+					geojson = JSON.parse(text);
+				}
 				// calculate the length of the route
 				const routeLength = length(geojson.features[0], { units: 'kilometers' });
 				const elevation = calculateElevation(geojson.features[0]);
@@ -56,9 +64,9 @@
 					length: routeLength,
 					elevation,
 					visible: true,
-					originalGPXData: text,
+					originalGPXData: isGPX?text:null,
 					// add a nice color to the route
-					color: getRandomColor(),
+					color: getRandomColor()
 				});
 			} catch (error) {
 				console.error('error', error);
