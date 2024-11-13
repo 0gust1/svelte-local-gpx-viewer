@@ -18,11 +18,15 @@ This can be handy for hikers, bikepackers, travellers, outdoor enthusiasts or if
 
 #### Installation
 
-Npm install the package, via the github repository (package is not published on npm yet).
+Npm install the package
 
 TODO: install from github won't give build artifacts, so the user will have to build the lib themselves.
 
 ```bash
+# via npm registry
+npm install svelte-local-gpx-viewer
+
+# via github repo (no build artifacts, you'll have to build the lib yourself)
 npm install 0gust1/svelte-local-gpx-viewer
 ```
 
