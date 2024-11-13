@@ -4,6 +4,7 @@ A small collection of Svelte components to load GPX files (local first, persiste
 
 - Local-first database is powered by [Dexie.js](https://dexie.org/).
 - Route and map display is powered by maplibre (and the [svelte-maplibre wrapper library](https://github.com/dimfeld/svelte-maplibre)).
+- Svelte v5
 
 <picture>
   <img src="static/dataflow.excalidraw.svg">
