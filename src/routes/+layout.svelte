@@ -34,11 +34,11 @@
 	}
 	.title {
 		@apply font-light text-stone-600;
-		span{
+		span {
 			@apply text-2xl;
 		}
-		p{
-			@apply text-xs text-stone-500 mb-2;
+		p {
+			@apply mb-2 text-xs text-stone-500;
 		}
 	}
 	.github-link {

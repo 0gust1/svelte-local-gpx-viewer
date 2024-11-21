@@ -62,6 +62,6 @@
 		@apply w-11/12 max-w-full bg-slate-200 p-3 text-xs text-slate-500;
 	}
 	.drop-zone .drop-zone_text {
-		@apply text-lg font-semibold sm:text-base px-2;
+		@apply px-2 text-lg font-semibold sm:text-base;
 	}
 </style>
