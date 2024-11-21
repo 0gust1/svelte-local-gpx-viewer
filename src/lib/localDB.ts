@@ -1,6 +1,7 @@
 // db.ts
 import Dexie, { type EntityTable,type Dexie as Dexietype } from 'dexie';
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
+import { liveQuery } from 'dexie';
 
 interface LocalGeoJSONRouteEntity {
 	id?: number;
@@ -21,5 +22,7 @@ db.version(2).stores({
 	geoJSONRoutes: '++id, name, data, length, elevation, visible'
 });
 
-export { db };
+const liveGeoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity[]>(async() => await db.geoJSONRoutes.toArray())
+
+export { db, liveGeoJSONRoutes };
 export type { LocalGeoJSONRouteEntity };

@@ -5,4 +5,5 @@ export { default as MapLibreLocalRoutes } from './MapLibreLocalRoutes.svelte';
 export { default as MapLibreWrapper } from './MapLibreWrapper.svelte';
 
 export { db } from './localDB';
+export { liveGeoJSONRoutes } from './localDB';
 export type { LocalGeoJSONRouteEntity } from './localDB';
