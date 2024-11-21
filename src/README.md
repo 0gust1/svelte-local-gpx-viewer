@@ -67,7 +67,11 @@ If you don't want to use the MapLibreWrapper component, you can use the store ex
 <ul>
 {#each ($liveGeoJSONRoutes || []) as route (route.id)}
   <li>
-    {route.name}
+    <p>{route.name}</p>
+    <details>
+      <summary>Route GeoJSON</summary>
+      <pre>{JSON.stringify(route.data, null, 2)}</pre>
+    </details>
   </li>
 {/each}
 </ul>
