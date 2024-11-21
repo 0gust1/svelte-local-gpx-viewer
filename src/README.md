@@ -1,10 +1,16 @@
 ## Documentation
 
-This lib exposes a few svelte components to: 
+This lib exposes
 
+**Svelte Components:**  
 - load GPX/GeoJson routes files (local first, persisted in browser's indexedDB)
 - list the loaded routes (and hide/show, delete them)
 - display the routes on a map (using svelte-maplibre)
+
+**Lib:**  
+- a Dexie database wrapper with a table for the routes
+- a store (Dexie's liveQuery) exposing reactive data for the routes
+- a TS type for the routes
 
 See the demo above for a quick overview.
 
@@ -12,15 +18,12 @@ This can be handy for hikers, bikepackers, travellers, outdoor enthusiasts or if
 
 ### Components and Dataflow
 
-<img src="dataflow.excalidraw.svg">
+<img alt="dataflow of the components" src="dataflow.excalidraw.svg">
 
-### Usage
-
-#### Installation
+### Installation
 
 Npm install the package
 
-TODO: install from github won't give build artifacts, so the user will have to build the lib themselves.
 
 ```bash
 # via npm registry
@@ -30,8 +33,9 @@ npm install svelte-local-gpx-viewer
 npm install 0gust1/svelte-local-gpx-viewer
 ```
 
-#### Svelte/Sveltekit
+### Usage with Svelte/Sveltekit
 
+All the components:
 ```html
 <script lang="ts">
   import { GpxLoad, LocalRoutesList, MapLibreWrapper } from 'svelte-local-gpx-viewer';
@@ -51,7 +55,25 @@ npm install 0gust1/svelte-local-gpx-viewer
 </div>
 ```
 
-#### Vanilla JS
+If you don't want to use the MapLibreWrapper component, you can use the store exposed by the lib to get the routes and display them on your own map component.
+
+```html
+<script lang="ts">
+  // import the store, it will be populated with the routes
+  import {liveGeoJSONRoutes} from 'svelte-local-gpx-viewer';
+</script>
+
+<!-- Use the store in your app -->
+<ul>
+{#each ($liveGeoJSONRoutes || []) as route (route.id)}
+  <li>
+    {route.name}
+  </li>
+{/each}
+</ul>
+```
+
+### Usage with Vanilla JS
 
 TODO: test case to write and document
 
