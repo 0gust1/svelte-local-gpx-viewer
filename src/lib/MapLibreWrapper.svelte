@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { MapLibre } from 'svelte-maplibre';
-	import { liveQuery } from 'dexie';
-	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import { liveGeoJSONRoutes } from '$lib/localDB';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
-
-	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray())
-
 </script>
 
 <MapLibre
@@ -18,14 +14,10 @@
 		{
 			id: 'arrow_sm',
 			url: './arrow_sm.png'
-		},
+		}
 	]}
 >
-	{#if $geoJSONRoutes}
-		<RoutesViewer geoJSONRoutes={$geoJSONRoutes} />
-	{:else}
-		<p>Loading...</p>
-	{/if}
+	<RoutesViewer geoJSONRoutes={$liveGeoJSONRoutes || []} />
 </MapLibre>
 
 <style>

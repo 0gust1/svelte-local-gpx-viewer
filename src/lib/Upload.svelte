@@ -49,9 +49,6 @@
 {/if}
 
 <style lang="postcss">
-	button {
-		@apply border bg-slate-200 px-1;
-	}
 	.drop-zone {
 		@apply rounded-lg border-2 border-dashed bg-transparent;
 		@apply h-32;

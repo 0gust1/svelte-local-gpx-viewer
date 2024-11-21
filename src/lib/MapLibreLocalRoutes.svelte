@@ -31,7 +31,7 @@
 
 	$effect(() => {
 		if ($map) {
-			console.log('bounding box', boundingBox);
+			// console.log('bounding box', boundingBox);
 			// test if bounding box is correct (array of numbers), because bbox can return [Infinity, Infinity, -Infinity, -Infinity]
 			if (boundingBox && boundingBox.every((coord) => Number.isFinite(coord))) {
 				$map.fitBounds(boundingBox, {

@@ -49,6 +49,5 @@
 	}
 	svg {
 		@apply block h-10 w-10;
-		@apply group-hover:fill-indigo-100;
 	}
 </style>
