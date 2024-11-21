@@ -11,12 +11,15 @@
 	// https://openfreemap.org/quick_start/
 	const stylesList = [
 		{ name: 'positron', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' },
-		{name:"osm-liberty 3d (openfreemap)", style:'https://tiles.openfreemap.org/styles/liberty'},
+		{ name: 'osm-liberty 3d (openfreemap)', style: 'https://tiles.openfreemap.org/styles/liberty' },
 		{
 			name: 'osm-liberty-hills (netsym.net)',
 			style: 'https://maps.netsyms.net/styles/osm-liberty-hillshading/style.json'
 		},
-		{name:"klokantech-freehills (netsym.net)", style:'https://maps.netsyms.net/styles/klokantech-terrain-freehills/style.json'},
+		{
+			name: 'klokantech-freehills (netsym.net)',
+			style: 'https://maps.netsyms.net/styles/klokantech-terrain-freehills/style.json'
+		},
 		{
 			name: 'klokantech 3d (netsym.net)',
 			style: 'https://maps.netsyms.net/styles/klokantech-3d/style.json'
@@ -59,7 +62,7 @@
 </div>
 
 <div class="mx-auto mt-3 w-10/12 border">
-	<div class="p-1 text-sm flex gap-1 items-center align-middle">
+	<div class="flex items-center gap-1 p-1 align-middle text-sm">
 		<label for="map-style">Select Map Style:</label>
 		<select id="map-style" bind:value={selectedStyle} class="p-1">
 			{#each stylesList as style}
@@ -67,11 +70,10 @@
 			{/each}
 		</select>
 
-			<label for="map-pitch">Pitch: {pitch}</label>
-			<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch}>
-
+		<label for="map-pitch">Pitch: {pitch}</label>
+		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
 	</div>
-	<MapLibreWrapper mapStyle={selectedStyle} pitch={pitch} />
+	<MapLibreWrapper mapStyle={selectedStyle} {pitch} />
 </div>
 
 <div class="prose mx-auto mt-6">

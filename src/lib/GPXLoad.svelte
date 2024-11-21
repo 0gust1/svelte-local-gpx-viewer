@@ -47,7 +47,7 @@
 				// if file extension is GPX
 				let geojson = null;
 				const isGPX = file.name.split('.').pop() === 'gpx';
-				
+
 				if (isGPX) {
 					const gpxData = new DOMParser().parseFromString(text, 'text/xml');
 					geojson = gpx(gpxData);
@@ -64,7 +64,7 @@
 					length: routeLength,
 					elevation,
 					visible: true,
-					originalGPXData: isGPX?text:null,
+					originalGPXData: isGPX ? text : null,
 					// add a nice color to the route
 					color: getRandomColor()
 				});

@@ -17,7 +17,7 @@
 	center={[50, 20]}
 	zoom={7}
 	class="map"
-	pitch={pitch}
+	{pitch}
 	standardControls
 	style={mapStyle}
 	images={[

@@ -5,7 +5,7 @@
 	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray());
 
 	let routeListElem: HTMLDivElement;
-	
+
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);
 		return Math.round(value * multiplier) / multiplier;
@@ -47,22 +47,22 @@
 		});
 		menu.style.visibility = 'visible';
 		menu.focus();
-	} 
+	}
 
 	function handleMenuKeyDown(event: KeyboardEvent) {
 		const menu = event.currentTarget as HTMLElement;
 		const menuItems = Array.from(menu.querySelectorAll('button'));
 		let focusedIndex = menuItems.indexOf(document.activeElement as HTMLButtonElement);
-    if (event.key === "ArrowDown") {
-      focusedIndex = (focusedIndex + 1) % menuItems.length;
-      menuItems[focusedIndex].focus();
-    } else if (event.key === "ArrowUp") {
-      focusedIndex = (focusedIndex - 1 + menuItems.length) % menuItems.length;
-      menuItems[focusedIndex].focus();
-    } else if (event.key === "Enter" && focusedIndex >= 0) {
-      menuItems[focusedIndex].click();
-    }
-  }
+		if (event.key === 'ArrowDown') {
+			focusedIndex = (focusedIndex + 1) % menuItems.length;
+			menuItems[focusedIndex].focus();
+		} else if (event.key === 'ArrowUp') {
+			focusedIndex = (focusedIndex - 1 + menuItems.length) % menuItems.length;
+			menuItems[focusedIndex].focus();
+		} else if (event.key === 'Enter' && focusedIndex >= 0) {
+			menuItems[focusedIndex].click();
+		}
+	}
 
 	function handleMenuFocusOut(event: FocusEvent) {
 		// if focus is outside the menu (or its subelements), hide it
@@ -114,14 +114,28 @@
 			</div>
 		</div>
 		<div class="button-set-2">
-			<button type="button" class="menu-btn" aria-haspopup="menu" onclick={handleMenuTrigger} onkeydown={handleMenuTrigger}> &hellip;</button>
+			<button
+				type="button"
+				class="menu-btn"
+				aria-haspopup="menu"
+				onclick={handleMenuTrigger}
+				onkeydown={handleMenuTrigger}
+			>
+				&hellip;</button
+			>
 			{@render contextMenu(route)}
 		</div>
 	</div>
 {/snippet}
 
 {#snippet contextMenu(route: LocalGeoJSONRouteEntity)}
-	<div class="menu" role="menu" onkeydown={handleMenuKeyDown} onfocusout={handleMenuFocusOut} tabindex="0">
+	<div
+		class="menu"
+		role="menu"
+		onkeydown={handleMenuKeyDown}
+		onfocusout={handleMenuFocusOut}
+		tabindex="0"
+	>
 		<ul class="">
 			{#if route.originalGPXData}
 				<li>
@@ -194,7 +208,7 @@
 			visibility: visible;
 		} */
 		.menu button {
-			@apply w-full text-left hover:bg-slate-50/70 p-1;
+			@apply w-full p-1 text-left hover:bg-slate-50/70;
 		}
 	}
 </style>

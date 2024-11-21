@@ -1,10 +1,5 @@
 <script lang="ts">
-	import {
-		GeoJSON,
-		LineLayer,
-		mapContext,
-		SymbolLayer
-	} from 'svelte-maplibre';
+	import { GeoJSON, LineLayer, mapContext, SymbolLayer } from 'svelte-maplibre';
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import bbox from '@turf/bbox';
 
@@ -53,7 +48,7 @@
 							'line-join': 'round'
 						}}
 						paint={{
-							'line-color': route.color?? '#3887be',
+							'line-color': route.color ?? '#3887be',
 							'line-width': 5,
 							'line-opacity': 0.7
 						}}
