@@ -7,15 +7,18 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+		// App version
+		
 	}
+	declare const __APP_VERSION__: string;
 }
 
 export {};
 
 declare module '*.md' {
-	import type { SvelteComponent } from 'svelte'
+	import type { SvelteComponent } from 'svelte';
 
-	export default class Comp extends SvelteComponent{}
+	export default class Comp extends SvelteComponent {}
 
-	export const metadata: Record<string, unknown>
+	export const metadata: Record<string, unknown>;
 }

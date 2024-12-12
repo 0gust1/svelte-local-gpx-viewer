@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n';
+	import { version } from '$app/environment';
 	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import '../app.css';
 	let { children } = $props();
@@ -7,7 +8,7 @@
 
 <header class="site-header">
 	<h1 class="title">
-		<span>Svelte local gpx viewer</span>
+		<span>Svelte local gpx viewer</span><span class="version">({__APP_VERSION__}-{version})</span>
 		<p>A small local-first GPX / geoJSON routes viewer</p>
 	</h1>
 	<a class="github-link" href="https://github.com/0gust1/svelte-local-gpx-viewer">
@@ -36,6 +37,9 @@
 		@apply font-light text-stone-600;
 		span {
 			@apply text-2xl;
+		}
+		.version {
+			@apply text-xs text-stone-500 ml-2;
 		}
 		p {
 			@apply mb-2 text-xs text-stone-500;

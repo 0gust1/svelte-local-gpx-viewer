@@ -22,7 +22,7 @@ const config = {
 			showToggleButton: 'always',
 			toggleButtonPos: 'bottom-right'
 		}
-	},
+	}
 };
 
 export default config;
