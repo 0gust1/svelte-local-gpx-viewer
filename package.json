@@ -1,6 +1,6 @@
 {
 	"name": "svelte-local-gpx-viewer",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",
@@ -70,6 +70,6 @@
 		"@tmcw/togeojson": "^6.0.0",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
-		"svelte-maplibre": "^0.9.14"
+		"svelte-maplibre": "^1.0.0-next.8"
 	}
 }

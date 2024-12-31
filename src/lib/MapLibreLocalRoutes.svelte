@@ -1,9 +1,14 @@
 <script lang="ts">
-	import { GeoJSON, LineLayer, mapContext, SymbolLayer } from 'svelte-maplibre';
+	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import bbox from '@turf/bbox';
+	import { onDestroy } from 'svelte';
 
-	let { geoJSONRoutes }: { geoJSONRoutes: Array<LocalGeoJSONRouteEntity> } = $props();
+	interface Props {
+		geoJSONRoutes: Array<LocalGeoJSONRouteEntity>;
+	}
+
+	let { geoJSONRoutes }: Props = $props();
 
 	let boundingBox = $derived.by(() => {
 		let allFeatures = geoJSONRoutes
@@ -22,17 +27,29 @@
 		}
 	});
 
-	let { map } = mapContext();
+	const { map, loaded } = $derived(getMapContext());
+
+	//let { map } = MapContext();
 
 	$effect(() => {
-		if ($map) {
+		if (map) {
 			// console.log('bounding box', boundingBox);
 			// test if bounding box is correct (array of numbers), because bbox can return [Infinity, Infinity, -Infinity, -Infinity]
 			if (boundingBox && boundingBox.every((coord) => Number.isFinite(coord))) {
-				$map.fitBounds(boundingBox, {
+				map.fitBounds(boundingBox, {
 					padding: 40
 				});
 			}
+		}
+	});
+
+	onDestroy(() => {
+		// unsure id this is useful
+		if (loaded && geoJSONRoutes.length === 0) {
+			map.fitBounds([
+				[0, 0],
+				[0, 0]
+			]);
 		}
 	});
 </script>
