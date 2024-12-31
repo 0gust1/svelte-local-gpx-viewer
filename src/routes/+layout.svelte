@@ -39,7 +39,7 @@
 			@apply text-2xl;
 		}
 		.version {
-			@apply text-xs text-stone-500 ml-2;
+			@apply ml-2 text-xs text-stone-500;
 		}
 		p {
 			@apply mb-2 text-xs text-stone-500;

@@ -17,7 +17,7 @@ export default defineConfig({
 		})
 	],
 	define: {
-		'__APP_VERSION__': JSON.stringify(pkg.version)
+		__APP_VERSION__: JSON.stringify(pkg.version)
 	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']

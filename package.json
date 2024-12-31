@@ -1,6 +1,15 @@
 {
 	"name": "svelte-local-gpx-viewer",
 	"version": "0.0.6",
+	"description": "Local-first GPX routes viewer. Svelte-based components. Useable in Svelte projects and standalone (vanilla JS).",
+	"keywords": [
+		"GPX",
+		"Svelte",
+		"maplibre",
+		"local-first",
+		"indexedDB"
+	],
+	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",

@@ -2,12 +2,14 @@
 
 This lib exposes
 
-**Svelte Components:**  
-- load GPX/GeoJson routes files (local first, persisted in browser's indexedDB)
+**Svelte Components:**
+
+- load GPX/GeoJson routes files (**local first, persisted in browser's indexedDB**)
 - list the loaded routes (and hide/show, delete them)
 - display the routes on a map (using svelte-maplibre)
 
-**Lib:**  
+**Lib:**
+
 - a Dexie database wrapper with a table for the routes
 - a store (Dexie's liveQuery) exposing reactive data for the routes
 - a TS type for the routes
@@ -24,7 +26,6 @@ This can be handy for hikers, bikepackers, travellers, outdoor enthusiasts or if
 
 Npm install the package
 
-
 ```bash
 # via npm registry
 npm install svelte-local-gpx-viewer
@@ -36,22 +37,23 @@ npm install 0gust1/svelte-local-gpx-viewer
 ### Usage with Svelte/Sveltekit
 
 All the components:
+
 ```html
 <script lang="ts">
-  import { GpxLoad, LocalRoutesList, MapLibreWrapper } from 'svelte-local-gpx-viewer';
+	import { GpxLoad, LocalRoutesList, MapLibreWrapper } from 'svelte-local-gpx-viewer';
 </script>
 
 <div>
-  <div>
-    <GpxLoad />
-  </div>
-  <div>
-    <LocalRoutesList />
-  </div>
+	<div>
+		<GpxLoad />
+	</div>
+	<div>
+		<LocalRoutesList />
+	</div>
 </div>
 
 <div>
-  <MapLibreWrapper />
+	<MapLibreWrapper />
 </div>
 ```
 
@@ -59,25 +61,24 @@ If you don't want to use the MapLibreWrapper component, you can use the store ex
 
 ```html
 <script lang="ts">
-  // import the store, it will be populated with the routes
-  import {liveGeoJSONRoutes} from 'svelte-local-gpx-viewer';
+	// import the store, it will be populated with the routes
+	import { liveGeoJSONRoutes } from 'svelte-local-gpx-viewer';
 </script>
 
 <!-- Use the store in your app -->
 <ul>
-{#each ($liveGeoJSONRoutes || []) as route (route.id)}
-  <li>
-    <p>{route.name}</p>
-    <details>
-      <summary>Route GeoJSON</summary>
-      <pre>{JSON.stringify(route.data, null, 2)}</pre>
-    </details>
-  </li>
-{/each}
+	{#each ($liveGeoJSONRoutes || []) as route (route.id)}
+	<li>
+		<p>{route.name}</p>
+		<details>
+			<summary>Route GeoJSON</summary>
+			<pre>{JSON.stringify(route.data, null, 2)}</pre>
+		</details>
+	</li>
+	{/each}
 </ul>
 ```
 
 ### Usage with Vanilla JS
 
 TODO: test case to write and document
-
