@@ -62,7 +62,7 @@
 </div>
 
 <div class="mx-auto mt-3 w-10/12 border">
-	<div class="flex items-center gap-1 p-1 align-middle text-sm">
+	<div class="grid sm:grid-flow-col items-center gap-1 p-1 align-middle text-xs">
 		<label for="map-style">Select Map Style:</label>
 		<select id="map-style" bind:value={selectedStyle} class="p-1">
 			{#each stylesList as style}
@@ -70,7 +70,7 @@
 			{/each}
 		</select>
 
-		<label for="map-pitch">Pitch: {pitch}</label>
+		<label for="map-pitch">Map perspective (pitch): {pitch}</label>
 		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
 	</div>
 	<MapLibreWrapper mapStyle={selectedStyle} {pitch} />
