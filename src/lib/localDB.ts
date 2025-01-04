@@ -3,6 +3,8 @@ import Dexie, { type EntityTable, type Dexie as Dexietype } from 'dexie';
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 import { liveQuery } from 'dexie';
 
+import { openDB, deleteDB, wrap, unwrap } from 'idb';
+
 interface LocalGeoJSONRouteEntity {
 	id?: number;
 	name: string;
@@ -14,7 +16,9 @@ interface LocalGeoJSONRouteEntity {
 	color?: string;
 }
 
-const db = new Dexie('RoutesDatabase') as Dexietype & {
+const DB_NAME = 'RoutesDatabase';
+
+const db = new Dexie(DB_NAME) as Dexietype & {
 	geoJSONRoutes: EntityTable<LocalGeoJSONRouteEntity, 'id'>;
 };
 
@@ -26,5 +30,23 @@ const liveGeoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity[]>(
 	async () => await db.geoJSONRoutes.toArray()
 );
 
-export { db, liveGeoJSONRoutes };
+
+const idb = await openDB(DB_NAME, 1.0, {
+  upgrade(db, oldVersion, newVersion, transaction, event) {
+    // …
+  },
+  blocked(currentVersion, blockedVersion, event) {
+    // …
+  },
+  blocking(currentVersion, blockedVersion, event) {
+    // …
+  },
+  terminated() {
+    // …
+  },
+});
+
+const idbStore = idb.createObjectStore('geoJSONRoutes', {});
+
+export { db, liveGeoJSONRoutes, idb };
 export type { LocalGeoJSONRouteEntity };
