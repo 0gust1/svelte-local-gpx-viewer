@@ -10,8 +10,7 @@ This lib exposes
 
 **Lib:**
 
-- a Dexie database wrapper with a table for the routes
-- a store (Dexie's liveQuery) exposing reactive data for the routes
+- a runes-based shared state, exposing reactive values and methods to interact with the state
 - a TS type for the routes
 
 See the demo above for a quick overview.

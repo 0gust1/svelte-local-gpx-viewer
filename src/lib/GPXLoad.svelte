@@ -79,7 +79,7 @@
 					await uiRoutes.createRoute({
 						name: file.name.split('.').slice(0, -1).join('.'),
 						data: geojson,
-						length: routeLength,
+						distance: routeLength,
 						elevation,
 						visible: true,
 						boundingBox: boundingBox,

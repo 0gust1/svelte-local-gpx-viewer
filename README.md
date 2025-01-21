@@ -8,6 +8,7 @@ A small collection of Svelte components to load GPX files (**local first, persis
 
 <picture>
   <img src="static/dataflow.excalidraw.svg">
+  <figcaption>data flow, src https://excalidraw.com/#json=J76wNr3qpoTNb7qClGL-3,EOjQwX2D0gBL2e85Cp84fw</figcaption>
 </picture>
 
 ## Using the components in a Svelte/Sveltekit project
