@@ -1,21 +1,33 @@
 <script lang="ts">
-	import { liveQuery } from 'dexie';
 	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
-
-	let geoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity>(() => db.geoJSONRoutes.toArray());
+	import { getUIRoutes } from './routesData.svelte.js';
 
 	let routeListElem: HTMLDivElement;
+	let uiRoutes = getUIRoutes();
 
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);
 		return Math.round(value * multiplier) / multiplier;
 	}
+	function toggleSelectedRoute(id: number) {
+		if (uiRoutes.selectedRoutesIds.has(id)) {
+			uiRoutes.selectedRoutesIds.delete(id);
+		} else {
+			uiRoutes.selectedRoutesIds.add(id);
+		}
+	}
+
 	async function deleteRoute(id: number) {
 		await db.geoJSONRoutes.delete(id);
+		uiRoutes.selectedRoutesIds.delete(id);
 	}
 	async function switchVisibility(id: number, visibility: boolean) {
 		await db.geoJSONRoutes.update(id, { visible: visibility });
 	}
+	async function updateRouteColor(id: number, color: string) {
+		await db.geoJSONRoutes.update(id, { color: color });
+	}
+
 	async function downloadGPX(id: number) {
 		const route: LocalGeoJSONRouteEntity = await db.geoJSONRoutes.get(id);
 		const gpxData = route.originalGPXData;
@@ -72,12 +84,29 @@
 	}
 </script>
 
+<!-- {JSON.stringify(uiRoutes.selectedRoutesInfo)} -->
+
 <div class="routes-list-container" bind:this={routeListElem}>
-	<p class="routes-list-container-title">
-		Locally saved routes: ({$geoJSONRoutes ? $geoJSONRoutes.length : 0})
-	</p>
+	<div class="routes-list-container-header">
+		<span class="text-base leading-10">
+			Locally saved routes: ({uiRoutes.routes ? uiRoutes.routes.length : 0})
+		</span>
+		{#if uiRoutes.selectedRoutesIds.size > 0}
+			<div class="ml-auto flex flex-col bg-blue-100 px-2 py-1 text-xs">
+				<span>
+					<span class="font-semibold">{uiRoutes.selectedRoutesIds.size}</span> selected route(s)
+				</span>
+				<span class="font-semibold">
+					{round(uiRoutes.selectedRoutesInfo.length, 1)}km (+{round(
+						uiRoutes.selectedRoutesInfo.elevation.positive,
+						0
+					)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
+				</span>
+			</div>
+		{/if}
+	</div>
 	<ul class="routes-list">
-		{#each $geoJSONRoutes as route (route.id)}
+		{#each uiRoutes.routes as route (route.id)}
 			<li>{@render routeItem(route)}</li>
 		{:else}
 			<li>No routes</li>
@@ -86,8 +115,17 @@
 </div>
 
 {#snippet routeItem(route: LocalGeoJSONRouteEntity)}
-	<div class="routes-list-item {route.visible ? '' : 'bg-opacity-50'}">
+	<div class="routes-list-item {route.visible ? '' : 'bg-opacity-50'} {uiRoutes.selectedRoutesIds.has(route.id) ? 'selected' : ''}">
 		<div class="button-set-1">
+			<input
+				type="checkbox"
+				disabled={!route.visible}
+				checked={uiRoutes.selectedRoutesIds.has(route.id)}
+				onchange={() => {
+					toggleSelectedRoute(route.id);
+				}}
+			/>
+
 			<button
 				type="button"
 				onclick={() => {
@@ -113,7 +151,17 @@
 				)}m)
 			</div>
 		</div>
-		<div class="button-set-2">
+		<div class="ml-auto self-center">
+			<input
+				class="h-5 w-5"
+				type="color"
+				value={route.color}
+				onchange={(e) => {
+					updateRouteColor(route.id, e?.target.value ?? '#444444');
+				}}
+			/>
+		</div>
+		<div class="button-set-2 self-center">
 			<button
 				type="button"
 				class="menu-btn"
@@ -170,12 +218,15 @@
 	.routes-list {
 		@apply flex flex-col gap-0.5;
 	}
-	.routes-list-container-title {
-		@apply text-sm text-slate-500;
+	.routes-list-container-header {
+		@apply flex text-sm text-slate-500 items-center;
 	}
 
 	.routes-list-item {
 		@apply flex gap-2 bg-slate-50 py-0.5 pl-1;
+	}
+	.routes-list-item.selected {
+		@apply bg-blue-100/50;
 	}
 	.routes-list-item:hover {
 		@apply bg-slate-100;
@@ -193,7 +244,7 @@
 		}
 	}
 	.routes-list-item .button-set-2 {
-		@apply my-1 ml-auto flex grow-0 flex-col items-end gap-1;
+		@apply my-1 flex grow-0 flex-col items-end gap-1;
 		@apply relative;
 		.menu {
 			visibility: hidden;

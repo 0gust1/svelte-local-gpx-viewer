@@ -3,6 +3,7 @@
 	import { db } from '$lib/localDB';
 	import { length } from '@turf/turf';
 	import { gpx } from '@tmcw/togeojson';
+	import { bbox } from '@turf/turf';
 	import type { Feature } from 'geojson';
 
 	let files = $state<FileList | null>(null);
@@ -38,6 +39,19 @@
 		return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 	}
 
+	function getBoundingBox(geojson_feats: GeoJSON.Feature[]) {
+		let boundingBox = bbox({
+			type: 'FeatureCollection',
+			features: geojson_feats
+		});
+		//if bounding box has 6 elements, it means it is a 3D bounding box, so we need to remove the last 2 elements
+		if (boundingBox.length === 6) {
+			return boundingBox.slice(0, 4) as [number, number, number, number];
+		} else {
+			return boundingBox as [number, number, number, number];
+		}
+	}
+
 	async function addToGeoJSONRoutes(files: FileList) {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
@@ -57,17 +71,20 @@
 				// calculate the length of the route
 				const routeLength = length(geojson.features[0], { units: 'kilometers' });
 				const elevation = calculateElevation(geojson.features[0]);
-				// persist the geojson to the database
-				await db.geoJSONRoutes.add({
-					name: file.name.split('.').slice(0, -1).join('.'),
-					data: geojson,
-					length: routeLength,
-					elevation,
-					visible: true,
-					originalGPXData: isGPX ? text : null,
-					// add a nice color to the route
-					color: getRandomColor()
-				});
+				const boundingBox = getBoundingBox(geojson.features);
+
+					// persist the geojson to the database
+					await db.geoJSONRoutes.add({
+						name: file.name.split('.').slice(0, -1).join('.'),
+						data: geojson,
+						length: routeLength,
+						elevation,
+						visible: true,
+						boundingBox: boundingBox,
+						originalGPXData: isGPX ? text : null,
+						// add a nice color to the route
+						color: getRandomColor()
+					});
 			} catch (error) {
 				console.error('error', error);
 			}

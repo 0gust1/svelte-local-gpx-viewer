@@ -2,6 +2,7 @@
 	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import bbox from '@turf/bbox';
+	import { getUIRoutes } from './routesData.svelte.js';
 	import { onDestroy } from 'svelte';
 
 	interface Props {
@@ -9,8 +10,9 @@
 	}
 
 	let { geoJSONRoutes }: Props = $props();
+	let uiRoutes = getUIRoutes();
 
-	let boundingBox = $derived.by(() => {
+	let totalBoundingBox = $derived.by(() => {
 		let allFeatures = geoJSONRoutes
 			.filter((route) => route.visible)
 			.flatMap((route) => route.data.features);
@@ -27,16 +29,39 @@
 		}
 	});
 
+	let selectedBoundingBox = $derived.by(() => {
+		let allFeatures = geoJSONRoutes
+			.filter((route) => uiRoutes.selectedRoutesIds.has(route.id))
+			.flatMap((route) => route.data.features);
+
+		const boundingBox = bbox({
+			type: 'FeatureCollection',
+			features: allFeatures
+		});
+		//if bounding box has 6 elements, it means it is a 3D bounding box, so we need to remove the last 2 elements
+		if (boundingBox.length === 6) {
+			return boundingBox.slice(0, 4) as [number, number, number, number];
+		} else {
+			return boundingBox as [number, number, number, number];
+		}
+	});
+
 	const { map, loaded } = $derived(getMapContext());
 
-	//let { map } = MapContext();
-
 	$effect(() => {
-		if (map) {
-			// console.log('bounding box', boundingBox);
-			// test if bounding box is correct (array of numbers), because bbox can return [Infinity, Infinity, -Infinity, -Infinity]
-			if (boundingBox && boundingBox.every((coord) => Number.isFinite(coord))) {
-				map.fitBounds(boundingBox, {
+		// console.log('bounding box', boundingBox);
+		// test if bounding box is correct (array of numbers), because bbox can return [Infinity, Infinity, -Infinity, -Infinity]
+		if (
+			uiRoutes.selectedRoutesIds.size > 0 &&
+			selectedBoundingBox &&
+			selectedBoundingBox.every((coord) => Number.isFinite(coord))
+		) {
+			map.fitBounds(selectedBoundingBox, {
+				padding: 40
+			});
+		} else {
+			if (totalBoundingBox && totalBoundingBox.every((coord) => Number.isFinite(coord))) {
+				map.fitBounds(totalBoundingBox, {
 					padding: 40
 				});
 			}
@@ -54,20 +79,40 @@
 	});
 </script>
 
-{#each geoJSONRoutes.filter((route) => route.visible) as route (route.id)}
+{#each geoJSONRoutes.filter((route) => route.visible) as route, index (route.id)}
 	{#if route.data.features.length > 0}
 		{#each route.data.features as feature (feature.id)}
 			{#if feature.geometry.type === 'LineString'}
 				<GeoJSON data={feature}>
 					<LineLayer
+						onmouseenter={() => {
+							map.getCanvas().style.cursor = 'pointer'
+						}}
+						onmouseleave={() => {
+							map.getCanvas().style.cursor = ''
+						}}
+						onclick={() => {
+							if (uiRoutes.selectedRoutesIds.has(route.id)) {
+								// remove the route from the selected routes
+								uiRoutes.selectedRoutesIds.delete(route.id);
+							} else {
+								uiRoutes.selectedRoutesIds.add(route.id);
+								map.fitBounds(route.boundingBox, {
+									padding: 40
+								});
+							}
+
+							console.log(`clicked on line ${index}`);
+						}}
 						layout={{
 							'line-cap': 'round',
 							'line-join': 'round'
 						}}
 						paint={{
 							'line-color': route.color ?? '#3887be',
-							'line-width': 5,
-							'line-opacity': 0.7
+							'line-width': uiRoutes.selectedRoutesIds.has(route.id)?8:5,
+							'line-opacity': uiRoutes.selectedRoutesIds.has(route.id)?0.8:0.8,
+							'line-blur': uiRoutes.selectedRoutesIds.has(route.id)?0:uiRoutes.selectedRoutesIds.size>0?3:0
 						}}
 					/>
 					<SymbolLayer
