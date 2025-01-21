@@ -86,7 +86,7 @@
 					<span class="font-semibold">{uiRoutes.selectedRoutesIds.size}</span> selected route(s)
 				</span>
 				<span class="font-semibold">
-					{round(uiRoutes.selectedRoutesInfo.length, 1)}km (+{round(
+					{round(uiRoutes.selectedRoutesInfo.distance, 1)}km (+{round(
 						uiRoutes.selectedRoutesInfo.elevation.positive,
 						0
 					)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
@@ -134,7 +134,7 @@
 		<div class="route-details">
 			<div class="text-sm leading-tight">{route.name}</div>
 			<div class="text-xs font-semibold text-slate-500">
-				{round(route.length, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
+				{round(route.distance, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
 					route.elevation.negative,
 					0
 				)}m)

@@ -87,7 +87,7 @@
 			<div class="flex flex-col items-end">
 				<span>selected routes: {uiRoutes.selectedRoutesIds.size}</span>
 				<span class="font-semibold">
-					{round(uiRoutes.selectedRoutesInfo.length, 1)}km (+{round(
+					{round(uiRoutes.selectedRoutesInfo.distance, 1)}km (+{round(
 						uiRoutes.selectedRoutesInfo.elevation.positive,
 						0
 					)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
