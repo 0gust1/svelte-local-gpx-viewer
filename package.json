@@ -1,6 +1,6 @@
 {
 	"name": "svelte-local-gpx-viewer",
-	"version": "0.0.8",
+	"version": "0.1.0",
 	"description": "Local-first GPX routes viewer. Svelte-based components. Useable in Svelte projects and standalone (vanilla JS).",
 	"keywords": [
 		"GPX",
@@ -46,10 +46,8 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
-		"@inlang/paraglide-sveltekit": "^0.14.0",
 		"@playwright/test": "^1.45.3",
-		"@sveltejs/adapter-auto": "^3.0.0",
-		"@sveltejs/adapter-static": "^3.0.6",
+		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/package": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.2",
@@ -59,26 +57,27 @@
 		"@types/eslint": "^9.6.0",
 		"autoprefixer": "^10.4.20",
 		"eslint": "^9.7.0",
-		"eslint-config-prettier": "^9.1.0",
+		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^2.36.0",
 		"globals": "^15.0.0",
 		"mdsvex": "^0.12.3",
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
 		"prettier-plugin-tailwindcss": "^0.6.5",
-		"publint": "^0.2.0",
+		"publint": "^0.3.2",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
-		"tailwindcss": "^3.4.9",
+		"tailwindcss": "^3.4.17",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.0.0",
 		"vite": "^6.0.3",
-		"vitest": "^2.0.4"
+		"vitest": "^2.1.8"
 	},
 	"dependencies": {
 		"@tmcw/togeojson": "^6.0.0",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
-		"svelte-maplibre": "^1.0.0-next.8"
+		"svelte-maplibre": "^1.0.0-next.8",
+		"@inlang/paraglide-sveltekit": "^0.15.5"
 	}
 }
