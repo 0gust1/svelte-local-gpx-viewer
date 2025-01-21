@@ -1,4 +1,3 @@
-// db.ts
 import Dexie, { type EntityTable, type Dexie as Dexietype } from 'dexie';
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 import { liveQuery } from 'dexie';
@@ -10,6 +9,7 @@ interface LocalGeoJSONRouteEntity {
 	length?: number;
 	elevation?: { positive: number; negative: number };
 	visible?: boolean;
+	boundingBox?: [number, number, number, number];
 	originalGPXData?: string;
 	color?: string;
 }

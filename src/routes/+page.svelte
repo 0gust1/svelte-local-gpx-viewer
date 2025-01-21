@@ -2,6 +2,7 @@
 	import GpxLoad from '$lib/GPXLoad.svelte';
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
+	import {getUIRoutes} from '$lib/routesData.svelte';
 	import Readme from '../README.md';
 
 	// vatious styles, gathered from:
@@ -47,8 +48,15 @@
 		{ name: 'debug', style: 'https://demotiles.maplibre.org/debug-tiles/style.json' }
 	];
 
+	let uiRoutes = getUIRoutes();
+
 	let selectedStyle = $state(stylesList[0].style);
 	let pitch = $state(0);
+
+	function round(value: number, precision: number) {
+		const multiplier = Math.pow(10, precision || 0);
+		return Math.round(value * multiplier) / multiplier;
+	}
 </script>
 
 <h2 class="mb-4 text-2xl font-bold">Demo</h2>
@@ -73,7 +81,31 @@
 		<label for="map-pitch">Map perspective (pitch): {pitch}</label>
 		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
 	</div>
-	<MapLibreWrapper mapStyle={selectedStyle} {pitch} />
+	<div class="relative">
+		{#if uiRoutes.selectedRoutesIds.size > 0}
+		<div class="absolute top-0 right-0 z-50 text-xs bg-blue-100 p-2 rounded-bl-md flex flex-col shadow">
+			<div class="flex flex-col items-end">
+				<span>selected routes: {uiRoutes.selectedRoutesIds.size}</span>
+				<span class="font-semibold">
+					{round(uiRoutes.selectedRoutesInfo.length, 1)}km (+{round(
+						uiRoutes.selectedRoutesInfo.elevation.positive,
+						0
+					)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
+				</span>
+			</div>
+			<button
+				class="p-1 bg-blue-500 text-white rounded-bl-md"
+				on:click={() => {
+					uiRoutes.selectedRoutesIds.clear();
+				}}
+			>
+				Clear selection
+			</button>
+		</div>
+		{/if}
+		<MapLibreWrapper mapStyle={selectedStyle} {pitch} />
+	</div>
+	
 </div>
 
 <div class="prose mx-auto mt-6">
