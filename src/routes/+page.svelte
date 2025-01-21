@@ -14,12 +14,18 @@
 		{ name: 'positron', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' },
 		{ name: 'osm-liberty 3d (openfreemap)', style: 'https://tiles.openfreemap.org/styles/liberty' },
 		{
-			name: 'osm-liberty-hills (netsym.net)',
-			style: 'https://maps.netsyms.net/styles/osm-liberty-hillshading/style.json'
-		},
-		{
 			name: 'klokantech-freehills (netsym.net)',
 			style: 'https://maps.netsyms.net/styles/klokantech-terrain-freehills/style.json'
+		},
+		{name:"ArcGis hybrid (sat.)",style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json"},
+		{name:"IGN Std.",style:"https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/standard.json"},
+		{name:"OSM",style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json"},
+		{name:"IGN Att.",style:"https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/attenue.json"},
+		{name:"versatiles-colorful", style:"https://tiles.versatiles.org/assets/styles/colorful.json"},
+		{name:"Fiord Color",style:"https://openmaptiles.geo.data.gouv.fr/styles/fiord-color/style.json"},
+		{
+			name: 'osm-liberty-hills (netsym.net)',
+			style: 'https://maps.netsyms.net/styles/osm-liberty-hillshading/style.json'
 		},
 		{
 			name: 'klokantech 3d (netsym.net)',
