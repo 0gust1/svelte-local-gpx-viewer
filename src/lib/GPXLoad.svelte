@@ -1,12 +1,14 @@
 <script lang="ts">
 	import Upload from '$lib/Upload.svelte';
-	import { db } from '$lib/localDB';
+	import {getUIRoutes} from '$lib/routesData.svelte';
 	import { length } from '@turf/turf';
 	import { gpx } from '@tmcw/togeojson';
 	import { bbox } from '@turf/turf';
 	import type { Feature } from 'geojson';
 
 	let files = $state<FileList | null>(null);
+
+	const uiRoutes = getUIRoutes();
 
 	function calculateElevation(feature: Feature) {
 		if (feature.geometry.type === 'LineString') {
@@ -74,7 +76,7 @@
 				const boundingBox = getBoundingBox(geojson.features);
 
 					// persist the geojson to the database
-					await db.geoJSONRoutes.add({
+					await uiRoutes.createRoute({
 						name: file.name.split('.').slice(0, -1).join('.'),
 						data: geojson,
 						length: routeLength,

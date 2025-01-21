@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { db, type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import { getUIRoutes } from './routesData.svelte.js';
 
 	let routeListElem: HTMLDivElement;
@@ -17,19 +17,8 @@
 		}
 	}
 
-	async function deleteRoute(id: number) {
-		await db.geoJSONRoutes.delete(id);
-		uiRoutes.selectedRoutesIds.delete(id);
-	}
-	async function switchVisibility(id: number, visibility: boolean) {
-		await db.geoJSONRoutes.update(id, { visible: visibility });
-	}
-	async function updateRouteColor(id: number, color: string) {
-		await db.geoJSONRoutes.update(id, { color: color });
-	}
-
 	async function downloadGPX(id: number) {
-		const route: LocalGeoJSONRouteEntity = await db.geoJSONRoutes.get(id);
+		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
 		const gpxData = route.originalGPXData;
 		const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
 		const url = URL.createObjectURL(blob);
@@ -40,7 +29,7 @@
 		URL.revokeObjectURL(url);
 	}
 	async function downloadGeoJSON(id: number) {
-		const route: LocalGeoJSONRouteEntity = await db.geoJSONRoutes.get(id);
+		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
 		const geoJSONData = JSON.stringify(route.data);
 		const blob = new Blob([geoJSONData], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
@@ -129,14 +118,14 @@
 			<button
 				type="button"
 				onclick={() => {
-					deleteRoute(route.id);
+					uiRoutes.deleteRoute(route.id);
 				}}
 				class="font-bold text-red-500/60">X</button
 			>
 			<button
 				type="button"
 				onclick={() => {
-					switchVisibility(route.id, !route.visible);
+					uiRoutes.updateRouteVisibility(route.id, !route.visible);
 				}}
 				><span class={route.visible ? 'opacity-100' : 'opacity-30'}>👁️</span>
 			</button>
@@ -157,7 +146,7 @@
 				type="color"
 				value={route.color}
 				onchange={(e) => {
-					updateRouteColor(route.id, e?.target.value ?? '#444444');
+					uiRoutes.updateRouteColor(route.id, e?.target.value ?? '#444444');
 				}}
 			/>
 		</div>

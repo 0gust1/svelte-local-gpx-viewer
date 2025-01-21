@@ -1,4 +1,4 @@
-import { liveGeoJSONRoutes, type LocalGeoJSONRouteEntity } from '$lib/localDB';
+import {db, liveGeoJSONRoutes, type LocalGeoJSONRouteEntity } from '$lib/localDB';
 import { get } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 
@@ -14,11 +14,15 @@ const selectedRoutesInfo = $derived.by(() => {
     }, {length:0, elevation:{positive:0, negative:0}} as { length: number; elevation: { positive: number; negative: number } });
 });
 
+// subscribe to the DexieJS liveQuery store
+liveGeoJSONRoutes.subscribe((routes) => {
+    //console.log('liveGeoJSONRoutes', routes);
+    
+    // When the store updates, update the runed signal
+    uiRoutes = routes;
+});
+
 export const getUIRoutes = () => {
-	liveGeoJSONRoutes.subscribe((routes) => {
-		//console.log('liveGeoJSONRoutes', routes);
-		uiRoutes = routes;
-	});
 
 	return {
 		get routes() {
@@ -29,13 +33,22 @@ export const getUIRoutes = () => {
 		},
         get selectedRoutesInfo() {
             return selectedRoutesInfo;
+        },
+        async updateRouteColor(id: number, color: string) {
+            await db.geoJSONRoutes.update(id, { color: color });
+        },
+        async deleteRoute(id: number) {
+            selectedRoutesIds.delete(id);
+            await db.geoJSONRoutes.delete(id);
+        },
+        async updateRouteVisibility(id: number, visibility: boolean) {
+            await db.geoJSONRoutes.update(id, { visible: visibility });
+        },
+        async getRoute(id: number) {
+            return await db.geoJSONRoutes.get(id);
+        },
+        async createRoute(obj:LocalGeoJSONRouteEntity){
+            await db.geoJSONRoutes.add(obj);
         }
-		// set_selected:(index: number | null)=> {
-		// 	if (index === null) {
-		// 		selectedRoutesIds.clear();
-		// 	} else {
-		// 		selectedRoutesIds.add(index);
-		// 	}
-		// }
 	};
 };
