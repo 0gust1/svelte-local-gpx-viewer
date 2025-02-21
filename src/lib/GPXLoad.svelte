@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Upload from '$lib/Upload.svelte';
+	import RoutesUpload from '$lib/RoutesUpload.svelte';
 	import {getUIRoutes} from '$lib/routesData.svelte';
 	import { length } from '@turf/turf';
 	import { gpx } from '@tmcw/togeojson';
@@ -69,11 +69,19 @@
 					geojson = gpx(gpxData);
 				} else {
 					geojson = JSON.parse(text);
+					// validate the geojson	?
 				}
-				// calculate the length of the route
+				
 				const routeLength = length(geojson.features[0], { units: 'kilometers' });
+
 				const elevation = calculateElevation(geojson.features[0]);
+				
 				const boundingBox = getBoundingBox(geojson.features);
+
+				// add the bounding box to the geojson
+				geojson.bbox = boundingBox;
+
+				console.log("geojson", geojson);
 
 					// persist the geojson to the database
 					await uiRoutes.createRoute({
@@ -82,7 +90,6 @@
 						distance: routeLength,
 						elevation,
 						visible: true,
-						boundingBox: boundingBox,
 						originalGPXData: isGPX ? text : null,
 						// add a nice color to the route
 						color: getRandomColor()
@@ -101,4 +108,4 @@
 	});
 </script>
 
-<Upload bind:files />
+<RoutesUpload bind:files />

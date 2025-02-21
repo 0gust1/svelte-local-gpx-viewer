@@ -9,7 +9,6 @@ interface LocalGeoJSONRouteEntity {
 	distance: number;
 	elevation: { positive: number; negative: number };
 	visible: boolean;
-	boundingBox: [number, number, number, number];
 	originalGPXData?: string;
 	color: string;
 }
