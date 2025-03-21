@@ -73,7 +73,7 @@
 		"vitest": "^3.0.6"
 	},
 	"dependencies": {
-		"@inlang/paraglide-sveltekit": "^0.15.5",
+		"@inlang/paraglide-sveltekit": "^0.16.1",
 		"@tmcw/togeojson": "^7.0.0",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
