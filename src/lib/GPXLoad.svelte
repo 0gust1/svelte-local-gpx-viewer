@@ -18,7 +18,12 @@
 			for (let i = 0; i < coords.length - 1; i++) {
 				const current = coords[i];
 				const next = coords[i + 1];
-				const elevation = next[2] - current[2];
+
+				// Ensure both current[2] and next[2] are valid numbers
+				const currentElevation = current[2] ?? 0;
+				const nextElevation = next[2] ?? 0;
+
+				const elevation = nextElevation - currentElevation;
 				if (elevation > 0) {
 					positive += elevation;
 				} else {
