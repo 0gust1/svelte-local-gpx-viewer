@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 	import { getUIRoutes } from './routesData.svelte.js';
 
 	let routeListElem: HTMLDivElement;
@@ -19,7 +20,11 @@
 
 	async function downloadGPX(id: number) {
 		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
-		const gpxData = route.originalGPXData;
+		let gpxData = route.originalGPXData;
+		if (!gpxData) {
+			const gpx = GeoJsonToGpx(route.data);
+			gpxData = new XMLSerializer().serializeToString(gpx);
+		}
 		const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -104,7 +109,13 @@
 </div>
 
 {#snippet routeItem(route: LocalGeoJSONRouteEntity)}
-	<div class="routes-list-item {route.visible ? '' : 'bg-opacity-50'} {uiRoutes.selectedRoutesIds.has(route.id) ? 'selected' : ''}">
+	<div
+		class="routes-list-item {route.visible ? '' : 'bg-opacity-50'} {uiRoutes.selectedRoutesIds.has(
+			route.id
+		)
+			? 'selected'
+			: ''}"
+	>
 		<div class="button-set-1">
 			<input
 				type="checkbox"
@@ -174,18 +185,16 @@
 		tabindex="0"
 	>
 		<ul class="">
-			{#if route.originalGPXData}
-				<li>
-					<button
-						role="menuitem"
-						type="button"
-						title="Download GPX file"
-						onclick={() => {
-							downloadGPX(route.id);
-						}}>↓&nbsp;gpx</button
-					>
-				</li>
-			{/if}
+			<li>
+				<button
+					role="menuitem"
+					type="button"
+					title="Download GPX file"
+					onclick={() => {
+						downloadGPX(route.id);
+					}}>↓&nbsp;gpx</button
+				>
+			</li>
 			<li>
 				<button
 					role="menuitem"
@@ -208,7 +217,7 @@
 		@apply flex flex-col gap-0.5;
 	}
 	.routes-list-container-header {
-		@apply flex text-sm text-slate-500 items-center;
+		@apply flex items-center text-sm text-slate-500;
 	}
 
 	.routes-list-item {
