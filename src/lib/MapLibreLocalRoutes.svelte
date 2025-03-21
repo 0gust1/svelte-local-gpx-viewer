@@ -86,10 +86,10 @@
 				<GeoJSON data={feature}>
 					<LineLayer
 						onmouseenter={() => {
-							map.getCanvas().style.cursor = 'pointer'
+							map.getCanvas().style.cursor = 'pointer';
 						}}
 						onmouseleave={() => {
-							map.getCanvas().style.cursor = ''
+							map.getCanvas().style.cursor = '';
 						}}
 						onclick={() => {
 							if (uiRoutes.selectedRoutesIds.has(route.id)) {
@@ -97,9 +97,6 @@
 								uiRoutes.selectedRoutesIds.delete(route.id);
 							} else {
 								uiRoutes.selectedRoutesIds.add(route.id);
-								map.fitBounds(route.boundingBox, {
-									padding: 40
-								});
 							}
 
 							console.log(`clicked on line ${index}`);
@@ -110,9 +107,13 @@
 						}}
 						paint={{
 							'line-color': route.color ?? '#3887be',
-							'line-width': uiRoutes.selectedRoutesIds.has(route.id)?8:5,
-							'line-opacity': uiRoutes.selectedRoutesIds.has(route.id)?0.8:0.8,
-							'line-blur': uiRoutes.selectedRoutesIds.has(route.id)?0:uiRoutes.selectedRoutesIds.size>0?3:0
+							'line-width': uiRoutes.selectedRoutesIds.has(route.id) ? 8 : 5,
+							'line-opacity': uiRoutes.selectedRoutesIds.has(route.id) ? 0.8 : 0.8,
+							'line-blur': uiRoutes.selectedRoutesIds.has(route.id)
+								? 0
+								: uiRoutes.selectedRoutesIds.size > 0
+									? 3
+									: 0
 						}}
 					/>
 					<SymbolLayer
