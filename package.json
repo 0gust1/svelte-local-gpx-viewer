@@ -1,6 +1,6 @@
 {
 	"name": "svelte-local-gpx-viewer",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Local-first GPX routes viewer. Svelte-based components. Useable in Svelte projects and standalone (vanilla JS).",
 	"keywords": [
 		"GPX",
@@ -73,7 +73,8 @@
 		"vitest": "^3.0.6"
 	},
 	"dependencies": {
-		"@inlang/paraglide-sveltekit": "^0.15.5",
+		"@dwayneparton/geojson-to-gpx": "^0.2.0",
+		"@inlang/paraglide-sveltekit": "^0.16.1",
 		"@tmcw/togeojson": "^7.0.0",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
