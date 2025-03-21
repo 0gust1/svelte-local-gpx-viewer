@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { MapLibre } from 'svelte-maplibre';
 	import type { StyleSpecification } from 'maplibre-gl';
-	import {getUIRoutes} from './routesData.svelte'
+	import { getUIRoutes } from './routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
 
 	const defaultMapStyle: string | StyleSpecification =
 		'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-	let uiRoutes = getUIRoutes();	
+	let uiRoutes = getUIRoutes();
 
 	let {
 		mapStyle = defaultMapStyle,
@@ -15,7 +15,7 @@
 	}: { mapStyle: string | StyleSpecification; pitch: number } = $props();
 </script>
 
-{#if uiRoutes}
+{#if uiRoutes && uiRoutes.routes}
 	<MapLibre
 		center={[50, 20]}
 		zoom={7}
