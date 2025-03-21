@@ -2,7 +2,7 @@
 	import GpxLoad from '$lib/GPXLoad.svelte';
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
-	import {getUIRoutes} from '$lib/routesData.svelte';
+	import { getUIRoutes } from '$lib/routesData.svelte';
 	import Readme from '../README.md';
 
 	// vatious styles, gathered from:
@@ -17,12 +17,32 @@
 			name: 'klokantech-freehills (netsym.net)',
 			style: 'https://maps.netsyms.net/styles/klokantech-terrain-freehills/style.json'
 		},
-		{name:"ArcGis hybrid (sat.)",style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json"},
-		{name:"IGN Std.",style:"https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/standard.json"},
-		{name:"OSM",style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json"},
-		{name:"IGN Att.",style:"https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/attenue.json"},
-		{name:"versatiles-colorful", style:"https://tiles.versatiles.org/assets/styles/colorful.json"},
-		{name:"Fiord Color",style:"https://openmaptiles.geo.data.gouv.fr/styles/fiord-color/style.json"},
+		{
+			name: 'ArcGis hybrid (sat.)',
+			style:
+				'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json'
+		},
+		{
+			name: 'IGN Std.',
+			style: 'https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/standard.json'
+		},
+		{
+			name: 'OSM',
+			style:
+				'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json'
+		},
+		{
+			name: 'IGN Att.',
+			style: 'https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/attenue.json'
+		},
+		{
+			name: 'versatiles-colorful',
+			style: 'https://tiles.versatiles.org/assets/styles/colorful.json'
+		},
+		{
+			name: 'Fiord Color',
+			style: 'https://openmaptiles.geo.data.gouv.fr/styles/fiord-color/style.json'
+		},
 		{
 			name: 'osm-liberty-hills (netsym.net)',
 			style: 'https://maps.netsyms.net/styles/osm-liberty-hillshading/style.json'
@@ -76,7 +96,7 @@
 </div>
 
 <div class="mx-auto mt-3 w-10/12 border">
-	<div class="grid sm:grid-flow-col items-center gap-1 p-1 align-middle text-xs">
+	<div class="grid items-center gap-1 p-1 align-middle text-xs sm:grid-flow-col">
 		<label for="map-style">Select Map Style:</label>
 		<select id="map-style" bind:value={selectedStyle} class="p-1">
 			{#each stylesList as style}
@@ -87,31 +107,33 @@
 		<label for="map-pitch">Map perspective (pitch): {pitch}</label>
 		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
 	</div>
+
 	<div class="relative">
 		{#if uiRoutes.selectedRoutesIds.size > 0}
-		<div class="absolute top-0 right-0 z-50 text-xs bg-blue-100 p-2 rounded-bl-md flex flex-col shadow">
-			<div class="flex flex-col items-end">
-				<span>selected routes: {uiRoutes.selectedRoutesIds.size}</span>
-				<span class="font-semibold">
-					{round(uiRoutes.selectedRoutesInfo.distance, 1)}km (+{round(
-						uiRoutes.selectedRoutesInfo.elevation.positive,
-						0
-					)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
-				</span>
-			</div>
-			<button
-				class="p-1 bg-blue-500 text-white rounded-bl-md"
-				on:click={() => {
-					uiRoutes.selectedRoutesIds.clear();
-				}}
+			<div
+				class="absolute right-0 top-0 z-50 flex flex-col rounded-bl-md bg-blue-100 p-2 text-xs shadow"
 			>
-				Clear selection
-			</button>
-		</div>
+				<div class="flex flex-col items-end">
+					<span>selected routes: {uiRoutes.selectedRoutesIds.size}</span>
+					<span class="font-semibold">
+						{round(uiRoutes.selectedRoutesInfo.distance, 1)}km (+{round(
+							uiRoutes.selectedRoutesInfo.elevation.positive,
+							0
+						)}m, {round(uiRoutes.selectedRoutesInfo.elevation.negative, 0)}m)
+					</span>
+				</div>
+				<button
+					class="rounded-bl-md bg-blue-500 p-1 text-white"
+					onclick={() => {
+						uiRoutes.selectedRoutesIds.clear();
+					}}
+				>
+					Clear selection
+				</button>
+			</div>
 		{/if}
 		<MapLibreWrapper mapStyle={selectedStyle} {pitch} />
 	</div>
-	
 </div>
 
 <div class="prose mx-auto mt-6">
