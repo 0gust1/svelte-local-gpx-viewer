@@ -16,7 +16,7 @@
 </script>
 
 <label for="gpx_route_files" class="drop-zone" ondrop={handleDrop} ondragover={handleDragover}>
-	<span class="drop-zone_text">Drop your GPX or Geojson files here</span>
+	<span class="drop-zone_text">Drop your <code>.gpx</code>, <code>.geojson</code> or <code>.fit</code> files here</span>
 	or
 	<input
 		id="gpx_route_files"
@@ -24,7 +24,7 @@
 		type="file"
 		bind:files
 		multiple
-		accept=".gpx, .geojson, .json"
+		accept=".gpx, .geojson, .fit"
 		class=""
 	/>
 	<p class="text-xs text-slate-500">(Data will stay on your computer)</p>

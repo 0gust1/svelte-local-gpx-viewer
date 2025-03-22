@@ -75,6 +75,7 @@
 	},
 	"dependencies": {
 		"@dwayneparton/geojson-to-gpx": "^0.2.0",
+		"@garmin/fitsdk": "^21.161.0",
 		"@inlang/paraglide-sveltekit": "^0.16.1",
 		"@tmcw/togeojson": "^7.0.0",
 		"@turf/turf": "^7.1.0",
