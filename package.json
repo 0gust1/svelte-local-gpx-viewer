@@ -1,6 +1,6 @@
 {
 	"name": "svelte-local-gpx-viewer",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"description": "Local-first GPX routes viewer. Svelte-based components. Useable in Svelte projects and standalone (vanilla JS).",
 	"keywords": [
 		"GPX",
@@ -79,6 +79,7 @@
 		"@tmcw/togeojson": "^7.0.0",
 		"@turf/turf": "^7.1.0",
 		"dexie": "^4.0.9",
+		"jszip": "^3.10.1",
 		"svelte-maplibre": "^1.0.0-next.8"
 	}
 }

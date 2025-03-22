@@ -45,6 +45,10 @@
 		URL.revokeObjectURL(url);
 	}
 
+	async function downloadAllRoutes() {
+		await uiRoutes.downloadAllRoutesArchive();
+	}
+
 	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
 		const menu = event?.currentTarget?.nextElementSibling as HTMLElement;
 		// hide all other menus
@@ -85,8 +89,9 @@
 		<span class="text-base leading-10">
 			Locally saved routes: ({uiRoutes.routes ? uiRoutes.routes.length : 0})
 		</span>
+
 		{#if uiRoutes.selectedRoutesIds.size > 0}
-			<div class="ml-auto flex flex-col bg-blue-100 px-2 py-1 text-xs">
+			<div class="ml-4 flex flex-col bg-blue-100 px-2 py-1 text-xs">
 				<span>
 					<span class="font-semibold">{uiRoutes.selectedRoutesIds.size}</span> selected route(s)
 				</span>
@@ -98,6 +103,16 @@
 				</span>
 			</div>
 		{/if}
+
+		<button
+			disabled={!uiRoutes.routes || uiRoutes.routes.length === 0}
+			class="ml-auto rounded bg-blue-500 px-2 py-1 text-white"
+			onclick={downloadAllRoutes}
+		>
+			Download All Routes (ZIP)
+		</button>
+
+		
 	</div>
 	<ul class="routes-list">
 		{#each uiRoutes.routes as route (route.id)}
@@ -218,6 +233,14 @@
 	}
 	.routes-list-container-header {
 		@apply flex items-center text-sm text-slate-500;
+	}
+
+	.routes-list-container-header button {
+		@apply text-xs font-semibold;
+	}
+
+	button[disabled] {
+		@apply cursor-not-allowed opacity-50;
 	}
 
 	.routes-list-item {
