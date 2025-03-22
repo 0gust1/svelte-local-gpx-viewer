@@ -105,7 +105,7 @@
 		{/if}
 
 		<button
-			disabled={uiRoutes.routes.length === 0}
+			disabled={!uiRoutes.routes || uiRoutes.routes.length === 0}
 			class="ml-auto rounded bg-blue-500 px-2 py-1 text-white"
 			onclick={downloadAllRoutes}
 		>
