@@ -1,8 +1,21 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { smoothElevations, calculateElevation, getRandomColor, getBoundingBox, prepareRoutesFromFiles } from './route_utils';
 import type { Feature } from 'geojson';
 import { DOMParser as NodeDOMParser } from 'xmldom';
-import { gpx } from '@tmcw/togeojson'; // Import the gpx function
+
+// Monkey-patch window.DOMParser for tests
+beforeAll(() => {
+    // @ts-expect-error mock window object
+    global.window = {}; // Create a mock window object
+
+    window.DOMParser = NodeDOMParser; // Replace DOMParser with xmldom's DOMParser
+});
+
+afterAll(() => {
+    // Clean up the mock window object after tests
+    // @ts-expect-error unmock window object
+    delete global.window;
+});
 
 describe('smoothElevations', () => {
 	it('smooths elevation data correctly', () => {

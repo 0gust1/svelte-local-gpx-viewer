@@ -1,8 +1,6 @@
 import { bbox, length } from '@turf/turf';
 import type { Feature } from 'geojson';
 import { gpx } from '@tmcw/togeojson';
-import { DOMParser as NodeDOMParser } from 'xmldom';
-// Remove import for xmldom
 
 /**
  * Smooth the elevation data of coordinates.
@@ -96,8 +94,7 @@ export async function prepareRoutesFromFiles(files: FileList) {
 
 			if (isGPX) {
 				// Parse GPX file into GeoJSON
-				const DOMParser = typeof window !== 'undefined' ? window.DOMParser : NodeDOMParser;
-				const gpxData = new DOMParser().parseFromString(text, 'text/xml');
+				const gpxData = new window.DOMParser().parseFromString(text, 'text/xml');
 				geojson = gpx(gpxData);
 
 				if (!geojson || !geojson.features) {
