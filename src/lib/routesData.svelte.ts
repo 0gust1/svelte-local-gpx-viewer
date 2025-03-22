@@ -1,6 +1,8 @@
 import { db, liveGeoJSONRoutes, type LocalGeoJSONRouteEntity } from '$lib/localDB';
 import { get } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
+import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
+import JSZip from 'jszip';
 
 let uiRoutes: LocalGeoJSONRouteEntity[] = $state.raw(get(liveGeoJSONRoutes));
 const selectedRoutesIds = new SvelteSet<number>();
@@ -57,6 +59,43 @@ export const getUIRoutes = () => {
 		},
 		async createRoute(obj: LocalGeoJSONRouteEntity) {
 			await db.geoJSONRoutes.add(obj);
+		},
+		async downloadAllRoutesArchive() {
+			const zip = new JSZip();
+			const routes = uiRoutes;
+
+			for (const route of routes) {
+				// Add GPX file
+				let gpxData = route.originalGPXData;
+				if (!gpxData) {
+					const gpx = GeoJsonToGpx(route.data);
+					gpxData = new XMLSerializer().serializeToString(gpx);
+				}
+				zip.file(`${route.name}.gpx`, gpxData);
+
+				// Add GeoJSON file
+				const geoJSONData = JSON.stringify(route.data, null, 2);
+				zip.file(`${route.name}.geojson`, geoJSONData);
+			}
+
+			// Generate the ZIP file
+			const content = await zip.generateAsync({ type: 'blob' });
+			const url = URL.createObjectURL(content);
+
+			 // Generate a timestamp for the filename
+			const now = new Date();
+			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+				now.getDate()
+			).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(
+				now.getMinutes()
+			).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+
+			// Trigger download
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `routes-archive_${timestamp}.zip`;
+			a.click();
+			URL.revokeObjectURL(url);
 		}
 	};
 };
