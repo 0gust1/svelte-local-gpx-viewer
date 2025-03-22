@@ -9,7 +9,7 @@
 <header class="site-header">
 	<h1 class="title">
 		<span>Svelte local gpx viewer</span><span class="version">({__APP_VERSION__}-{version})</span>
-		<p>A small local-first GPX / geoJSON routes viewer</p>
+		<p>A small local-first GPX / geoJSON / FIT routes viewer</p>
 	</h1>
 	<a class="github-link" href="https://github.com/0gust1/svelte-local-gpx-viewer">
 		<svg viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"

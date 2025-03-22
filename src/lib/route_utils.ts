@@ -1,6 +1,7 @@
 import { bbox, length } from '@turf/turf';
 import type { Feature } from 'geojson';
 import { gpx } from '@tmcw/togeojson';
+import { Decoder, Stream } from '@garmin/fitsdk';
 
 /**
  * Smooth the elevation data of coordinates.
@@ -81,24 +82,74 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
 	}
 }
 
+/**
+ * Parse FIT file and convert it to GeoJSON.
+ */
+function parseFitToGeoJSON(fitData: ArrayBuffer): GeoJSON.FeatureCollection {
+	const stream = Stream.fromByteArray(new Uint8Array(fitData));
+	const decoder = new Decoder(stream);
+
+	if (!decoder.isFIT() || !decoder.checkIntegrity()) {
+		throw new Error('Invalid or corrupted FIT file');
+	}
+
+	const { messages, errors } = decoder.read();
+
+	console.log('FIT messages:', messages);
+	if (errors.length) {
+		console.error('FIT errors:', errors);
+	}
+
+	const coordinates = messages.recordMesgs
+		.filter((message) => message.positionLat !== undefined && message.positionLong !== undefined)
+		.map((message) => [
+			message.positionLong / (2 ** 31 / 180) || 0, // Convert longitude to degrees
+			message.positionLat / (2 ** 31 / 180) || 0, // Convert latitude to degrees
+			message.enhancedAltitude || message.altitude || 0 // Use altitude if available
+		]);
+
+	return {
+		type: 'FeatureCollection',
+		features: [
+			{
+				type: 'Feature',
+				geometry: {
+					type: 'LineString',
+					coordinates
+				},
+				properties: {}
+			}
+		]
+	};
+}
+
 export async function prepareRoutesFromFiles(files: FileList) {
 	const processedRoutes = [];
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
 		const text = await file.text();
+		const arrayBuffer = await file.arrayBuffer();
 
 		try {
 			let geojson = null;
-			const isGPX = file.name.split('.').pop() === 'gpx';
+			const extension = file.name.split('.').pop()?.toLowerCase();
 
-			if (isGPX) {
+			if (extension === 'gpx') {
 				// Parse GPX file into GeoJSON
 				const gpxData = new window.DOMParser().parseFromString(text, 'text/xml');
 				geojson = gpx(gpxData);
 
 				if (!geojson || !geojson.features) {
 					console.error('Failed to parse GPX file:', file.name);
+					continue;
+				}
+			} else if (extension === 'fit') {
+				// Parse FIT file into GeoJSON
+				geojson = parseFitToGeoJSON(arrayBuffer);
+
+				if (!geojson || !geojson.features) {
+					console.error('Failed to parse FIT file:', file.name);
 					continue;
 				}
 			} else {
@@ -122,7 +173,7 @@ export async function prepareRoutesFromFiles(files: FileList) {
 				distance: routeLength,
 				elevation,
 				visible: true,
-				originalGPXData: isGPX ? text : null,
+				originalGPXData: extension === 'gpx' ? text : null,
 				color: getRandomColor()
 			});
 		} catch (error) {
