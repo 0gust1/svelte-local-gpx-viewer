@@ -85,7 +85,7 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
 /**
  * Parse FIT file and convert it to GeoJSON.
  */
-function parseFitToGeoJSON(fitData: ArrayBuffer): GeoJSON.FeatureCollection {
+export function parseFitToGeoJSON(fitData: ArrayBuffer): GeoJSON.FeatureCollection {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
 	const decoder = new Decoder(stream);
 

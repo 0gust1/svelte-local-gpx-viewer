@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { smoothElevations, calculateElevation, getRandomColor, getBoundingBox, prepareRoutesFromFiles } from './route_utils';
 import type { Feature } from 'geojson';
 import { DOMParser as NodeDOMParser } from 'xmldom';
+
 
 // Monkey-patch window.DOMParser for tests
 beforeAll(() => {
@@ -169,3 +170,4 @@ describe('prepareRoutesFromFiles', () => {
 		});
 	});
 });
+
