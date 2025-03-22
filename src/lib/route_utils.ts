@@ -22,7 +22,7 @@ function smoothElevations(coords: number[][], windowSize: number = 4): number[][
 /**
  * Calculate positive and negative elevation changes.
  */
-export function calculateElevation(
+function calculateElevation(
 	feature: Feature,
 	threshold: number = 0
 ): { positive: number; negative: number } {
@@ -58,7 +58,7 @@ export function calculateElevation(
 /**
  * Generate a random color.
  */
-export function getRandomColor(): string {
+function getRandomColor(): string {
 	const r = Math.floor(Math.random() * 156);
 	const g = Math.floor(Math.random() * 130);
 	const b = Math.floor(Math.random() * 156);
@@ -68,8 +68,8 @@ export function getRandomColor(): string {
 /**
  * Get the bounding box of GeoJSON features.
  */
-export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, number, number, number] {
-	let boundingBox = bbox({
+function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, number, number, number] {
+	const boundingBox = bbox({
 		type: 'FeatureCollection',
 		features: geojson_feats
 	});
