@@ -5,7 +5,7 @@ import { gpx } from '@tmcw/togeojson';
 /**
  * Smooth the elevation data of coordinates.
  */
-function smoothElevations(coords: number[][], windowSize: number = 4): number[][] {
+export function smoothElevations(coords: number[][], windowSize: number = 4): number[][] {
 	const smoothed = [];
 	for (let i = 0; i < coords.length; i++) {
 		const smoothing_window = coords.slice(
@@ -22,7 +22,7 @@ function smoothElevations(coords: number[][], windowSize: number = 4): number[][
 /**
  * Calculate positive and negative elevation changes.
  */
-function calculateElevation(
+export function calculateElevation(
 	feature: Feature,
 	threshold: number = 0
 ): { positive: number; negative: number } {
@@ -58,7 +58,7 @@ function calculateElevation(
 /**
  * Generate a random color.
  */
-function getRandomColor(): string {
+export function getRandomColor(): string {
 	const r = Math.floor(Math.random() * 156);
 	const g = Math.floor(Math.random() * 130);
 	const b = Math.floor(Math.random() * 156);
@@ -68,7 +68,7 @@ function getRandomColor(): string {
 /**
  * Get the bounding box of GeoJSON features.
  */
-function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, number, number, number] {
+export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, number, number, number] {
 	const boundingBox = bbox({
 		type: 'FeatureCollection',
 		features: geojson_feats
@@ -81,43 +81,53 @@ function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, number, numb
 	}
 }
 
-export async function prepareRoutesFromFiles(files:FileList){
-  const processedRoutes = [];
+export async function prepareRoutesFromFiles(files: FileList) {
+	const processedRoutes = [];
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const text = await file.text();
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
+		const text = await file.text();
 
-    try {
-      // if file extension is GPX
-      let geojson = null;
-      const isGPX = file.name.split('.').pop() === 'gpx';
+		try {
+			let geojson = null;
+			const isGPX = file.name.split('.').pop() === 'gpx';
 
-      if (isGPX) {
-        const gpxData = new DOMParser().parseFromString(text, 'text/xml');
-        geojson = gpx(gpxData);
-      } else {
-        geojson = JSON.parse(text);
-      }
-      // calculate the length of the route
-      const routeLength = length(geojson.features[0], { units: 'kilometers' });
-      const elevation = calculateElevation(geojson.features[0]);
-      const boundingBox = getBoundingBox(geojson.features);
-      geojson.bbox = boundingBox;
-      // persist the geojson to the database
-      processedRoutes.push({
-        name: file.name.split('.').slice(0, -1).join('.'),
-        data: geojson,
-        distance: routeLength,
-        elevation,
-        visible: true,
-        originalGPXData: isGPX ? text : null,
-        // add a nice color to the route
-        color: getRandomColor()
-      });
-    } catch (error) {
-      console.error('error', error);
-    }
-  }
-  return processedRoutes;
+			if (isGPX) {
+				// Parse GPX file into GeoJSON
+				const gpxData = new window.DOMParser().parseFromString(text, 'text/xml');
+				geojson = gpx(gpxData);
+
+				if (!geojson || !geojson.features) {
+					console.error('Failed to parse GPX file:', file.name);
+					continue;
+				}
+			} else {
+				geojson = JSON.parse(text);
+
+				if (!geojson || !geojson.features) {
+					console.error('Failed to parse GeoJSON file:', file.name);
+					continue;
+				}
+			}
+
+			// Calculate the length of the route
+			const routeLength = length(geojson.features[0], { units: 'kilometers' });
+			const elevation = calculateElevation(geojson.features[0]);
+			const boundingBox = getBoundingBox(geojson.features);
+			geojson.bbox = boundingBox;
+
+			processedRoutes.push({
+				name: file.name.split('.').slice(0, -1).join('.'),
+				data: geojson,
+				distance: routeLength,
+				elevation,
+				visible: true,
+				originalGPXData: isGPX ? text : null,
+				color: getRandomColor()
+			});
+		} catch (error) {
+			console.error('Error processing file:', file.name, error);
+		}
+	}
+	return processedRoutes;
 }
