@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RoutesUpload from '$lib/RoutesUpload.svelte';
-	import {getUIRoutes} from '$lib/routesData.svelte';
+	import { getUIRoutes } from '$lib/routesData.svelte';
 	import { length } from '@turf/turf';
 	import { gpx } from '@tmcw/togeojson';
 	import { bbox } from '@turf/turf';
@@ -10,24 +10,50 @@
 
 	const uiRoutes = getUIRoutes();
 
-	function calculateElevation(feature: Feature) {
+	const SMOOTH_ELE_FACTOR = 4;
+	const ELE_THRESHOLD = 0;
+
+	function smoothElevations(
+		coords: number[][],
+		windowSize: number = SMOOTH_ELE_FACTOR
+	): number[][] {
+		const smoothed = [];
+		for (let i = 0; i < coords.length; i++) {
+			const window = coords.slice(
+				Math.max(0, i - Math.floor(windowSize / 2)),
+				i + Math.ceil(windowSize / 2)
+			);
+			const avgElevation = window.reduce((sum, coord) => sum + (coord[2] ?? 0), 0) / window.length;
+			smoothed.push([coords[i][0], coords[i][1], avgElevation]);
+		}
+		return smoothed;
+	}
+
+	function calculateElevation(
+		feature: Feature,
+		threshold: number = ELE_THRESHOLD
+	): { positive: number; negative: number } {
 		if (feature.geometry.type === 'LineString') {
 			let positive = 0;
 			let negative = 0;
-			const coords = feature.geometry.coordinates;
-			for (let i = 0; i < coords.length - 1; i++) {
-				const current = coords[i];
-				const next = coords[i + 1];
+			let coords = feature.geometry.coordinates;
 
-				// Ensure both current[2] and next[2] are valid numbers
-				const currentElevation = current[2] ?? 0;
-				const nextElevation = next[2] ?? 0;
+			// Smooth the elevation data
+			coords = smoothElevations(coords);
+
+			for (let i = 0; i < coords.length - 1; i++) {
+				const currentElevation = coords[i][2] ?? 0;
+				const nextElevation = coords[i + 1][2] ?? 0;
 
 				const elevation = nextElevation - currentElevation;
-				if (elevation > 0) {
-					positive += elevation;
-				} else {
-					negative += elevation;
+
+				// Apply threshold to ignore small changes
+				if (Math.abs(elevation) > threshold) {
+					if (elevation > 0) {
+						positive += elevation;
+					} else {
+						negative += elevation;
+					}
 				}
 			}
 			return { positive, negative };
@@ -76,29 +102,29 @@
 					geojson = JSON.parse(text);
 					// validate the geojson	?
 				}
-				
+
 				const routeLength = length(geojson.features[0], { units: 'kilometers' });
 
 				const elevation = calculateElevation(geojson.features[0]);
-				
+
 				const boundingBox = getBoundingBox(geojson.features);
 
 				// add the bounding box to the geojson
 				geojson.bbox = boundingBox;
 
-				console.log("geojson", geojson);
+				console.log('geojson', geojson);
 
-					// persist the geojson to the database
-					await uiRoutes.createRoute({
-						name: file.name.split('.').slice(0, -1).join('.'),
-						data: geojson,
-						distance: routeLength,
-						elevation,
-						visible: true,
-						originalGPXData: isGPX ? text : null,
-						// add a nice color to the route
-						color: getRandomColor()
-					});
+				// persist the geojson to the database
+				await uiRoutes.createRoute({
+					name: file.name.split('.').slice(0, -1).join('.'),
+					data: geojson,
+					distance: routeLength,
+					elevation,
+					visible: true,
+					originalGPXData: isGPX ? text : null,
+					// add a nice color to the route
+					color: getRandomColor()
+				});
 			} catch (error) {
 				console.error('error', error);
 			}
