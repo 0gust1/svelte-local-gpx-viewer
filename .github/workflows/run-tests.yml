@@ -1,8 +1,10 @@
-name: Test, build and deploy to GitHub Pages
+name: Run unit and e2e tests and attempt to build
 
 on:
   push:
-    branches: 'main'
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build_site:
@@ -26,6 +28,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run tests (unit and e2e)
+        run: npm test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
       - name: build
         env:
           BASE_PATH: '/svelte-local-gpx-viewer'
@@ -33,25 +48,4 @@ jobs:
           npm run build
           touch build/.nojekyll
 
-      - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # this should match the `pages` option in your adapter-static options
-          path: 'build/'
 
-  deploy:
-    needs: build_site
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy on GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
