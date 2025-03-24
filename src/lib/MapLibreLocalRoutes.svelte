@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
+	import { GeoJSONSource, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre-gl';
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import bbox from '@turf/bbox';
 	import { getUIRoutes } from './routesData.svelte.js';
@@ -83,7 +83,7 @@
 	{#if route.data.features.length > 0}
 		{#each route.data.features as feature}
 			{#if feature.geometry.type === 'LineString'}
-				<GeoJSON data={feature}>
+				<GeoJSONSource data={feature}>
 					<LineLayer
 						onmouseenter={() => {
 							map.getCanvas().style.cursor = 'pointer';
@@ -134,7 +134,7 @@
 							'icon-halo-color': 'black'
 						}}
 					/>
-				</GeoJSON>
+				</GeoJSONSource>
 			{/if}
 		{/each}
 	{/if}

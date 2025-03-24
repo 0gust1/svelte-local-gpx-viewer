@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { MapLibre } from 'svelte-maplibre';
+	import { MapLibre, NavigationControl, ScaleControl, GlobeControl } from 'svelte-maplibre-gl';
 	import type { StyleSpecification } from 'maplibre-gl';
 	import { getUIRoutes } from './routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
@@ -21,7 +21,6 @@
 		zoom={7}
 		class="map"
 		{pitch}
-		standardControls
 		style={mapStyle}
 		images={[
 			{
@@ -31,6 +30,9 @@
 		]}
 	>
 		<RoutesViewer geoJSONRoutes={uiRoutes.routes} />
+		<NavigationControl />
+		<ScaleControl />
+		<GlobeControl />
 	</MapLibre>
 {/if}
 
