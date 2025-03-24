@@ -99,7 +99,7 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): FeatureCollection {
 
 	const { messages, errors } = decoder.read();
 
-	console.log('FIT messages:', messages);
+	//console.log('FIT messages:', messages);
 	if (errors.length) {
 		console.error('FIT errors:', errors);
 	}

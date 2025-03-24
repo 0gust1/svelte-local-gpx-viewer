@@ -3,31 +3,11 @@ import { parseFitToGeoJSON } from './route_utils';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-describe('parseFitToGeoJSON (Integration Tests)', () => {
-	it('parses a valid FIT file into GeoJSON', () => {
-		// Load a valid FIT file
-		const fitFilePath = resolve(__dirname, '../../test/fixtures/valid_gravel_coros.fit');
-		const fitData = readFileSync(fitFilePath);
-		const fitDataArrayBuffer = fitData.buffer.slice(
-			fitData.byteOffset,
-			fitData.byteOffset + fitData.byteLength
-		);
-		// Call the function
-		const result = parseFitToGeoJSON(fitDataArrayBuffer);
-
-		// Assert the result (example structure, adjust based on your expectations)
-		expect(result).toEqual({
-			type: 'FeatureCollection',
-			features: expect.any(Array)
-		});
-		expect(result.features.length).toBeGreaterThan(0);
-	});
-});
 
 describe('parseFitToGeoJSON (Integration Tests)', () => {
-	it('parses a valid FIT file into GeoJSON', () => {
+	it('parses a valid FIT file (Activity.fit) into GeoJSON', () => {
 		// Load a valid FIT file
-		const fitFilePath = resolve(__dirname, '../../test/fixtures/valid_gravel_coros.fit');
+		const fitFilePath = resolve(__dirname, '../../test/fixtures/Activity.fit');
 		const fitData = readFileSync(fitFilePath);
 		const fitDataArrayBuffer = fitData.buffer.slice(
 			fitData.byteOffset,
@@ -63,5 +43,55 @@ describe('parseFitToGeoJSON (Integration Tests)', () => {
 		expect(() => parseFitToGeoJSON(fitDataArrayBuffer)).toThrowError(
 			'Invalid or corrupted FIT file'
 		);
+	});
+
+	it('parses a valid FIT file (HrmPluginTestActivity.fit) into GeoJSON', () => {
+		// Load the HrmPluginTestActivity FIT file
+		const fitFilePath = resolve(__dirname, '../../test/fixtures/HrmPluginTestActivity.fit');
+		const fitData = readFileSync(fitFilePath);
+		const fitDataArrayBuffer = fitData.buffer.slice(
+			fitData.byteOffset,
+			fitData.byteOffset + fitData.byteLength
+		);
+
+		// Call the function
+		const result = parseFitToGeoJSON(fitDataArrayBuffer);
+
+		// Assert the result
+		expect(result).toEqual({
+			type: 'FeatureCollection',
+			features: expect.any(Array)
+		});
+		expect(result.features.length).toBeGreaterThan(0);
+
+		// Check that coordinates are valid
+		const coordinates = result.features[0].geometry.coordinates;
+		expect(coordinates).toBeInstanceOf(Array);
+		expect(coordinates[0]).toHaveLength(3); // [longitude, latitude, altitude]
+	});
+
+	it('parses a valid FIT file  (WithGearChangeData.fit) into GeoJSON', () => {
+		// Load the WithGearChangeData FIT file
+		const fitFilePath = resolve(__dirname, '../../test/fixtures/WithGearChangeData.fit');
+		const fitData = readFileSync(fitFilePath);
+		const fitDataArrayBuffer = fitData.buffer.slice(
+			fitData.byteOffset,
+			fitData.byteOffset + fitData.byteLength
+		);
+
+		// Call the function
+		const result = parseFitToGeoJSON(fitDataArrayBuffer);
+
+		// Assert the result
+		expect(result).toEqual({
+			type: 'FeatureCollection',
+			features: expect.any(Array)
+		});
+		expect(result.features.length).toBeGreaterThan(0);
+
+		// Check that coordinates are valid
+		const coordinates = result.features[0].geometry.coordinates;
+		expect(coordinates).toBeInstanceOf(Array);
+		expect(coordinates[0]).toHaveLength(3); // [longitude, latitude, altitude]
 	});
 });
