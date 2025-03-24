@@ -1,5 +1,5 @@
 import { bbox, length } from '@turf/turf';
-import type { Feature } from 'geojson';
+import type { Feature, FeatureCollection, GeoJsonProperties } from 'geojson';
 import { gpx } from '@tmcw/togeojson';
 import { Decoder, Stream } from '@garmin/fitsdk';
 
@@ -85,8 +85,12 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
 /**
  * Parse FIT file and convert it to GeoJSON.
  */
-export function parseFitToGeoJSON(fitData: ArrayBuffer): GeoJSON.FeatureCollection {
+export function parseFitToGeoJSON(fitData: ArrayBuffer): FeatureCollection {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
+	if (!stream) {
+		throw new Error('Failed to create stream from FIT data');
+	}
+
 	const decoder = new Decoder(stream);
 
 	if (!decoder.isFIT() || !decoder.checkIntegrity()) {
@@ -117,8 +121,10 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): GeoJSON.FeatureCollecti
 					type: 'LineString',
 					coordinates
 				},
-				properties: {}
-			}
+				properties: sessionMesgsToProperties(messages.sessionMesgs)
+			},
+			...generatePointFeatures(messages
+				.recordMesgs)
 		]
 	};
 }
@@ -181,4 +187,64 @@ export async function prepareRoutesFromFiles(files: FileList) {
 		}
 	}
 	return processedRoutes;
+}
+
+function generatePointFeatures(recordMesgs): Feature[] {
+	return recordMesgs
+		.filter((message) => message.positionLat !== undefined && message.positionLong !== undefined)
+		.map((message) => ({
+			type: 'Feature',
+			geometry: {
+				type: 'Point',
+				coordinates: [
+					message.positionLong / (2 ** 31 / 180) || 0, // Convert longitude to degrees
+					message.positionLat / (2 ** 31 / 180) || 0 // Convert latitude to degrees
+				]
+			},
+			properties: {
+				type: 'Tracker Data',
+				time: message.timestamp || null, // Timestamp of the record
+				altitude: message.enhancedAltitude || message.altitude || 0, // Use enhanced altitude if available
+				heartRate: message.heartRate || 0, // Heart rate
+				cadence: message.cadence || 0, // Cadence
+				speed: message.enhancedSpeed || message.speed || 0, // Speed in m/s
+				temperature: message.temperature || null // Temperature
+			}
+		}));
+}
+
+function sessionMesgsToProperties(sessionMesgs): GeoJsonProperties {
+	if (!sessionMesgs || sessionMesgs.length === 0) {
+		return {};
+	}
+
+	// Extract relevant properties from the session messages
+	const session = sessionMesgs[0]; // Assuming we only care about the first session message
+	return {
+		type: 'Tracker Data',
+		sport: session.sport || 'unknown', // Sport type
+		subSport: session.subSport || 'unknown', // Sub-sport type
+		startTime: session.startTime || null, // Start time of the session
+		timestamp: session.timestamp || null, // End time of the session
+		totalElapsedTime: session.totalElapsedTime || 0, // Total elapsed time in seconds
+		totalTimerTime: session.totalTimerTime || 0, // Total timer time in seconds
+		totalDistance: session.totalDistance || 0, // Total distance in meters
+		totalCalories: session.totalCalories || 0, // Total calories burned
+		maxHeartRate: session.maxHeartRate || 0, // Maximum heart rate
+		minHeartRate: session.minHeartRate || 0, // Minimum heart rate
+		avgHeartRate: session.avgHeartRate || 0, // Average heart rate
+		avgTemperature: session.avgTemperature || null, // Average temperature
+		totalAscent: session.totalAscent || 0, // Total ascent in meters
+		totalDescent: session.totalDescent || 0, // Total descent in meters
+		maxCadence: session.maxCadence || 0, // Maximum cadence
+		avgCadence: session.avgCadence || 0, // Average cadence
+		maxSpeed: session.maxSpeed || 0, // Maximum speed in m/s
+		avgSpeed: session.avgSpeed || 0, // Average speed in m/s
+		maxPower: session.maxPower || 0, // Maximum power
+		avgPower: session.avgPower || 0, // Average power
+		totalWork: session.totalWork || 0, // Total work
+		normalizedPower: session.normalizedPower || 0, // Normalized power
+		enhancedMaxSpeed: session.enhancedMaxSpeed || 0, // Enhanced maximum speed
+		enhancedAvgSpeed: session.enhancedAvgSpeed || 0 // Enhanced average speed
+	};
 }

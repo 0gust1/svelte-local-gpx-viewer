@@ -81,7 +81,7 @@
 
 {#each geoJSONRoutes.filter((route) => route.visible) as route, index (route.id)}
 	{#if route.data.features.length > 0}
-		{#each route.data.features as feature (feature.id)}
+		{#each route.data.features as feature}
 			{#if feature.geometry.type === 'LineString'}
 				<GeoJSON data={feature}>
 					<LineLayer
