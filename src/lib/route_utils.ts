@@ -1,7 +1,62 @@
 import { bbox, length } from '@turf/turf';
-import type { Feature, FeatureCollection, GeoJsonProperties } from 'geojson';
+import type { Feature, FeatureCollection, GeoJsonProperties, Point, LineString } from 'geojson';
 import { gpx } from '@tmcw/togeojson';
 import { Decoder, Stream } from '@garmin/fitsdk';
+
+interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
+	properties: GeoJsonProperties & {
+		type: 'Photo';
+		filePath: string;
+		url: string;
+	};
+}
+
+interface TrackerDataGeoPoint extends Feature<Point, GeoJsonProperties> {
+	properties: GeoJsonProperties & {
+		type: 'Tracker Data';
+	}
+}
+
+interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
+	properties: GeoJsonProperties & {
+		type: 'Track Path';
+	};
+}
+
+interface SensorDataPoints extends FeatureCollection {
+	features: TrackerDataGeoPoint[];
+	properties: GeoJsonProperties;
+}
+
+interface RoutePhotos extends FeatureCollection {
+	features: PhotoGeoPoint[];
+	properties: GeoJsonProperties
+}
+
+interface RouteTracks extends FeatureCollection {
+	features: TrackGeoPath[];
+	properties: GeoJsonProperties & {
+		type: 'Route Tracks';
+};
+}
+
+interface RouteData  {
+	name: string;
+	data: {
+		route: RouteTracks;
+		photos: RoutePhotos;
+		sensors: SensorDataPoints;
+	};
+	distance: number;
+	elevation: { positive: number; negative: number };
+};
+
+interface RouteDataInApp extends RouteData {
+	visible: boolean;
+	originalGPXData?: string | null;
+	originalParsedFitData?: object | null;
+	color: string;
+}
 
 /**
  * Smooth the elevation data of coordinates.
@@ -85,7 +140,11 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
 /**
  * Parse FIT file and convert it to GeoJSON.
  */
-export function parseFitToGeoJSON(fitData: ArrayBuffer): FeatureCollection {
+export function parseFitToGeoJSON(fitData: ArrayBuffer): {
+	route: FeatureCollection;
+	photos: FeatureCollection;
+	sensors: FeatureCollection;
+} {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
 	if (!stream) {
 		throw new Error('Failed to create stream from FIT data');
@@ -94,7 +153,7 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): FeatureCollection {
 	const decoder = new Decoder(stream);
 
 	if (!decoder.isFIT() || !decoder.checkIntegrity()) {
-		throw new Error('Invalid or corrupted FIT file');
+		console.error('Invalid or corrupted FIT file');
 	}
 
 	const { messages, errors } = decoder.read();
@@ -113,19 +172,25 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): FeatureCollection {
 		]);
 
 	return {
-		type: 'FeatureCollection',
-		features: [
-			{
-				type: 'Feature',
-				geometry: {
-					type: 'LineString',
-					coordinates
+		route: {
+			type: 'FeatureCollection',
+			features: [
+				{
+					type: 'Feature',
+					geometry: {
+						type: 'LineString',
+						coordinates
+					},
+					properties: sessionMesgsToProperties(messages.sessionMesgs)
 				},
-				properties: sessionMesgsToProperties(messages.sessionMesgs)
-			},
-			...generatePointFeatures(messages
-				.recordMesgs)
-		]
+				...extractFitData(messages.recordMesgs)
+			]
+		},
+		sensors: {
+			type: 'FeatureCollection',
+			features: extractFitData(messages.recordMesgs)
+		},
+		photos: { type: 'FeatureCollection', features: [] }
 	};
 }
 
@@ -175,7 +240,7 @@ export async function prepareRoutesFromFiles(files: FileList) {
 
 			processedRoutes.push({
 				name: file.name.split('.').slice(0, -1).join('.'),
-				data: geojson,
+				data: { route: geojson, photos: {}, sensors: {} },
 				distance: routeLength,
 				elevation,
 				visible: true,
@@ -189,7 +254,7 @@ export async function prepareRoutesFromFiles(files: FileList) {
 	return processedRoutes;
 }
 
-function generatePointFeatures(recordMesgs): Feature[] {
+function extractFitData(recordMesgs): Feature[] {
 	return recordMesgs
 		.filter((message) => message.positionLat !== undefined && message.positionLong !== undefined)
 		.map((message) => ({
