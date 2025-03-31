@@ -56,6 +56,27 @@ App and components made with Svelte. Published as a Svelte library, and as a web
 - easily reusabble in an existing Svelte app
 - also exposing built/compiled framework-agnostic webcomponents (to be used in any JS app, or even in a static HTML page).
 
+### Example typical user workflows and use cases
+
+Record a route with a GPS device (or a phone)
+
+Load/drag the route file in the app (fit file, GPX file, etc.)
+
+Edit the route (cut, split, etc.)
+
+Add pictures to the route (from a local folder, or from a URL)
+
+Add notes to the route (text, markdown, etc.)
+
+Export the route as a zip file (containing the route data, the images, and the metadata). The exported archive will contain a JSON file that will be useable to feed a display component, integrable in any website.
+
+Contextual use case examples:
+
+- A user wants to publish a ride journal on his own website.
+- A collective wants to publish a carefully curated collection of routes on their website (with pictures, notes, instructions, etc.)
+- A user wants to compare a set of routes (his own, or a set of routes from a community) and to be able to visualize them on a map, and to be able to compare them (elevation, speed, etc.)
+- etc.
+
 ### Dicussions, inputs and inspirations
 
 @n1k0@mamot.fr, @nhoizey@mamot.fr, myself and maybe @Saint_loup@mastodon.design seem to share the same needs around multi-routes display + sharing + publication + pictures association.
