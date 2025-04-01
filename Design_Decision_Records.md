@@ -44,7 +44,7 @@ For now, the only way to do that is to use third party services (embedded iframe
   - no dependency on a third party service
   - not tied to a specific platform
 
-- A route or a collection of routes (see definition below, in "Data modelling and data structures") should be easily exportable, as an archive (zip file) containing:
+- A path or a collection of paths (see definition below, in "Data modelling and data structures") should be easily exportable, as an archive (zip file) containing:
   - the route data (in a standardized format)
   - the images (in a standardized format)
   - the metadata (in a standardized format)
@@ -57,6 +57,11 @@ App and components made with Svelte. Published as a Svelte library, and as a web
 - also exposing built/compiled framework-agnostic webcomponents (to be used in any JS app, or even in a static HTML page).
 
 ### Example typical user workflows and use cases
+
+There are two types of geographic paths: **routes** and **traces**.
+
+- A **route** is a geographic path that has been *planned*. It has no associated data (time, sensor data, metrics, etc.). 
+- A **trace** is a geographic path that has been *recorded* by a GPS device (or a phone). It has associated data (time, sensor data, metrics, etc.).
 
 Record a route with a GPS device (or a phone)
 
@@ -92,7 +97,7 @@ The app / components will be built around the concept of a "Route".
 A whole route is composed of:
 
 - **A path** (or a series of paths) that can be followed. - mandatory
-- **A collection of geolocalized pictures** - optional 
+- **A collection of geolocalized pictures** - optional
 - **A collection of metrics coming from senssors** (speed, heart rate, cadence, etc.) - optional
 - **Content/notes** associated with the the elements above. - optional (TBD: granuality of the notes: per route, per path, per picture, etc., format of the notes: text, markdown, etc.)
 
@@ -152,7 +157,7 @@ Geolocation of the images can be done in two ways:
 
 - https://geojson.org/
 - https://github.com/topojson/topojson (topojson extension of geojson)
-- https://geojson.xyz/ (example data) 
+- https://geojson.xyz/ (example data)
 
 ### GeoJSON and fit files
 
