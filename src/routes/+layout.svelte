@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n';
 	import { version } from '$app/environment';
-	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import '../app.css';
 	let { children } = $props();
 </script>
@@ -23,14 +21,13 @@
 	</a>
 </header>
 <div class="px-2 antialiased">
-	<ParaglideJS {i18n}>
-		{@render children()}
-	</ParaglideJS>
+	{@render children()}
 </div>
 
 <style lang="postcss">
+	@reference "../app.css";
 	.site-header {
-		@apply mb-6 border-b border-b-stone-100/30 bg-gradient-to-r from-slate-50 to-stone-300 pb-1 pl-2 pt-3 shadow shadow-slate-500/30;
+		@apply mb-6 border-b border-b-stone-100/30 bg-linear-to-r from-slate-50 to-stone-300 pt-3 pb-1 pl-2 shadow shadow-slate-500/30;
 		@apply flex items-center;
 	}
 	.title {
