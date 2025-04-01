@@ -1,62 +1,8 @@
 import { bbox, length } from '@turf/turf';
-import type { Feature, FeatureCollection, GeoJsonProperties, Point, LineString } from 'geojson';
+import type { Feature, GeoJsonProperties, FeatureCollection, Geometry } from 'geojson';
+import type { Route, RoutePaths, TrackerDataGeoPoint, RouteData } from './routes.datatypes.js';
 import { gpx } from '@tmcw/togeojson';
 import { Decoder, Stream } from '@garmin/fitsdk';
-
-interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
-	properties: GeoJsonProperties & {
-		type: 'Photo';
-		filePath: string;
-		url: string;
-	};
-}
-
-interface TrackerDataGeoPoint extends Feature<Point, GeoJsonProperties> {
-	properties: GeoJsonProperties & {
-		type: 'Tracker Data';
-	}
-}
-
-interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
-	properties: GeoJsonProperties & {
-		type: 'Track Path';
-	};
-}
-
-interface SensorDataPoints extends FeatureCollection {
-	features: TrackerDataGeoPoint[];
-	properties: GeoJsonProperties;
-}
-
-interface RoutePhotos extends FeatureCollection {
-	features: PhotoGeoPoint[];
-	properties: GeoJsonProperties
-}
-
-interface RouteTracks extends FeatureCollection {
-	features: TrackGeoPath[];
-	properties: GeoJsonProperties & {
-		type: 'Route Tracks';
-};
-}
-
-interface RouteData  {
-	name: string;
-	data: {
-		route: RouteTracks;
-		photos: RoutePhotos;
-		sensors: SensorDataPoints;
-	};
-	distance: number;
-	elevation: { positive: number; negative: number };
-};
-
-interface RouteDataInApp extends RouteData {
-	visible: boolean;
-	originalGPXData?: string | null;
-	originalParsedFitData?: object | null;
-	color: string;
-}
 
 /**
  * Smooth the elevation data of coordinates.
@@ -138,12 +84,11 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
 }
 
 /**
- * Parse FIT file and convert it to GeoJSON.
+ * Parse FIT file and convert it to the data structure used in the application.
  */
-export function parseFitToGeoJSON(fitData: ArrayBuffer): {
-	route: FeatureCollection;
-	photos: FeatureCollection;
-	sensors: FeatureCollection;
+export function parseFitToJSON(fitData: ArrayBuffer): {
+	routeData: RouteData | null;
+	errors: Error[];
 } {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
 	if (!stream) {
@@ -152,11 +97,16 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): {
 
 	const decoder = new Decoder(stream);
 
-	if (!decoder.isFIT() || !decoder.checkIntegrity()) {
-		console.error('Invalid or corrupted FIT file');
+	if (!decoder.isFIT()) {
+		console.error('Unrecognized FIT file');
+		return { routeData: null, errors: [new Error('Unrecognized FIT file')] };
 	}
 
-	const { messages, errors } = decoder.read();
+	if (!decoder.checkIntegrity()) {
+		console.warn('Invalid FIT file');
+	}
+
+	const { messages, errors }: { messages: object; errors: Error[] } = decoder.read();
 
 	//console.log('FIT messages:', messages);
 	if (errors.length) {
@@ -172,89 +122,205 @@ export function parseFitToGeoJSON(fitData: ArrayBuffer): {
 		]);
 
 	return {
-		route: {
-			type: 'FeatureCollection',
-			features: [
-				{
-					type: 'Feature',
-					geometry: {
-						type: 'LineString',
-						coordinates
-					},
-					properties: sessionMesgsToProperties(messages.sessionMesgs)
-				},
-				...extractFitData(messages.recordMesgs)
-			]
+		routeData: {
+			route: {
+				type: 'FeatureCollection',
+				features: [
+					{
+						type: 'Feature',
+						geometry: {
+							type: 'LineString',
+							coordinates
+						},
+						properties: { type: 'Track Path', ...sessionMesgsToProperties(messages.sessionMesgs) }
+					}
+				],
+				properties: {
+					type: 'Route Paths',
+					...sessionMesgsToProperties(messages.sessionMesgs)
+				}
+			},
+			sensors: {
+				type: 'FeatureCollection',
+				features: extractFitData(messages.recordMesgs),
+				properties: { type: 'Sensors Datas', ...sessionMesgsToProperties(messages.sessionMesgs) }
+			},
+			photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
+			notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
 		},
-		sensors: {
-			type: 'FeatureCollection',
-			features: extractFitData(messages.recordMesgs)
-		},
-		photos: { type: 'FeatureCollection', features: [] }
+		errors: errors
 	};
 }
 
-export async function prepareRoutesFromFiles(files: FileList) {
-	const processedRoutes = [];
+/**
+ * Parse a GPX file into the application's data structure.
+ */
+function parseGpxFile(filename: string, fileAsText: string): RouteData | Error {
+	const gpxData = new window.DOMParser().parseFromString(fileAsText, 'text/xml');
+	const featureCollection = gpx(gpxData);
+	console.log('parsing gpx', featureCollection);
+	if (
+		!featureCollection ||
+		!featureCollection.features ||
+		!featureCollection.features.length ||
+		!featureCollection.features[0] ||
+		featureCollection.features[0].geometry.type !== 'LineString'
+	) {
+		console.error(`Failed to parse GPX file: ${filename}`);
+		return new Error(`Failed to parse GPX file ${filename}`);
+	}
+
+	featureCollection.features[0].properties = { type: 'Track Path' };
+	(
+		featureCollection as FeatureCollection<Geometry, GeoJsonProperties> & {
+			properties: GeoJsonProperties;
+		}
+	).properties = { type: 'Route Paths' };
+	console.log('toto', featureCollection);
+
+	const routeData = {
+		route: featureCollection as RoutePaths,
+		photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
+		sensors: { type: 'FeatureCollection', features: [], properties: { type: 'Sensors Datas' } },
+		notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
+	}
+	console.log('routeData', routeData);
+	return routeData;
+	// return {
+	// 	route: featureCollection as RoutePaths,
+	// 	photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
+	// 	sensors: { type: 'FeatureCollection', features: [], properties: { type: 'Sensors Datas' } },
+	// 	notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
+	// };
+}
+
+export async function prepareRoutesFromFiles(
+	files: FileList
+): Promise<Array<{ route: Route | null; errors: Error[] }>> {
+	const processedRoutes: Array<{ route: Route | null; errors: Error[] }> = [];
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
-		const text = await file.text();
-		const arrayBuffer = await file.arrayBuffer();
+		const file_as_text = await file.text();
+		const file_as_arrayBuffer = await file.arrayBuffer();
+		const extension = file.name.split('.').pop()?.toLowerCase();
+
+		let routeToInsert: Route | null = null;
 
 		try {
-			let geojson = null;
-			const extension = file.name.split('.').pop()?.toLowerCase();
+			let routeData: RouteData | null = null;
+			let errors: Error[] = [];
 
 			if (extension === 'gpx') {
-				// Parse GPX file into GeoJSON
-				const gpxData = new window.DOMParser().parseFromString(text, 'text/xml');
-				geojson = gpx(gpxData);
-
-				if (!geojson || !geojson.features) {
-					console.error('Failed to parse GPX file:', file.name);
-					continue;
+				// Use the new parseGpxFile function
+				const routeDataOrError = parseGpxFile(file.name, file_as_text);
+				if (!routeDataOrError || routeDataOrError instanceof Error) {
+					console.error(`${file.name} - Failed to parse GPX file`);
+					errors.push(new Error(`Failed to parse GPX file ${file.name}`));
+				}else{
+					routeData = routeDataOrError;
 				}
 			} else if (extension === 'fit') {
-				// Parse FIT file into GeoJSON
-				geojson = parseFitToGeoJSON(arrayBuffer);
+				// Parse FIT file into App data structure
+				const parseResult = parseFitToJSON(file_as_arrayBuffer);
 
-				if (!geojson || !geojson.features) {
-					console.error('Failed to parse FIT file:', file.name);
-					continue;
+				// routeData is null: hard fail to parse the file
+				if (!parseResult.routeData || parseResult.routeData === null) {
+					console.error(`${file.name} - Failed to parse FIT file`);
+					errors = parseResult.errors;
+				}
+				// routeData is not null: we have a valid routeData object, but there were errors
+				// in the parsing process
+				if (parseResult.errors.length) {
+					console.error(`${file.name} parsed, but there were errors: ${parseResult.errors}`);
+					errors = parseResult.errors;
+				}
+				routeData = parseResult.routeData;
+			}
+			// user uploaded a json file coming from the app
+			// else if (extension === 'json') {
+			//     const parseResult = JSON.parse(file_as_text);
+			//     // TODO: validate with AJV schema
+			//     if (!parseResult || !parseResult.routeData) {
+			//         console.error('Failed to parse JSON file:', file.name);
+			//         continue;
+			//     }
+			//     routeData = parseResult;
+
+			//     // Validate the data, it should be a Route object
+			//     if (
+			//         !routeData ||
+			//         !routeData.routeData ||
+			//         !routeData.routeData.route ||
+			//         !routeData.routeData.photos ||
+			//         !routeData.routeData.sensors
+			//     ) {
+			//         console.error('Failed to parse JSON file:', file.name);
+			//         continue;
+			//     }
+			// }
+			// user uploaded a geojson file
+			else if (extension === 'geojson') {
+				const geojson = JSON.parse(file_as_text);
+				routeData = {
+					route: geojson,
+					photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
+					sensors: {
+						type: 'FeatureCollection',
+						features: [],
+						properties: { type: 'Sensors Datas' }
+					},
+					notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
+				};
+				if (!routeData || !routeData.route) {
+					console.error('Failed to parse GEOJSON file:', file.name);
+					errors.push(new Error(`Failed to parse GEOJSON file ${file.name}`));
 				}
 			} else {
-				geojson = JSON.parse(text);
-
-				if (!geojson || !geojson.features) {
-					console.error('Failed to parse GeoJSON file:', file.name);
-					continue;
-				}
+				console.error('Unsupported file type:', file.name);
+				errors.push(new Error(`Unsupported file type ${file.name}`));
 			}
 
-			// Calculate the length of the route
-			const routeLength = length(geojson.features[0], { units: 'kilometers' });
-			const elevation = calculateElevation(geojson.features[0]);
-			const boundingBox = getBoundingBox(geojson.features);
-			geojson.bbox = boundingBox;
+			if (!routeData) {
+				processedRoutes.push({ route: null, errors });
+			} else {
+				// Calculate the length of the route
+				// we assume the first feature is the route
+				const routeLength = length(routeData.route.features[0], { units: 'kilometers' });
+				const elevation = calculateElevation(routeData.route.features[0]);
+				const boundingBox = getBoundingBox(routeData.route.features);
 
-			processedRoutes.push({
-				name: file.name.split('.').slice(0, -1).join('.'),
-				data: { route: geojson, photos: {}, sensors: {} },
-				distance: routeLength,
-				elevation,
-				visible: true,
-				originalGPXData: extension === 'gpx' ? text : null,
-				color: getRandomColor()
-			});
+				routeToInsert = {
+					name: file.name.split('.').slice(0, -1).join('.'),
+					routeData: routeData,
+					distance: routeLength,
+					createdAt: new Date(),
+					description: '',
+					tags: [],
+					elevation,
+					visible: true,
+					originalGPXData: extension === 'gpx' ? file_as_text : null,
+					color: getRandomColor(),
+					bbox: boundingBox
+				};
+
+				processedRoutes.push({
+					route: routeToInsert,
+					errors: []
+				});
+			}
 		} catch (error) {
 			console.error('Error processing file:', file.name, error);
+			processedRoutes.push({
+				route: null,
+				errors: [new Error(`Error processing file ${file.name}: ${error}`)]
+			});
 		}
 	}
 	return processedRoutes;
 }
 
-function extractFitData(recordMesgs): Feature[] {
+function extractFitData(recordMesgs): TrackerDataGeoPoint[] {
 	return recordMesgs
 		.filter((message) => message.positionLat !== undefined && message.positionLong !== undefined)
 		.map((message) => ({
@@ -278,7 +344,34 @@ function extractFitData(recordMesgs): Feature[] {
 		}));
 }
 
-function sessionMesgsToProperties(sessionMesgs): GeoJsonProperties {
+interface SessionMessage {
+	sport?: string;
+	subSport?: string;
+	startTime?: string;
+	timestamp?: string;
+	totalElapsedTime?: number;
+	totalTimerTime?: number;
+	totalDistance?: number;
+	totalCalories?: number;
+	maxHeartRate?: number;
+	minHeartRate?: number;
+	avgHeartRate?: number;
+	avgTemperature?: number;
+	totalAscent?: number;
+	totalDescent?: number;
+	maxCadence?: number;
+	avgCadence?: number;
+	maxSpeed?: number;
+	avgSpeed?: number;
+	maxPower?: number;
+	avgPower?: number;
+	totalWork?: number;
+	normalizedPower?: number;
+	enhancedMaxSpeed?: number;
+	enhancedAvgSpeed?: number;
+}
+
+function sessionMesgsToProperties(sessionMesgs: SessionMessage[]): GeoJsonProperties {
 	if (!sessionMesgs || sessionMesgs.length === 0) {
 		return {};
 	}
@@ -287,29 +380,29 @@ function sessionMesgsToProperties(sessionMesgs): GeoJsonProperties {
 	const session = sessionMesgs[0]; // Assuming we only care about the first session message
 	return {
 		type: 'Tracker Data',
-		sport: session.sport || 'unknown', // Sport type
-		subSport: session.subSport || 'unknown', // Sub-sport type
-		startTime: session.startTime || null, // Start time of the session
-		timestamp: session.timestamp || null, // End time of the session
-		totalElapsedTime: session.totalElapsedTime || 0, // Total elapsed time in seconds
-		totalTimerTime: session.totalTimerTime || 0, // Total timer time in seconds
-		totalDistance: session.totalDistance || 0, // Total distance in meters
-		totalCalories: session.totalCalories || 0, // Total calories burned
-		maxHeartRate: session.maxHeartRate || 0, // Maximum heart rate
-		minHeartRate: session.minHeartRate || 0, // Minimum heart rate
-		avgHeartRate: session.avgHeartRate || 0, // Average heart rate
-		avgTemperature: session.avgTemperature || null, // Average temperature
-		totalAscent: session.totalAscent || 0, // Total ascent in meters
-		totalDescent: session.totalDescent || 0, // Total descent in meters
-		maxCadence: session.maxCadence || 0, // Maximum cadence
-		avgCadence: session.avgCadence || 0, // Average cadence
-		maxSpeed: session.maxSpeed || 0, // Maximum speed in m/s
-		avgSpeed: session.avgSpeed || 0, // Average speed in m/s
-		maxPower: session.maxPower || 0, // Maximum power
-		avgPower: session.avgPower || 0, // Average power
-		totalWork: session.totalWork || 0, // Total work
-		normalizedPower: session.normalizedPower || 0, // Normalized power
-		enhancedMaxSpeed: session.enhancedMaxSpeed || 0, // Enhanced maximum speed
-		enhancedAvgSpeed: session.enhancedAvgSpeed || 0 // Enhanced average speed
+		sport: session?.sport ?? 'unknown', // Sport type
+		subSport: 'subSport' in session ? session.subSport || 'unknown' : 'unknown', // Sub-sport type
+		startTime: 'startTime' in session ? session.startTime || null : null, // Start time of the session
+		timestamp: 'timestamp' in session ? session.timestamp || null : null, // End time of the session
+		totalElapsedTime: 'totalElapsedTime' in session ? session.totalElapsedTime || 0 : 0, // Total elapsed time in seconds
+		totalTimerTime: 'totalTimerTime' in session ? session.totalTimerTime || 0 : 0, // Total timer time in seconds
+		totalDistance: 'totalDistance' in session ? session.totalDistance || 0 : 0, // Total distance in meters
+		totalCalories: 'totalCalories' in session ? session.totalCalories || 0 : 0, // Total calories burned
+		maxHeartRate: 'maxHeartRate' in session ? session.maxHeartRate || 0 : 0, // Maximum heart rate
+		minHeartRate: 'minHeartRate' in session ? session.minHeartRate || 0 : 0, // Minimum heart rate
+		avgHeartRate: 'avgHeartRate' in session ? session.avgHeartRate || 0 : 0, // Average heart rate
+		avgTemperature: 'avgTemperature' in session ? session.avgTemperature || null : null, // Average temperature
+		totalAscent: 'totalAscent' in session ? session.totalAscent || 0 : 0, // Total ascent in meters
+		totalDescent: 'totalDescent' in session ? session.totalDescent || 0 : 0, // Total descent in meters
+		maxCadence: 'maxCadence' in session ? session.maxCadence || 0 : 0, // Maximum cadence
+		avgCadence: 'avgCadence' in session ? session.avgCadence || 0 : 0, // Average cadence
+		maxSpeed: 'maxSpeed' in session ? session.maxSpeed || 0 : 0, // Maximum speed in m/s
+		avgSpeed: 'avgSpeed' in session ? session.avgSpeed || 0 : 0, // Average speed in m/s
+		maxPower: 'maxPower' in session ? session.maxPower || 0 : 0, // Maximum power
+		avgPower: 'avgPower' in session ? session.avgPower || 0 : 0, // Average power
+		totalWork: 'totalWork' in session ? session.totalWork || 0 : 0, // Total work
+		normalizedPower: 'normalizedPower' in session ? session.normalizedPower || 0 : 0, // Normalized power
+		enhancedMaxSpeed: 'enhancedMaxSpeed' in session ? session.enhancedMaxSpeed || 0 : 0, // Enhanced maximum speed
+		enhancedAvgSpeed: 'enhancedAvgSpeed' in session ? session.enhancedAvgSpeed || 0 : 0 // Enhanced average speed
 	};
 }

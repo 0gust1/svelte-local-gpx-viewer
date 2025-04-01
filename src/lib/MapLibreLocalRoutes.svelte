@@ -1,21 +1,21 @@
 <script lang="ts">
 	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
-	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import { type RouteEntity } from '$lib/localDB';
 	import bbox from '@turf/bbox';
-	import { getUIRoutes } from './routesData.svelte.js';
+	import { getUIRoutesManager } from './routesData.svelte.js';
 	import { onDestroy } from 'svelte';
 
 	interface Props {
-		geoJSONRoutes: Array<LocalGeoJSONRouteEntity>;
+		localRoutes: Array<RouteEntity>;
 	}
 
-	let { geoJSONRoutes }: Props = $props();
-	let uiRoutes = getUIRoutes();
+	let { localRoutes: localRoutesEntities }: Props = $props();
+	let uiRoutes = getUIRoutesManager();
 
 	let totalBoundingBox = $derived.by(() => {
-		let allFeatures = geoJSONRoutes
-			.filter((route) => route.visible)
-			.flatMap((route) => route.data.features);
+		let allFeatures = localRoutesEntities
+			.filter((routeEntity) => routeEntity.visible)
+			.flatMap((routeEntity) => routeEntity.routeData.route.features);
 
 		const boundingBox = bbox({
 			type: 'FeatureCollection',
@@ -30,9 +30,9 @@
 	});
 
 	let selectedBoundingBox = $derived.by(() => {
-		let allFeatures = geoJSONRoutes
-			.filter((route) => uiRoutes.selectedRoutesIds.has(route.id))
-			.flatMap((route) => route.data.features);
+		let allFeatures = localRoutesEntities
+			.filter((routeEntity) => uiRoutes.selectedRoutesIds.has(routeEntity.id))
+			.flatMap((routeEntity) => routeEntity.routeData.route.features);
 
 		const boundingBox = bbox({
 			type: 'FeatureCollection',
@@ -70,7 +70,7 @@
 
 	onDestroy(() => {
 		// unsure id this is useful
-		if (loaded && geoJSONRoutes.length === 0) {
+		if (loaded && localRoutesEntities.length === 0) {
 			map.fitBounds([
 				[0, 0],
 				[0, 0]
@@ -79,9 +79,9 @@
 	});
 </script>
 
-{#each geoJSONRoutes.filter((route) => route.visible) as route, index (route.id)}
-	{#if route.data.features.length > 0}
-		{#each route.data.features as feature}
+{#each localRoutesEntities.filter((route) => route.visible) as route, index (route.id)}
+	{#if route.routeData.route.features.length > 0}
+		{#each route.routeData.route.features as feature}
 			{#if feature.geometry.type === 'LineString'}
 				<GeoJSON data={feature}>
 					<LineLayer

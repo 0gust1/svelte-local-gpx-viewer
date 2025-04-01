@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-	import { getUIRoutes } from './routesData.svelte.js';
+	import { getUIRoutesManager } from './routesData.svelte.js';
 
 	let routeListElem: HTMLDivElement;
-	let uiRoutes = getUIRoutes();
+	let uiRoutes = getUIRoutesManager();
 
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);

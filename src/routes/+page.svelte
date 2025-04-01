@@ -2,7 +2,7 @@
 	import GpxLoad from '$lib/GPXLoad.svelte';
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
-	import { getUIRoutes } from '$lib/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/routesData.svelte';
 	import Readme from '../README.md';
 
 	// vatious styles, gathered from:
@@ -74,7 +74,7 @@
 		{ name: 'debug', style: 'https://demotiles.maplibre.org/debug-tiles/style.json' }
 	];
 
-	let uiRoutes = getUIRoutes();
+	let uiRoutes = getUIRoutesManager();
 
 	let selectedStyle = $state(stylesList[0].style);
 	let pitch = $state(0);

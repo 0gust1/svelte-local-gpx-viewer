@@ -1,10 +1,10 @@
-import { db, liveGeoJSONRoutes, type LocalGeoJSONRouteEntity } from '$lib/localDB';
+import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '$lib/localDB';
 import { get } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZip from 'jszip';
 
-let uiRoutes: LocalGeoJSONRouteEntity[] = $state.raw(get(liveGeoJSONRoutes));
+let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes));
 const selectedRoutesIds = new SvelteSet<number>();
 const selectedRoutesInfo: { distance: number; elevation: { positive: number; negative: number } } =
 	$derived.by(() => {
@@ -26,14 +26,14 @@ const selectedRoutesInfo: { distance: number; elevation: { positive: number; neg
 	});
 
 // subscribe to the DexieJS liveQuery store
-liveGeoJSONRoutes.subscribe((routes) => {
+liveJSONRoutes.subscribe((routes) => {
 	//console.log('liveGeoJSONRoutes', routes);
 
 	// When the store updates, update the runed signal
 	uiRoutes = routes;
 });
 
-export const getUIRoutes = () => {
+export const getUIRoutesManager = () => {
 	return {
 		get routes() {
 			return uiRoutes;
@@ -55,9 +55,9 @@ export const getUIRoutes = () => {
 			await db.geoJSONRoutes.update(id, { visible: visibility });
 		},
 		async getRoute(id: number) {
-			return (await db.geoJSONRoutes.get(id)) as LocalGeoJSONRouteEntity;
+			return (await db.geoJSONRoutes.get(id)) as RouteEntity;
 		},
-		async createRoute(obj: LocalGeoJSONRouteEntity) {
+		async createRoute(obj: RouteEntityIn) {
 			await db.geoJSONRoutes.add(obj);
 		},
 		async downloadAllRoutesArchive() {
@@ -82,7 +82,7 @@ export const getUIRoutes = () => {
 			const content = await zip.generateAsync({ type: 'blob' });
 			const url = URL.createObjectURL(content);
 
-			 // Generate a timestamp for the filename
+			// Generate a timestamp for the filename
 			const now = new Date();
 			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
 				now.getDate()

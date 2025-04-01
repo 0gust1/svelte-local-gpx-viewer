@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { MapLibre } from 'svelte-maplibre';
 	import type { StyleSpecification } from 'maplibre-gl';
-	import { getUIRoutes } from './routesData.svelte';
+	import { getUIRoutesManager } from './routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
 
 	const defaultMapStyle: string | StyleSpecification =
 		'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-	let uiRoutes = getUIRoutes();
+	let uiRoutes = getUIRoutesManager();
 
 	let {
 		mapStyle = defaultMapStyle,
@@ -30,11 +30,11 @@
 			}
 		]}
 	>
-		<RoutesViewer geoJSONRoutes={uiRoutes.routes} />
+		<RoutesViewer localRoutes={uiRoutes.routes} />
 	</MapLibre>
 {/if}
 
-<style>
+<style lang="postcss">
 	:global(.map) {
 		height: 500px;
 	}

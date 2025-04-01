@@ -1,29 +1,23 @@
 import Dexie, { type EntityTable, type Dexie as Dexietype } from 'dexie';
-import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
+import type { RouteEntity } from './routes.datatypes.js';
 import { liveQuery } from 'dexie';
 
-interface LocalGeoJSONRouteEntity {
+// input data date (id is given by the database)
+interface RouteEntityIn extends Omit<RouteEntity, 'id'> {
 	id?: number;
-	name: string;
-	data: FeatureCollection<Geometry, GeoJsonProperties>;
-	distance: number;
-	elevation: { positive: number; negative: number };
-	visible: boolean;
-	originalGPXData?: string;
-	color: string;
 }
 
 const db = new Dexie('RoutesDatabase') as Dexietype & {
-	geoJSONRoutes: EntityTable<LocalGeoJSONRouteEntity, 'id'>;
+	geoJSONRoutes: EntityTable<RouteEntity, 'id'>;
 };
 
-db.version(3).stores({
-	geoJSONRoutes: '++id, name, data, distance, elevation, visible'
+db.version(4).stores({
+	geoJSONRoutes: '++id, name, data, distance, elevation, visible, bbox'
 });
 
-const liveGeoJSONRoutes = liveQuery<LocalGeoJSONRouteEntity[]>(
+const liveJSONRoutes = liveQuery<RouteEntity[]>(
 	async () => await db.geoJSONRoutes.toArray()
 );
 
-export { db, liveGeoJSONRoutes };
-export type { LocalGeoJSONRouteEntity };
+export { db, liveJSONRoutes };
+export type { RouteEntityIn, RouteEntity };
