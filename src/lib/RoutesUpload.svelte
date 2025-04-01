@@ -49,6 +49,7 @@
 {/if}
 
 <style lang="postcss">
+	@reference "../app.css";
 	.drop-zone {
 		@apply rounded-lg border-2 border-dashed bg-transparent;
 		@apply h-32;

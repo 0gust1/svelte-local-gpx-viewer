@@ -106,7 +106,7 @@
 
 		<button
 			disabled={!uiRoutes.routes || uiRoutes.routes.length === 0}
-			class="ml-auto rounded bg-blue-500 px-2 py-1 text-white"
+			class="ml-auto rounded-sm bg-blue-500 px-2 py-1 text-white"
 			onclick={downloadAllRoutes}
 		>
 			Download All Routes (ZIP)
@@ -225,6 +225,7 @@
 {/snippet}
 
 <style lang="postcss">
+	@reference "../app.css";
 	.routes-list-container {
 		@applyp font-normal flex;
 	}

@@ -111,7 +111,7 @@
 	<div class="relative">
 		{#if uiRoutes.selectedRoutesIds.size > 0}
 			<div
-				class="absolute right-0 top-0 z-50 flex flex-col rounded-bl-md bg-blue-100 p-2 text-xs shadow"
+				class="absolute right-0 top-0 z-50 flex flex-col rounded-bl-md bg-blue-100 p-2 text-xs shadow-sm"
 			>
 				<div class="flex flex-col items-end">
 					<span>selected routes: {uiRoutes.selectedRoutesIds.size}</span>

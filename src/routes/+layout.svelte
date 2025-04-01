@@ -25,8 +25,9 @@
 </div>
 
 <style lang="postcss">
+	@reference "../app.css";
 	.site-header {
-		@apply mb-6 border-b border-b-stone-100/30 bg-gradient-to-r from-slate-50 to-stone-300 pt-3 pb-1 pl-2 shadow shadow-slate-500/30;
+		@apply mb-6 border-b border-b-stone-100/30 bg-linear-to-r from-slate-50 to-stone-300 pt-3 pb-1 pl-2 shadow shadow-slate-500/30;
 		@apply flex items-center;
 	}
 	.title {
