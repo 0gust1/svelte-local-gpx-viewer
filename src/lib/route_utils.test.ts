@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { smoothElevations, calculateElevation, getRandomColor, getBoundingBox, prepareRoutesFromFiles } from './route_utils';
 import type { Feature } from 'geojson';
 import { DOMParser as NodeDOMParser } from 'xmldom';
@@ -156,13 +156,13 @@ describe('prepareRoutesFromFiles', () => {
 		const result = await prepareRoutesFromFiles(files);
 
 		expect(result).toHaveLength(2);
-		expect(result[0]).toMatchObject({
+		expect(result[0].route).toMatchObject({
 			name: 'route',
 			distance: expect.any(Number),
 			elevation: { positive: expect.any(Number), negative: expect.any(Number) },
 			color: expect.stringMatching(/^#[0-9a-fA-F]{6}$/)
 		});
-		expect(result[1]).toMatchObject({
+		expect(result[1].route).toMatchObject({
 			name: 'route',
 			distance: expect.any(Number),
 			elevation: { positive: expect.any(Number), negative: expect.any(Number) },

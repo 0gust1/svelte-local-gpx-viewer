@@ -1,6 +1,6 @@
 import { bbox, length } from '@turf/turf';
 import type { Feature, GeoJsonProperties, FeatureCollection, Geometry } from 'geojson';
-import type { Route, RoutePaths, TrackerDataGeoPoint, RouteData } from './routes.datatypes.js';
+import type { Route, RoutePaths, TrackerDataGeoPoint, RouteData } from './routes.datatypes';
 import { gpx } from '@tmcw/togeojson';
 import { Decoder, Stream } from '@garmin/fitsdk';
 
@@ -98,12 +98,12 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 	const decoder = new Decoder(stream);
 
 	if (!decoder.isFIT()) {
-		console.error('Unrecognized FIT file');
-		return { routeData: null, errors: [new Error('Unrecognized FIT file')] };
+		console.error('Unrecognizable FIT file');
+		return { routeData: null, errors: [new Error('File invalid, unrecognizable format')] };
 	}
 
 	if (!decoder.checkIntegrity()) {
-		console.warn('Invalid FIT file');
+		console.warn('FIT file integrity is not valid');
 	}
 
 	const { messages, errors }: { messages: object; errors: Error[] } = decoder.read();
@@ -132,12 +132,11 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 							type: 'LineString',
 							coordinates
 						},
-						properties: { type: 'Track Path', ...sessionMesgsToProperties(messages.sessionMesgs) }
+						properties: { ...sessionMesgsToProperties(messages.sessionMesgs), type: 'Track Path' }
 					}
 				],
 				properties: {
-					type: 'Route Paths',
-					...sessionMesgsToProperties(messages.sessionMesgs)
+					...sessionMesgsToProperties(messages.sessionMesgs), type: 'Route Paths',
 				}
 			},
 			sensors: {
@@ -176,7 +175,6 @@ function parseGpxFile(filename: string, fileAsText: string): RouteData | Error {
 			properties: GeoJsonProperties;
 		}
 	).properties = { type: 'Route Paths' };
-	console.log('toto', featureCollection);
 
 	const routeData = {
 		route: featureCollection as RoutePaths,
@@ -379,7 +377,7 @@ function sessionMesgsToProperties(sessionMesgs: SessionMessage[]): GeoJsonProper
 	// Extract relevant properties from the session messages
 	const session = sessionMesgs[0]; // Assuming we only care about the first session message
 	return {
-		type: 'Tracker Data',
+		type: 'Sensors Datas',
 		sport: session?.sport ?? 'unknown', // Sport type
 		subSport: 'subSport' in session ? session.subSport || 'unknown' : 'unknown', // Sub-sport type
 		startTime: 'startTime' in session ? session.startTime || null : null, // Start time of the session
