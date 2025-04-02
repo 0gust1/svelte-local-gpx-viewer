@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import { type RouteEntity } from '$lib/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-	import { getUIRoutesManager } from './routesData.svelte.js';
+	import { getUIRoutesManager } from './routesData.svelte';
 
 	let routeListElem: HTMLDivElement;
 	let uiRoutes = getUIRoutesManager();
@@ -19,7 +19,7 @@
 	}
 
 	async function downloadGPX(id: number) {
-		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
+		const route: RouteEntity = await uiRoutes.getRoute(id);
 		let gpxData = route.originalGPXData;
 		if (!gpxData) {
 			const gpx = GeoJsonToGpx(route.data);

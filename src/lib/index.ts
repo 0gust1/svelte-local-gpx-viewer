@@ -6,4 +6,4 @@ export { default as MapLibreWrapper } from './MapLibreWrapper.svelte';
 export { getUIRoutesManager as getUIRoutes } from './routesData.svelte';
 //export { db } from './localDB';
 //export { liveGeoJSONRoutes } from './localDB';
-export type { LocalGeoJSONRouteEntity } from './localDB';
+export type { RouteEntity } from './localDB';

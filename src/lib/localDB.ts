@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type Dexie as Dexietype } from 'dexie';
-import type { RouteEntity } from './routes.datatypes.js';
+import type { RouteEntity } from './routes.datatypes';
 import { liveQuery } from 'dexie';
 
 // input data date (id is given by the database)
