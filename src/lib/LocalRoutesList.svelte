@@ -19,28 +19,28 @@
 	}
 
 	async function downloadGPX(id: number) {
-		const route: RouteEntity = await uiRoutes.getRoute(id);
-		let gpxData = route.originalGPXData;
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		let gpxData = routeEntity.originalGPXData;
 		if (!gpxData) {
-			const gpx = GeoJsonToGpx(route.data);
+			const gpx = GeoJsonToGpx(routeEntity.routeData.route);
 			gpxData = new XMLSerializer().serializeToString(gpx);
 		}
 		const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${route.name}.gpx`;
+		a.download = `${routeEntity.name}.gpx`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
-	async function downloadGeoJSON(id: number) {
-		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
-		const geoJSONData = JSON.stringify(route.data);
+	async function downloadJSON(id: number) {
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		const geoJSONData = JSON.stringify(routeEntity);
 		const blob = new Blob([geoJSONData], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${route.name}.geojson`;
+		a.download = `${routeEntity.name}.json`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
@@ -50,10 +50,10 @@
 	}
 
 	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
-		const menu = event?.currentTarget?.nextElementSibling as HTMLElement;
+		const menu = (event.currentTarget as HTMLElement)?.nextElementSibling as HTMLElement;
 		// hide all other menus
 		routeListElem.querySelectorAll('.menu').forEach((menu) => {
-			menu.style.visibility = 'hidden';
+			(menu as HTMLElement).style.visibility = 'hidden';
 		});
 		menu.style.visibility = 'visible';
 		menu.focus();
@@ -76,7 +76,10 @@
 
 	function handleMenuFocusOut(event: FocusEvent) {
 		// if focus is outside the menu (or its subelements), hide it
-		if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+		if (
+			event.currentTarget instanceof HTMLElement &&
+			!event.currentTarget.contains(event.relatedTarget as Node)
+		) {
 			event.currentTarget.style.visibility = 'hidden';
 		}
 	}
@@ -111,8 +114,6 @@
 		>
 			Download All Routes (ZIP)
 		</button>
-
-		
 	</div>
 	<ul class="routes-list">
 		{#each uiRoutes.routes as route (route.id)}
@@ -123,7 +124,7 @@
 	</ul>
 </div>
 
-{#snippet routeItem(route: LocalGeoJSONRouteEntity)}
+{#snippet routeItem(route: RouteEntity)}
 	<div
 		class="routes-list-item {route.visible ? '' : 'bg-opacity-50'} {uiRoutes.selectedRoutesIds.has(
 			route.id
@@ -167,12 +168,20 @@
 			</div>
 		</div>
 		<div class="ml-auto self-center">
+			{#if route.routeData.sensors.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Sensors Data</span>
+					<span class="text-slate-400">({route.routeData.sensors.features.length} points)</span>
+				</span>
+			{/if}
+		</div>
+		<div class="self-center">
 			<input
 				class="h-5 w-5"
 				type="color"
 				value={route.color}
 				onchange={(e) => {
-					uiRoutes.updateRouteColor(route.id, e?.target.value ?? '#444444');
+					uiRoutes.updateRouteColor(route.id, (e.target as HTMLInputElement)?.value ?? '#444444');
 				}}
 			/>
 		</div>
@@ -191,7 +200,7 @@
 	</div>
 {/snippet}
 
-{#snippet contextMenu(route: LocalGeoJSONRouteEntity)}
+{#snippet contextMenu(route: RouteEntity)}
 	<div
 		class="menu"
 		role="menu"
@@ -216,7 +225,7 @@
 					type="button"
 					title="Download GeoJSON file"
 					onclick={() => {
-						downloadGeoJSON(route.id);
+						downloadJSON(route.id);
 					}}>↓&nbsp;geojson</button
 				>
 			</li>
@@ -270,7 +279,7 @@
 		@apply relative;
 		.menu {
 			visibility: hidden;
-			@apply absolute bottom-0 right-6;
+			@apply absolute right-6 bottom-0;
 			@apply bg-blue-100 text-xs shadow;
 		}
 		.menu-btn {

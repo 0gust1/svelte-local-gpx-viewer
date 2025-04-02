@@ -230,7 +230,7 @@ export async function prepareRoutesFromFiles(
 				// routeData is not null: we have a valid routeData object, but there were errors
 				// in the parsing process
 				if (parseResult.errors.length) {
-					console.error(`${file.name} parsed, but there were errors: ${parseResult.errors}`);
+					console.error(`${file.name} parsed, but there were errors: ${parseResult.errors.map((e) => e.message)}`);
 					errors = parseResult.errors;
 				}
 				routeData = parseResult.routeData;
