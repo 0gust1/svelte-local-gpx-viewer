@@ -3,80 +3,18 @@
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
 	import { getUIRoutesManager } from '$lib/routesData.svelte';
-	import Readme from '../README.md';
+	import {stylesList, defaultStyle} from '$lib/maplibreStyles';
 
 	// vatious styles, gathered from:
 	// https://gitlab.huma-num.fr/bmericskay/maplibre/-/blob/master/Basemapsmenu.html
 	// https://maps.netsyms.net/
 	// https://basemaps.cartocdn.com/
 	// https://openfreemap.org/quick_start/
-	const stylesList = [
-		{ name: 'positron', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' },
-		{ name: 'osm-liberty 3d (openfreemap)', style: 'https://tiles.openfreemap.org/styles/liberty' },
-		{
-			name: 'klokantech-freehills (netsym.net)',
-			style: 'https://maps.netsyms.net/styles/klokantech-terrain-freehills/style.json'
-		},
-		{
-			name: 'ArcGis hybrid (sat.)',
-			style:
-				'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/arcgis_hybrid.json'
-		},
-		{
-			name: 'IGN Std.',
-			style: 'https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/standard.json'
-		},
-		{
-			name: 'OSM',
-			style:
-				'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json'
-		},
-		{
-			name: 'IGN Att.',
-			style: 'https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/attenue.json'
-		},
-		{
-			name: 'versatiles-colorful',
-			style: 'https://tiles.versatiles.org/assets/styles/colorful.json'
-		},
-		{
-			name: 'Fiord Color',
-			style: 'https://openmaptiles.geo.data.gouv.fr/styles/fiord-color/style.json'
-		},
-		{
-			name: 'osm-liberty-hills (netsym.net)',
-			style: 'https://maps.netsyms.net/styles/osm-liberty-hillshading/style.json'
-		},
-		{
-			name: 'klokantech 3d (netsym.net)',
-			style: 'https://maps.netsyms.net/styles/klokantech-3d/style.json'
-		},
-		{
-			name: 'toner (ICG Catalunya)',
-			style: 'https://api.maptiler.com/maps/toner/style.json?key=rrASqj6frF6l2rrOFR4A'
-		},
-		{ name: 'toner (netsym.net)', style: 'https://maps.netsyms.net/styles/toner/style.json' },
-		{ name: 'voyager', style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json' },
-		{
-			name: 'darkmatter',
-			style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-		},
-		{
-			name: 'osm-bright (openfreemap)',
-			style: 'https://tiles.openfreemap.org/styles/bright'
-		},
-		{
-			name: 'hibrid (ICG Catalunya)',
-			style: 'https://geoserveis.icgc.cat/contextmaps/hibrid.json'
-		},
-		{ name: 'cassini (netsym.net)', style: 'https://maps.netsyms.net/styles/cassini/style.json' },
-		{ name: 'demotiles', style: 'https://demotiles.maplibre.org/style.json' },
-		{ name: 'debug', style: 'https://demotiles.maplibre.org/debug-tiles/style.json' }
-	];
+
 
 	let uiRoutes = getUIRoutesManager();
 
-	let selectedStyle = $state(stylesList[0].style);
+	let selectedStyle = $state(defaultStyle);
 	let pitch = $state(0);
 
 	function round(value: number, precision: number) {
@@ -85,9 +23,9 @@
 	}
 </script>
 
-<h2 class="mb-4 text-2xl font-bold">Demo</h2>
+<h2 class="mb-4 text-2xl font-bold">Geo Routes</h2>
 <div class="flex w-full flex-col gap-3 sm:flex-row">
-	<div class="">
+	<div class="py-4">
 		<GpxLoad />
 	</div>
 	<div class="grow">
@@ -136,6 +74,4 @@
 	</div>
 </div>
 
-<div class="prose mx-auto mt-6">
-	<Readme />
-</div>
+

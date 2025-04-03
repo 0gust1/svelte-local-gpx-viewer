@@ -8,15 +8,15 @@ interface RouteEntityIn extends Omit<RouteEntity, 'id'> {
 }
 
 const db = new Dexie('RoutesDatabase') as Dexietype & {
-	geoJSONRoutes: EntityTable<RouteEntity, 'id'>;
+	geoRoutes: EntityTable<RouteEntity, 'id'>;
 };
 
 db.version(4).stores({
-	geoJSONRoutes: '++id, name, data, distance, elevation, visible, bbox'
+	geoRoutes: '++id, name, distance, elevation, visible, bbox'
 });
 
 const liveJSONRoutes = liveQuery<RouteEntity[]>(
-	async () => await db.geoJSONRoutes.toArray()
+	async () => await db.geoRoutes.toArray()
 );
 
 export { db, liveJSONRoutes };

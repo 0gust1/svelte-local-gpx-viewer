@@ -16,8 +16,14 @@
 </script>
 
 <label for="gpx_route_files" class="drop-zone" ondrop={handleDrop} ondragover={handleDragover}>
-	<span class="drop-zone_text">Drop your <code>.gpx</code>, <code>.geojson</code> or <code>.fit</code> files here</span>
-	or
+	<div class="drop-zone_text"
+		>
+		<p>Drop here your <span class=" font-bold">routes/traces</span> files</p>
+		<span class="text-xs">
+			(<code>.gpx</code>, <code>.geojson</code> or <code>.fit</code>)
+		</span>
+	</div>
+	or click below
 	<input
 		id="gpx_route_files"
 		bind:this={inputElmt}
@@ -25,7 +31,7 @@
 		bind:files
 		multiple
 		accept=".gpx, .geojson, .fit"
-		class=""
+		class="my-1 rounded border border-slate-300 shadow-sm focus:border-slate-300 focus:ring-0"
 	/>
 	<p class="text-xs text-slate-500">(Data will stay on your computer)</p>
 </label>
@@ -52,7 +58,8 @@
 	@reference "../app.css";
 	.drop-zone {
 		@apply rounded-lg border-2 border-dashed bg-transparent;
-		@apply h-32;
+		/* @apply h-32; */
+		@apply py-2;
 		@apply flex flex-col items-center justify-center;
 		@apply text-center text-slate-500;
 	}

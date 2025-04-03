@@ -3,9 +3,9 @@
 	import type { StyleSpecification } from 'maplibre-gl';
 	import { getUIRoutesManager } from './routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
+	import { defaultStyle } from './maplibreStyles';
 
-	const defaultMapStyle: string | StyleSpecification =
-		'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+	const defaultMapStyle: string | StyleSpecification = defaultStyle;
 
 	let uiRoutes = getUIRoutesManager();
 

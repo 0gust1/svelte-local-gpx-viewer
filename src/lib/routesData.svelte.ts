@@ -1,10 +1,11 @@
 import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '$lib/localDB';
-import { get } from 'svelte/store';
+import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZip from 'jszip';
 
-let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes));
+
+let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 const selectedRoutesIds = new SvelteSet<number>();
 const selectedRoutesInfo: { distance: number; elevation: { positive: number; negative: number } } =
 	$derived.by(() => {
@@ -45,20 +46,20 @@ export const getUIRoutesManager = () => {
 			return selectedRoutesInfo;
 		},
 		async updateRouteColor(id: number, color: string) {
-			await db.geoJSONRoutes.update(id, { color: color });
+			await db.geoRoutes.update(id, { color: color });
 		},
 		async deleteRoute(id: number) {
 			selectedRoutesIds.delete(id);
-			await db.geoJSONRoutes.delete(id);
+			await db.geoRoutes.delete(id);
 		},
 		async updateRouteVisibility(id: number, visibility: boolean) {
-			await db.geoJSONRoutes.update(id, { visible: visibility });
+			await db.geoRoutes.update(id, { visible: visibility });
 		},
 		async getRoute(id: number) {
-			return (await db.geoJSONRoutes.get(id)) as RouteEntity;
+			return (await db.geoRoutes.get(id)) as RouteEntity | undefined;
 		},
 		async createRoute(obj: RouteEntityIn) {
-			await db.geoJSONRoutes.add(obj);
+			await db.geoRoutes.add(obj);
 		},
 		async downloadAllRoutesArchive() {
 			const zip = new JSZip();
@@ -68,14 +69,18 @@ export const getUIRoutesManager = () => {
 				// Add GPX file
 				let gpxData = route.originalGPXData;
 				if (!gpxData) {
-					const gpx = GeoJsonToGpx(route.data);
+					const gpx = GeoJsonToGpx(route.routeData.route);
 					gpxData = new XMLSerializer().serializeToString(gpx);
 				}
 				zip.file(`${route.name}.gpx`, gpxData);
 
 				// Add GeoJSON file
-				const geoJSONData = JSON.stringify(route.data, null, 2);
+				const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
 				zip.file(`${route.name}.geojson`, geoJSONData);
+
+				// Add full entity file
+				const fullEntityData = JSON.stringify(route, null, 2);
+				zip.file(`${route.name}.json`, fullEntityData);
 			}
 
 			// Generate the ZIP file

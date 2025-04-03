@@ -35,8 +35,8 @@
 	}
 	async function downloadJSON(id: number) {
 		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
-		const geoJSONData = JSON.stringify(routeEntity);
-		const blob = new Blob([geoJSONData], { type: 'application/json' });
+		const jsonData = JSON.stringify(routeEntity);
+		const blob = new Blob([jsonData], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
@@ -44,6 +44,19 @@
 		a.click();
 		URL.revokeObjectURL(url);
 	}
+
+	async function downloadGeoJSON(id: number) {
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		const geoJSONData = JSON.stringify(routeEntity.routeData.route);
+		const blob = new Blob([geoJSONData], { type: 'application/geo+json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${routeEntity.name}.geojson`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
 
 	async function downloadAllRoutes() {
 		await uiRoutes.downloadAllRoutesArchive();
@@ -157,8 +170,12 @@
 				><span class={route.visible ? 'opacity-100' : 'opacity-30'}>👁️</span>
 			</button>
 		</div>
-
+		<a href={`/route-${route.id}`} class="text-sm font-semibold border-l-2 border-slate-200 pl-2">
+			✏ 
+			<span class='sr-only'>Route details</span>
+		</a>
 		<div class="route-details">
+		
 			<div class="text-sm leading-tight">{route.name}</div>
 			<div class="text-xs font-semibold text-slate-500">
 				{round(route.distance, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
@@ -225,8 +242,18 @@
 					type="button"
 					title="Download GeoJSON file"
 					onclick={() => {
-						downloadJSON(route.id);
+						downloadGeoJSON(route.id);
 					}}>↓&nbsp;geojson</button
+				>
+			</li>
+			<li>
+				<button
+					role="menuitem"
+					type="button"
+					title="Download route entity file"
+					onclick={() => {
+						downloadJSON(route.id);
+					}}>↓&nbsp;json</button
 				>
 			</li>
 		</ul>
@@ -280,7 +307,7 @@
 		.menu {
 			visibility: hidden;
 			@apply absolute right-6 bottom-0;
-			@apply bg-blue-100 text-xs shadow;
+			@apply bg-blue-100 text-xs shadow-md;
 		}
 		.menu-btn {
 			@apply mr-2 text-xl text-slate-500;
@@ -290,7 +317,7 @@
 			visibility: visible;
 		} */
 		.menu button {
-			@apply w-full p-1 text-left hover:bg-slate-50/70;
+			@apply w-full p-1 text-left hover:bg-slate-300 hover:cursor-pointer;
 		}
 	}
 </style>
