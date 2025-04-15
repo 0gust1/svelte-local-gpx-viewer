@@ -88,7 +88,8 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
  */
 export function parseFitToJSON(fitData: ArrayBuffer): {
 	routeData: RouteData | null;
-	errors: Error[];
+	errors: Error[],
+	originalParsedFitData: object | null | undefined;
 } {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
 	if (!stream) {
@@ -99,7 +100,7 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 
 	if (!decoder.isFIT()) {
 		console.error('Unrecognizable FIT file');
-		return { routeData: null, errors: [new Error('File invalid, unrecognizable format')] };
+		return { routeData: null, errors: [new Error('File invalid, unrecognizable format')], originalParsedFitData: null };
 	}
 
 	if (!decoder.checkIntegrity()) {
@@ -120,6 +121,7 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 			message.positionLat / (2 ** 31 / 180) || 0, // Convert latitude to degrees
 			message.enhancedAltitude || message.altitude || 0 // Use altitude if available
 		]);
+	
 
 	return {
 		routeData: {
@@ -147,7 +149,8 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 			photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
 			notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
 		},
-		errors: errors
+		errors: errors,
+		originalParsedFitData: messages
 	};
 }
 
@@ -208,6 +211,7 @@ export async function prepareRoutesFromFiles(
 		try {
 			let routeData: RouteData | null = null;
 			let errors: Error[] = [];
+			let originalParsedFitData:object | null | undefined = null;
 
 			if (extension === 'gpx') {
 				// Use the new parseGpxFile function
@@ -234,6 +238,7 @@ export async function prepareRoutesFromFiles(
 					errors = parseResult.errors;
 				}
 				routeData = parseResult.routeData;
+				originalParsedFitData = parseResult.originalParsedFitData;
 			}
 			// user uploaded a json file coming from the app
 			// else if (extension === 'json') {
@@ -293,11 +298,13 @@ export async function prepareRoutesFromFiles(
 					routeData: routeData,
 					distance: routeLength,
 					createdAt: new Date(),
+					updatedAt: new Date(),
 					description: '',
 					tags: [],
 					elevation,
 					visible: true,
 					originalGPXData: extension === 'gpx' ? file_as_text : null,
+					originalParsedFitData: extension === 'fit' ? originalParsedFitData : null,
 					color: getRandomColor(),
 					bbox: boundingBox
 				};

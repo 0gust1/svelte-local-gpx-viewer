@@ -3,7 +3,15 @@ import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZip from 'jszip';
+import { RouteEntitySchema } from './routes.generated.zod';
 
+//const ajv = new Ajv({allErrors: true});
+// const ajv = new Ajv();
+// addFormats(ajv);
+// const validateRouteEntity = ajv.compile({
+// 	...schema, // Include the full schema to resolve references
+// 	$ref: '#/definitions/RouteEntity'
+// });
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 const selectedRoutesIds = new SvelteSet<number>();
@@ -54,6 +62,21 @@ export const getUIRoutesManager = () => {
 		},
 		async updateRouteVisibility(id: number, visibility: boolean) {
 			await db.geoRoutes.update(id, { visible: visibility });
+		},
+		async updateRoute(obj: RouteEntity) {
+			//console.log('updateRoute', obj);
+			// TODO: validation 
+			obj.updatedAt = (new Date()).toUTCString();
+
+			try {
+				// Validate using Zod
+				RouteEntitySchema.parse(obj);
+			} catch (error) {
+				console.error(error.errors);
+				throw new Error('Invalid route entity');
+			}
+
+			return await db.geoRoutes.put(obj);
 		},
 		async getRoute(id: number) {
 			return (await db.geoRoutes.get(id)) as RouteEntity | undefined;

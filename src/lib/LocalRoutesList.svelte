@@ -2,6 +2,7 @@
 	import { type RouteEntity } from '$lib/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 	import { getUIRoutesManager } from './routesData.svelte';
+	import {base} from '$app/paths';
 
 	let routeListElem: HTMLDivElement;
 	let uiRoutes = getUIRoutesManager();
@@ -170,13 +171,19 @@
 				><span class={route.visible ? 'opacity-100' : 'opacity-30'}>👁️</span>
 			</button>
 		</div>
-		<a href={`/route-${route.id}`} class="text-sm font-semibold border-l-2 border-slate-200 pl-2">
+		<!-- <button type="button" class="text-sm font-semibold border-l-2 border-slate-200 pl-2" onclick={() => {
+			goto(`/route-${route.id}`);
+		}}>
 			✏ 
 			<span class='sr-only'>Route details</span>
-		</a>
+		</button> -->
+
 		<div class="route-details">
 		
-			<div class="text-sm leading-tight">{route.name}</div>
+			<div class="text-sm leading-tight">
+				<a href="{base}?edit=true&id={route.id}" class="underline decoration-dotted after:ml-1 hover:no-underline hover:after:content-['✏']">{route.name}</a>
+				
+			</div>
 			<div class="text-xs font-semibold text-slate-500">
 				{round(route.distance, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
 					route.elevation.negative,

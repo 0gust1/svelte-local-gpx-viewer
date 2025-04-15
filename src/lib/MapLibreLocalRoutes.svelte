@@ -59,7 +59,8 @@
 			map.fitBounds(selectedBoundingBox, {
 				padding: 40
 			});
-		} else {
+		} 
+		else {
 			if (totalBoundingBox && totalBoundingBox.every((coord) => Number.isFinite(coord))) {
 				map.fitBounds(totalBoundingBox, {
 					padding: 40

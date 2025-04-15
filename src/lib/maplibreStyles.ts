@@ -1,16 +1,30 @@
-export const defaultStyle = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+import type { StyleSpecification } from 'maplibre-gl';
 
+export const defaultStyle: StyleSpecification =
+	'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' as unknown as StyleSpecification;
+
+// vatious styles, gathered from:
+// https://gitlab.huma-num.fr/bmericskay/maplibre/-/blob/master/Basemapsmenu.html
+// https://maps.netsyms.net/
+// https://basemaps.cartocdn.com/
+// https://openfreemap.org/quick_start/
 export const stylesList = [
-	{ name: 'positron', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' },
+	{ name: 'cartocdn - positron', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json' },
 	{
 		name: 'OSM',
 		style:
 			'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json'
 	},
-	{ name: 'osm-liberty 3d (openfreemap)', style: 'https://tiles.openfreemap.org/styles/liberty' },
+	{name:"cycleosm", style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/cycleosm.json"},
+	{name:'protomaps - light', style:'https://api.protomaps.com/styles/v5/light/en.json?key=c524f2fd9a04c3e1'},
+	{ name: 'openfreemap - osm-liberty (3D)', style: 'https://tiles.openfreemap.org/styles/liberty' },
 	{
-		name: 'osm-bright (openfreemap)',
+		name: 'openfreemap - osm-bright',
 		style: 'https://tiles.openfreemap.org/styles/bright'
+	},
+	{
+		name: 'openfreemap - osm-positron',
+		style: 'https://tiles.openfreemap.org/styles/positron'
 	},
 	{
 		name: 'klokantech-freehills (netsym.net)',
