@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
 	import { blur, crossfade, draw, fade, fly, scale, slide } from 'svelte/transition';
@@ -15,10 +14,10 @@
 	let selectedStyle = $state(defaultStyle);
 	let pitch = $state(0);
 
-	// we need to use onMount to access the page.url.searchParams object:
+	// we need to use $effect/onMount to access the page.url.searchParams object:
 	// it only exists in the browser, not at build time 
 	let urlSearchParams: URLSearchParams | null = $state(null);
-	onMount(() => {
+	$effect(() => {
 		urlSearchParams = page.url.searchParams;
 	});
 
@@ -35,6 +34,9 @@
 		return Math.round(value * multiplier) / multiplier;
 	}
 </script>
+
+<!-- url search: {@debug urlSearchParams} -->
+
 
 {#if shouldEdit && routeIdToEdit}
 	<a href="{base}/" class=" text-lg font-semibold text-blue-600">&lsaquo; all routes</a>

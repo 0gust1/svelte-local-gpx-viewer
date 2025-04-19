@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { data=$bindable(), hasChanges=$bindable(), field, children } = $props();
+	let { dataToEdit=$bindable(), hasChanges=$bindable(), field, children } = $props();
 	let editMode = $state(false);
 </script>
 
@@ -7,9 +7,9 @@
 	{#if editMode}
 		<div class="flex flex-col">
 			{#if field === 'name'}
-				<input type="text" bind:value={data[field]} class="border px-1 py-2" />
+				<input type="text" bind:value={dataToEdit} class="border px-1 py-2" />
 			{:else if field === 'description'}
-				<textarea bind:value={data[field]} class="border px-1 py-2"></textarea>
+				<textarea bind:value={dataToEdit} class="border px-1 py-2"></textarea>
 			{/if}
 			<button
 				type="button"

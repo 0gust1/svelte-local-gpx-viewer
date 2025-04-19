@@ -50,11 +50,11 @@
 	{/await}
 {/if}
 
-<Crayon bind:data={routeState} field="name" bind:hasChanges>
+<Crayon bind:dataToEdit={routeState.name} field={"name"} bind:hasChanges>
 	<h2 class="mb-4 text-2xl font-bold">{routeState.name}</h2>
 </Crayon>
 <p>Description</p>
-<Crayon bind:data={routeState} field="description" bind:hasChanges>
+<Crayon bind:dataToEdit={routeState.description} field={"description"} bind:hasChanges>
 	<div class="mb-4">{routeState.description}</div>
 </Crayon>
 <div class="text-xs">
