@@ -75,3 +75,10 @@ To publish the library to [npm](https://www.npmjs.com):
 ```bash
 npm publish
 ```
+
+
+## Dev notes
+
+**hash router or classic router ?**
+- Classical file routing promotes a better source code structure, but static-adapter doesn't like (understandably) dynamic routes (e.g. `edit-[id]`)
+- One solution could be to use Sveltekit's hash router, but it is not working well with paraglide (i18n)
