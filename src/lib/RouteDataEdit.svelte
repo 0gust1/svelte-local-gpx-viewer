@@ -2,6 +2,7 @@
 	import type { RouteEntity } from '$lib';
 	import { getUIRoutesManager } from '$lib/routesData.svelte';
 	import Crayon from './Crayon.svelte';
+	import PhotosAdd from './PhotosAdd.svelte';
 
 	let { route: localRouteEntity }: { route: RouteEntity } = $props();
 	let routeState: RouteEntity = $state(localRouteEntity);
@@ -70,7 +71,7 @@
 
 <h3>Photos ({routeState.routeData.photos.features.length})</h3>
 
-<p>Add Photos</p>
+<PhotosAdd/>
 
 <h3>Notes ({routeState.routeData.notes.features.length})</h3>
 

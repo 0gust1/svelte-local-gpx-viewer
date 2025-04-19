@@ -90,6 +90,7 @@
 		"@turf/turf": "^7.1.0",
 		"ajv": "^8.17.1",
 		"dexie": "^4.0.9",
+		"exifreader": "^4.28.1",
 		"jszip": "^3.10.1",
 		"svelte-maplibre": "^1.0.0-next.8",
 		"zod": "^3.24.2"

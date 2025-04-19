@@ -7,12 +7,14 @@
 	import { MapLibre } from 'svelte-maplibre';
 	import RoutesViewer from '$lib/MapLibreRoute.svelte';
 	import RouteDataEdit from '$lib/RouteDataEdit.svelte';
+	import ObjectDisplay from './ObjectDisplay.svelte';
 	import type { RouteEntity } from '$lib';
 
 	let { routeId, mapStyle = defaultStyle, pitch=0 }: { routeId: string; mapStyle: StyleSpecification, pitch: number } =
 		$props();
 	let uiRoutes = getUIRoutesManager();
 	let routeState: RouteEntity | null = $state(null);
+	let sensorsOpen = $state(false);
 
 	let bounds = $derived.by(() => {
 		if (routeState) {
@@ -75,21 +77,11 @@
 			</div>
 		</div>
 
-		<details>
+		<details open={sensorsOpen} ontoggle={() => (sensorsOpen = !sensorsOpen)}>
 			<summary>Sensor data ({route.routeData.sensors.features.length})</summary>
-			{#each route.routeData.sensors.features as sensor}
-				<div class="m-2 border border-slate-300 p-2 text-xs">
-					<p>coords: {sensor.geometry.coordinates}</p>
-					<p>Properties:</p>
-					<ul>
-						{#each Object.entries(sensor.properties) as [key, value]}
-							<li>{key}: {value}</li>
-						{/each}
-					</ul>
-				</div>
-			{:else}
-				<p>No sensor data</p>
-			{/each}
+			{#if sensorsOpen}
+			<ObjectDisplay data={route.routeData.sensors} />
+			{/if}
 		</details>
 	{/if}
 {:catch error}
