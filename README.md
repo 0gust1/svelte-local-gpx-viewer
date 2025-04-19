@@ -1,5 +1,7 @@
 # Svelte-local-gpx-viewer
 
+**PROJECT UNDERGOING REFACTORING**
+
 A small collection of Svelte components to load GPX files (**local first, persisted in browser's indexedDB**) and display them.
 
 - Local-first database is powered by [Dexie.js](https://dexie.org/).
