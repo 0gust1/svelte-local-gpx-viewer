@@ -1,14 +1,42 @@
 <script lang="ts">
 	import { MapLibre } from 'svelte-maplibre';
 	import type { StyleSpecification } from 'maplibre-gl';
-	import { getUIRoutes } from './routesData.svelte';
+	import bbox from '@turf/bbox';
+	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
+	import { defaultStyle } from './maplibreStyles';
+	import { getBoundingBox } from './route_utils';
 
-	const defaultMapStyle: string | StyleSpecification =
-		'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+	const defaultMapStyle: string | StyleSpecification = defaultStyle;
 
-	let uiRoutes = getUIRoutes();
+	let uiRoutes = getUIRoutesManager();
+	let bounds = $derived.by(() => {
+		if (uiRoutes.routes) {
+			let allFeatures = uiRoutes.routes
+				.filter((routeEntity) => routeEntity.visible)
+				.flatMap((routeEntity) => routeEntity.routeData.route.features);//remove this one ?
 
+			let boundingBox = bbox({
+				type: 'FeatureCollection',
+				features: allFeatures
+			});
+			//if bounding box has 6 elements, it means it is a 3D bounding box, so we need to remove the last 2 elements
+			let extendFactor = 0.1;
+			let [minX, minY, maxX, maxY] =
+				boundingBox.length === 6 ? boundingBox.slice(0, 4) : boundingBox;
+
+			// Extend the bounding box by the given factor
+			const width = maxX - minX;
+			const height = maxY - minY;
+
+			minX -= width * extendFactor;
+			maxX += width * extendFactor;
+			minY -= height * extendFactor;
+			maxY += height * extendFactor;
+
+			return [minX, minY, maxX, maxY] as [number, number, number, number];
+		}
+	});
 	let {
 		mapStyle = defaultMapStyle,
 		pitch = 0
@@ -17,9 +45,9 @@
 
 {#if uiRoutes && uiRoutes.routes}
 	<MapLibre
-		center={[50, 20]}
 		zoom={7}
 		class="map"
+		{bounds}
 		{pitch}
 		standardControls
 		style={mapStyle}
@@ -30,11 +58,11 @@
 			}
 		]}
 	>
-		<RoutesViewer geoJSONRoutes={uiRoutes.routes} />
+		<RoutesViewer localRoutes={uiRoutes.routes} />
 	</MapLibre>
 {/if}
 
-<style>
+<style lang="postcss">
 	:global(.map) {
 		height: 500px;
 	}

@@ -1,6 +1,11 @@
 # Svelte-local-gpx-viewer
 
-A small collection of Svelte components to load GPX files (**local first, persisted in browser's indexedDB**) and display them.
+**PROJECT UNDERGOING REFACTORING**
+
+- An app (local first, browser only) to load geo routes files, edit their metadata and export them for sharing and web publishing.
+- A small collection of Svelte components to display the routes + metadata.
+
+Notable technical features:
 
 - Local-first database is powered by [Dexie.js](https://dexie.org/).
 - Route and map display is powered by [maplibre](https://maplibre.org/) (and the [svelte-maplibre wrapper library](https://github.com/dimfeld/svelte-maplibre)).
@@ -10,6 +15,10 @@ A small collection of Svelte components to load GPX files (**local first, persis
   <img src="static/dataflow.excalidraw.svg">
   <figcaption>data flow, src https://excalidraw.com/#json=J76wNr3qpoTNb7qClGL-3,EOjQwX2D0gBL2e85Cp84fw</figcaption>
 </picture>
+
+## DB and data structures
+
+
 
 ## Using the components in a Svelte/Sveltekit project
 
@@ -73,3 +82,10 @@ To publish the library to [npm](https://www.npmjs.com):
 ```bash
 npm publish
 ```
+
+
+## Dev notes
+
+**hash router or classic router ?**
+- Classical file routing promotes a better source code structure, but static-adapter doesn't like (understandably) dynamic routes (e.g. `edit-[id]`)
+- One solution could be to use Sveltekit's hash router, but it is not working well with paraglide (i18n)

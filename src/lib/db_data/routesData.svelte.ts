@@ -1,10 +1,19 @@
-import { db, liveGeoJSONRoutes, type LocalGeoJSONRouteEntity } from '$lib/localDB';
-import { get } from 'svelte/store';
+import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './localDB';
+import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZip from 'jszip';
+import { RouteEntitySchema } from './routes.generated.zod';
 
-let uiRoutes: LocalGeoJSONRouteEntity[] = $state.raw(get(liveGeoJSONRoutes));
+//const ajv = new Ajv({allErrors: true});
+// const ajv = new Ajv();
+// addFormats(ajv);
+// const validateRouteEntity = ajv.compile({
+// 	...schema, // Include the full schema to resolve references
+// 	$ref: '#/definitions/RouteEntity'
+// });
+
+let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 const selectedRoutesIds = new SvelteSet<number>();
 const selectedRoutesInfo: { distance: number; elevation: { positive: number; negative: number } } =
 	$derived.by(() => {
@@ -26,14 +35,14 @@ const selectedRoutesInfo: { distance: number; elevation: { positive: number; neg
 	});
 
 // subscribe to the DexieJS liveQuery store
-liveGeoJSONRoutes.subscribe((routes) => {
+liveJSONRoutes.subscribe((routes) => {
 	//console.log('liveGeoJSONRoutes', routes);
 
 	// When the store updates, update the runed signal
 	uiRoutes = routes;
 });
 
-export const getUIRoutes = () => {
+export const getUIRoutesManager = () => {
 	return {
 		get routes() {
 			return uiRoutes;
@@ -45,20 +54,35 @@ export const getUIRoutes = () => {
 			return selectedRoutesInfo;
 		},
 		async updateRouteColor(id: number, color: string) {
-			await db.geoJSONRoutes.update(id, { color: color });
+			await db.geoRoutes.update(id, { color: color });
 		},
 		async deleteRoute(id: number) {
 			selectedRoutesIds.delete(id);
-			await db.geoJSONRoutes.delete(id);
+			await db.geoRoutes.delete(id);
 		},
 		async updateRouteVisibility(id: number, visibility: boolean) {
-			await db.geoJSONRoutes.update(id, { visible: visibility });
+			await db.geoRoutes.update(id, { visible: visibility });
+		},
+		async updateRoute(obj: RouteEntity) {
+			//console.log('updateRoute', obj);
+			// TODO: validation 
+			obj.updatedAt = (new Date()).toUTCString();
+
+			try {
+				// Validate using Zod
+				RouteEntitySchema.parse(obj);
+			} catch (error) {
+				console.error(error.errors);
+				throw new Error('Invalid route entity');
+			}
+
+			return await db.geoRoutes.put(obj);
 		},
 		async getRoute(id: number) {
-			return (await db.geoJSONRoutes.get(id)) as LocalGeoJSONRouteEntity;
+			return (await db.geoRoutes.get(id)) as RouteEntity | undefined;
 		},
-		async createRoute(obj: LocalGeoJSONRouteEntity) {
-			await db.geoJSONRoutes.add(obj);
+		async createRoute(obj: RouteEntityIn) {
+			await db.geoRoutes.add(obj);
 		},
 		async downloadAllRoutesArchive() {
 			const zip = new JSZip();
@@ -68,21 +92,25 @@ export const getUIRoutes = () => {
 				// Add GPX file
 				let gpxData = route.originalGPXData;
 				if (!gpxData) {
-					const gpx = GeoJsonToGpx(route.data);
+					const gpx = GeoJsonToGpx(route.routeData.route);
 					gpxData = new XMLSerializer().serializeToString(gpx);
 				}
 				zip.file(`${route.name}.gpx`, gpxData);
 
 				// Add GeoJSON file
-				const geoJSONData = JSON.stringify(route.data, null, 2);
+				const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
 				zip.file(`${route.name}.geojson`, geoJSONData);
+
+				// Add full entity file
+				const fullEntityData = JSON.stringify(route, null, 2);
+				zip.file(`${route.name}.json`, fullEntityData);
 			}
 
 			// Generate the ZIP file
 			const content = await zip.generateAsync({ type: 'blob' });
 			const url = URL.createObjectURL(content);
 
-			 // Generate a timestamp for the filename
+			// Generate a timestamp for the filename
 			const now = new Date();
 			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
 				now.getDate()

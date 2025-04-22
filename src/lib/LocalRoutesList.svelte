@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { type LocalGeoJSONRouteEntity } from '$lib/localDB';
+	import { type RouteEntity } from '$lib/db_data/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-	import { getUIRoutes } from './routesData.svelte.js';
+	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import {base} from '$app/paths';
 
 	let routeListElem: HTMLDivElement;
-	let uiRoutes = getUIRoutes();
+	let uiRoutes = getUIRoutesManager();
 
 	function round(value: number, precision: number) {
 		const multiplier = Math.pow(10, precision || 0);
@@ -19,41 +20,54 @@
 	}
 
 	async function downloadGPX(id: number) {
-		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
-		let gpxData = route.originalGPXData;
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		let gpxData = routeEntity.originalGPXData;
 		if (!gpxData) {
-			const gpx = GeoJsonToGpx(route.data);
+			const gpx = GeoJsonToGpx(routeEntity.routeData.route);
 			gpxData = new XMLSerializer().serializeToString(gpx);
 		}
 		const blob = new Blob([gpxData], { type: 'application/gpx+xml' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${route.name}.gpx`;
+		a.download = `${routeEntity.name}.gpx`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
-	async function downloadGeoJSON(id: number) {
-		const route: LocalGeoJSONRouteEntity = await uiRoutes.getRoute(id);
-		const geoJSONData = JSON.stringify(route.data);
-		const blob = new Blob([geoJSONData], { type: 'application/json' });
+	async function downloadJSON(id: number) {
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		const jsonData = JSON.stringify(routeEntity);
+		const blob = new Blob([jsonData], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${route.name}.geojson`;
+		a.download = `${routeEntity.name}.json`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
+
+	async function downloadGeoJSON(id: number) {
+		const routeEntity: RouteEntity = await uiRoutes.getRoute(id);
+		const geoJSONData = JSON.stringify(routeEntity.routeData.route);
+		const blob = new Blob([geoJSONData], { type: 'application/geo+json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${routeEntity.name}.geojson`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
 
 	async function downloadAllRoutes() {
 		await uiRoutes.downloadAllRoutesArchive();
 	}
 
 	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
-		const menu = event?.currentTarget?.nextElementSibling as HTMLElement;
+		const menu = (event.currentTarget as HTMLElement)?.nextElementSibling as HTMLElement;
 		// hide all other menus
 		routeListElem.querySelectorAll('.menu').forEach((menu) => {
-			menu.style.visibility = 'hidden';
+			(menu as HTMLElement).style.visibility = 'hidden';
 		});
 		menu.style.visibility = 'visible';
 		menu.focus();
@@ -76,7 +90,10 @@
 
 	function handleMenuFocusOut(event: FocusEvent) {
 		// if focus is outside the menu (or its subelements), hide it
-		if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+		if (
+			event.currentTarget instanceof HTMLElement &&
+			!event.currentTarget.contains(event.relatedTarget as Node)
+		) {
 			event.currentTarget.style.visibility = 'hidden';
 		}
 	}
@@ -106,13 +123,11 @@
 
 		<button
 			disabled={!uiRoutes.routes || uiRoutes.routes.length === 0}
-			class="ml-auto rounded bg-blue-500 px-2 py-1 text-white"
+			class="ml-auto rounded-sm bg-blue-500 px-2 py-1 text-white"
 			onclick={downloadAllRoutes}
 		>
 			Download All Routes (ZIP)
 		</button>
-
-		
 	</div>
 	<ul class="routes-list">
 		{#each uiRoutes.routes as route (route.id)}
@@ -123,7 +138,7 @@
 	</ul>
 </div>
 
-{#snippet routeItem(route: LocalGeoJSONRouteEntity)}
+{#snippet routeItem(route: RouteEntity)}
 	<div
 		class="routes-list-item {route.visible ? '' : 'bg-opacity-50'} {uiRoutes.selectedRoutesIds.has(
 			route.id
@@ -156,9 +171,19 @@
 				><span class={route.visible ? 'opacity-100' : 'opacity-30'}>👁️</span>
 			</button>
 		</div>
+		<!-- <button type="button" class="text-sm font-semibold border-l-2 border-slate-200 pl-2" onclick={() => {
+			goto(`/route-${route.id}`);
+		}}>
+			✏ 
+			<span class='sr-only'>Route details</span>
+		</button> -->
 
 		<div class="route-details">
-			<div class="text-sm leading-tight">{route.name}</div>
+		
+			<div class="text-sm leading-tight">
+				<a href="{base}?edit=true&id={route.id}" class="underline decoration-dotted after:ml-1 hover:no-underline hover:after:content-['✏']">{route.name}</a>
+				<!-- <a href="#/edit-{route.id}" class="underline decoration-dotted after:ml-1 hover:no-underline hover:after:content-['✏']">{route.name}</a> -->
+			</div>
 			<div class="text-xs font-semibold text-slate-500">
 				{round(route.distance, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
 					route.elevation.negative,
@@ -166,13 +191,32 @@
 				)}m)
 			</div>
 		</div>
-		<div class="ml-auto self-center">
+		<div class="ml-auto self-center flex">
+			{#if route.routeData.notes.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Notes Data</span>
+					<span class="text-slate-400">({route.routeData.notes.features.length} points)</span>
+				</span>
+			{/if}
+			{#if route.routeData.photos.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Photos ({route.routeData.photos.features.length})</span>
+				</span>
+			{/if}
+			{#if route.routeData.sensors.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Sensors Data</span>
+					<span class="text-slate-400">({route.routeData.sensors.features.length} points)</span>
+				</span>
+			{/if}
+		</div>
+		<div class="self-center">
 			<input
 				class="h-5 w-5"
 				type="color"
 				value={route.color}
 				onchange={(e) => {
-					uiRoutes.updateRouteColor(route.id, e?.target.value ?? '#444444');
+					uiRoutes.updateRouteColor(route.id, (e.target as HTMLInputElement)?.value ?? '#444444');
 				}}
 			/>
 		</div>
@@ -191,7 +235,7 @@
 	</div>
 {/snippet}
 
-{#snippet contextMenu(route: LocalGeoJSONRouteEntity)}
+{#snippet contextMenu(route: RouteEntity)}
 	<div
 		class="menu"
 		role="menu"
@@ -220,11 +264,22 @@
 					}}>↓&nbsp;geojson</button
 				>
 			</li>
+			<li>
+				<button
+					role="menuitem"
+					type="button"
+					title="Download route entity file"
+					onclick={() => {
+						downloadJSON(route.id);
+					}}>↓&nbsp;json</button
+				>
+			</li>
 		</ul>
 	</div>
 {/snippet}
 
 <style lang="postcss">
+	@reference "../app.css";
 	.routes-list-container {
 		@applyp font-normal flex;
 	}
@@ -269,8 +324,8 @@
 		@apply relative;
 		.menu {
 			visibility: hidden;
-			@apply absolute bottom-0 right-6;
-			@apply bg-blue-100 text-xs shadow;
+			@apply absolute right-6 bottom-0;
+			@apply bg-blue-100 text-xs shadow-md;
 		}
 		.menu-btn {
 			@apply mr-2 text-xl text-slate-500;
@@ -280,7 +335,7 @@
 			visibility: visible;
 		} */
 		.menu button {
-			@apply w-full p-1 text-left hover:bg-slate-50/70;
+			@apply w-full p-1 text-left hover:bg-slate-300 hover:cursor-pointer;
 		}
 	}
 </style>
