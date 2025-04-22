@@ -57,16 +57,16 @@
 
 <div class="mx-auto mt-3">
 	<div
-		class="mb-4 grid items-center gap-1 border p-1 px-2 py-3 align-middle text-xs sm:grid-flow-col"
+		class="grid items-center gap-1 border bg-slate-200 px-2 py-1 align-middle text-xs sm:grid-flow-col"
 	>
-		<label for="map-style">Select Map Style:</label>
-		<select id="map-style" bind:value={selectedStyle} class="p-1">
+		<label for="map-style" class='text-right mr-2'>Select Map Style:</label>
+		<select id="map-style" bind:value={selectedStyle} class="p-1 text-sm">
 			{#each stylesList as style}
 				<option value={style.style}>{style.name}</option>
 			{/each}
 		</select>
 
-		<label for="map-pitch">Map perspective (pitch): {pitch}</label>
+		<label for="map-pitch" class="text-right mr-2">Map perspective (pitch): {pitch}</label>
 		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
 	</div>
 
