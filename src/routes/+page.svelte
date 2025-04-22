@@ -5,8 +5,8 @@
 	import GpxLoad from '$lib/GPXLoad.svelte';
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
-	import RouteEdit from '$lib/RouteEdit.svelte';
-	import { getUIRoutesManager } from '$lib/routesData.svelte';
+	import RouteEdit from '$lib/route_edit/RouteEdit.svelte';
+	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import { stylesList, defaultStyle } from '$lib/maplibreStyles';
 
 	let uiRoutes = getUIRoutesManager();
@@ -40,7 +40,7 @@
 
 {#if shouldEdit && routeIdToEdit}
 	<a href="{base}/" class=" text-lg font-semibold text-blue-600">&lsaquo; all routes</a>
-	<h2 class="mt-4 mb-4">Route {routeIdToEdit}</h2>
+
 {:else}
 	<h2 class="mb-4 text-2xl font-bold">Geo Routes</h2>
 {/if}

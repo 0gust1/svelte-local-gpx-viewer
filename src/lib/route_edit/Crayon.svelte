@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { dataToEdit=$bindable(), hasChanges=$bindable(), field, children } = $props();
+	let { dataToEdit=$bindable(), hasChanged=$bindable(), field, children } = $props();
 	let editMode = $state(false);
 </script>
 
@@ -16,7 +16,7 @@
 				class="ml-auto border px-1 py-2"
 				onclick={() => {
 					editMode = false;
-          hasChanges = true;
+          hasChanged = true;
 					// row.save();
 				}}>Save</button
 			>

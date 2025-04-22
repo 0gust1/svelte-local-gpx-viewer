@@ -1,4 +1,4 @@
-import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '$lib/localDB';
+import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './localDB';
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';

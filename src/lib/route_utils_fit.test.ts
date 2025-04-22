@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import schema from './routes.generated.schema.json';
+import schema from '$lib/db_data/routes.generated.schema.json';
 
 describe('parseFitToJSON (Integration Tests)', () => {
 	it('return a null route and the correct list of errors for an invalid FIT file', () => {

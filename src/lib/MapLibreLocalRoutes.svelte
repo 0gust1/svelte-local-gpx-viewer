@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
-	import { type RouteEntity } from '$lib/localDB';
+	import { type RouteEntity } from '$lib/db_data/localDB';
 	import bbox from '@turf/bbox';
-	import { getUIRoutesManager } from './routesData.svelte';
+	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import { onDestroy } from 'svelte';
 
 	interface Props {

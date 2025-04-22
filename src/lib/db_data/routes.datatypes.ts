@@ -7,16 +7,6 @@ import type {
 	BBox
 } from 'geojson';
 
-/** IN data types:
- *  data coming from the outside world (e.g. from a file, from a server, etc.)
- */
-
-// GeoJSON Route parsed from a GPX file or from a GeoJSON file
-export interface ParsedRouteGeoJSON extends FeatureCollection<LineString, GeoJsonProperties> {
-	features: Feature<LineString, GeoJsonProperties>[];
-	properties: GeoJsonProperties;
-}
-
 /** Internal data types:
  *  Data types that are used to represent the data in the application, as it is persisted in the database.
  */
@@ -27,7 +17,7 @@ export interface ParsedRouteGeoJSON extends FeatureCollection<LineString, GeoJso
 export interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		type: 'Photo';
-	} & { title?:string, filename: string; extension: string; content: Blob };
+	} & { title?:string, textContent?:string, alternativeText?:string, filename: string; extension: string; content: Blob };
 }
 
 /**
@@ -58,6 +48,9 @@ export interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
 	};
 }
 
+/**
+ * TrackGeoPathFrom is a GeoJSON Point Feature representing a track path starting point.
+ */
 export interface TrackGeoPathFrom extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		name: 'from';
@@ -65,6 +58,9 @@ export interface TrackGeoPathFrom extends Feature<Point, GeoJsonProperties> {
 	};
 }
 
+/**
+ * TrackGeoPathTo is a GeoJSON Point Feature representing a track path ending point.
+ */
 export interface TrackGeoPathTo extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		name: 'to';
@@ -83,7 +79,7 @@ export interface RouteSensorDatas extends FeatureCollection {
 }
 
 /**
- * RoutePhotos is an extension of GeoJSON FeatureCollection representing a collection of photo points.
+ * RoutePhotos is a GeoJSON FeatureCollection representing a collection of photo points.
  */
 export interface RoutePhotos extends FeatureCollection {
 	features: PhotoGeoPoint[];
@@ -93,7 +89,7 @@ export interface RoutePhotos extends FeatureCollection {
 }
 
 /**
- * RoutePaths is an extension of GeoJSON FeatureCollection representing a collection of track paths.
+ * RoutePaths is a FeatureCollection representing a collection of track paths.
  */
 export interface RoutePaths extends FeatureCollection<LineString | Point, GeoJsonProperties> {
 	features: Array<TrackGeoPath | TrackGeoPathFrom | TrackGeoPathTo>;
@@ -103,7 +99,7 @@ export interface RoutePaths extends FeatureCollection<LineString | Point, GeoJso
 }
 
 /**
- * RouteNotes is an extension of GeoJSON FeatureCollection representing a collection of note points.
+ * RouteNotes is a GeoJSON FeatureCollection representing a collection of note points.
  */
 export interface RouteNotes extends FeatureCollection {
 	features: NoteGeoPoint[];
@@ -131,7 +127,7 @@ export interface Route {
 	date?: Date;
 	createdAt: Date;
 	updatedAt: Date;
-	description: string;
+	textContent?: string;
 	tags: string[];
 	routeData: RouteData;
 	distance: number;
@@ -150,3 +146,15 @@ export interface RouteEntity extends Route {
 	id: number;
 	visible: boolean;
 }
+
+
+/** IN data types:
+ *  data coming from the outside world (e.g. from a file, from a server, etc.)
+ */
+
+// GeoJSON Route parsed from a GPX file or from a GeoJSON file
+export interface ParsedRouteGeoJSON extends FeatureCollection<LineString, GeoJsonProperties> {
+	features: Feature<LineString, GeoJsonProperties>[];
+	properties: GeoJsonProperties;
+}
+

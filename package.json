@@ -11,7 +11,7 @@
 	],
 	"license": "MIT",
 	"scripts": {
-		"quicktype": "npx quicktype --src src/lib/routes.datatypes.ts --src-lang typescript --lang 'schema' --out src/lib/routes.generated.schema.json && npx quicktype --src src/lib/routes.datatypes.ts --src-lang typescript --lang 'typescript-zod' --out src/lib/routes.generated.zod.ts",
+		"quicktype": "npx quicktype --src src/lib/db_data/routes.datatypes.ts --src-lang typescript --lang 'schema' --out src/lib/db_data/routes.generated.schema.json && npx quicktype --src src/lib/db_data/routes.datatypes.ts --src-lang typescript --lang 'typescript-zod' --out src/lib/db_data/routes.generated.zod.ts",
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
 		"preview": "vite preview",

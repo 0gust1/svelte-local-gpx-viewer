@@ -1,13 +1,15 @@
 <script lang="ts">
-	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
-	import { type RouteEntity } from '$lib/localDB';
+	import { GeoJSON, LineLayer, getMapContext, SymbolLayer, Marker, CircleLayer } from 'svelte-maplibre';
+	
+	import { type RouteEntity } from '$lib/db_data/localDB';
 	import { onDestroy } from 'svelte';
 
 	interface Props {
 		route: RouteEntity;
+		photoSelection: {hovered: number | null; selected: number | null};
 	}
 
-	let { route: localRouteEntity }: Props = $props();
+	let { route: localRouteEntity, photoSelection }: Props = $props();
 
 	const { map, loaded } = $derived(getMapContext());
 	$effect(() => {
@@ -66,6 +68,29 @@
 						'icon-halo-color': 'black'
 					}}
 				/>
+			</GeoJSON>
+		{/if}
+	{/each}
+	{#each localRouteEntity.routeData.photos.features as feature,i}
+		{#if feature.geometry.type === 'Point'}
+			<GeoJSON data={feature}>
+				<CircleLayer
+					paint={{
+						'circle-radius': 5,
+						'circle-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`#bada55`,
+						'circle-opacity': 1.0,
+						'circle-stroke-width': 1,
+						'circle-stroke-color': 'white'
+					}}
+				/>
+				<!-- <Marker
+					anchor="center"
+					offset={[0, -20]}
+					longitude={feature.geometry.coordinates[0]}
+					latitude={feature.geometry.coordinates[1]}
+				>
+					<img src={feature.properties.content} alt="Uploaded pic" style="max-width: 50px; max-height: 50px;" />
+				</Marker> -->
 			</GeoJSON>
 		{/if}
 	{/each}

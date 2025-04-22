@@ -1,88 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "ParsedRouteGeoJSON": {
-            "description": "IN data types:\ndata coming from the outside world (e.g. from a file, from a server, etc.)",
-            "title": "ParsedRouteGeoJSON",
-            "type": "object",
-            "properties": {
-                "features": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>"
-                    },
-                    "title": "features"
-                },
-                "properties": {
-                    "$ref": "#/definitions/GeoJSON.GeoJsonProperties",
-                    "title": "properties"
-                },
-                "type": {
-                    "description": "Specifies the type of GeoJSON object.",
-                    "type": "string",
-                    "enum": [
-                        "FeatureCollection"
-                    ],
-                    "title": "type"
-                },
-                "bbox": {
-                    "description": "Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.\nThe value of the bbox member is an array of length 2*n where n is the number of dimensions\nrepresented in the contained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.\nThe axes order of a bbox follows the axes order of geometries.\nhttps://tools.ietf.org/html/rfc7946#section-5",
-                    "anyOf": [
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 4,
-                            "maxItems": 4
-                        },
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 6,
-                            "maxItems": 6
-                        }
-                    ],
-                    "title": "bbox"
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "features",
-                "properties",
-                "type"
-            ]
-        },
         "PhotoGeoPoint": {
             "description": "PhotoGeoPoint is an extension of GeoJSON Point Feature representing a photo location.",
             "title": "PhotoGeoPoint",
@@ -100,9 +18,21 @@
                             ],
                             "title": "type"
                         },
-                        "name": {
+                        "title": {
                             "type": "string",
-                            "title": "name"
+                            "title": "title"
+                        },
+                        "textContent": {
+                            "type": "string",
+                            "title": "textContent"
+                        },
+                        "alternativeText": {
+                            "type": "string",
+                            "title": "alternativeText"
+                        },
+                        "filename": {
+                            "type": "string",
+                            "title": "filename"
                         },
                         "extension": {
                             "type": "string",
@@ -116,7 +46,7 @@
                     "required": [
                         "content",
                         "extension",
-                        "name",
+                        "filename",
                         "type"
                     ],
                     "title": "properties"
@@ -512,6 +442,7 @@
             ]
         },
         "TrackGeoPathFrom": {
+            "description": "TrackGeoPathFrom is a GeoJSON Point Feature representing a track path starting point.",
             "title": "TrackGeoPathFrom",
             "type": "object",
             "properties": {
@@ -621,6 +552,7 @@
             ]
         },
         "TrackGeoPathTo": {
+            "description": "TrackGeoPathTo is a GeoJSON Point Feature representing a track path ending point.",
             "title": "TrackGeoPathTo",
             "type": "object",
             "properties": {
@@ -825,7 +757,7 @@
             ]
         },
         "RoutePhotos": {
-            "description": "RoutePhotos is an extension of GeoJSON FeatureCollection representing a collection of photo points.",
+            "description": "RoutePhotos is a GeoJSON FeatureCollection representing a collection of photo points.",
             "title": "RoutePhotos",
             "type": "object",
             "properties": {
@@ -920,7 +852,7 @@
             ]
         },
         "RoutePaths": {
-            "description": "RoutePaths is an extension of GeoJSON FeatureCollection representing a collection of track paths.",
+            "description": "RoutePaths is a FeatureCollection representing a collection of track paths.",
             "title": "RoutePaths",
             "type": "object",
             "properties": {
@@ -1025,7 +957,7 @@
             ]
         },
         "RouteNotes": {
-            "description": "RouteNotes is an extension of GeoJSON FeatureCollection representing a collection of note points.",
+            "description": "RouteNotes is a GeoJSON FeatureCollection representing a collection of note points.",
             "title": "RouteNotes",
             "type": "object",
             "properties": {
@@ -1173,9 +1105,9 @@
                     "format": "date-time",
                     "title": "updatedAt"
                 },
-                "description": {
+                "textContent": {
                     "type": "string",
-                    "title": "description"
+                    "title": "textContent"
                 },
                 "tags": {
                     "type": "array",
@@ -1256,7 +1188,6 @@
                 "bbox",
                 "color",
                 "createdAt",
-                "description",
                 "distance",
                 "elevation",
                 "name",
@@ -1297,9 +1228,9 @@
                     "format": "date-time",
                     "title": "updatedAt"
                 },
-                "description": {
+                "textContent": {
                     "type": "string",
-                    "title": "description"
+                    "title": "textContent"
                 },
                 "tags": {
                     "type": "array",
@@ -1380,7 +1311,6 @@
                 "bbox",
                 "color",
                 "createdAt",
-                "description",
                 "distance",
                 "elevation",
                 "id",
@@ -1391,36 +1321,29 @@
                 "visible"
             ]
         },
-        "GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>": {
-            "description": "A feature object which contains a geometry and associated properties.\nhttps://tools.ietf.org/html/rfc7946#section-3.2",
-            "title": "GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>",
+        "ParsedRouteGeoJSON": {
+            "description": "IN data types:\ndata coming from the outside world (e.g. from a file, from a server, etc.)",
+            "title": "ParsedRouteGeoJSON",
             "type": "object",
             "properties": {
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>"
+                    },
+                    "title": "features"
+                },
+                "properties": {
+                    "$ref": "#/definitions/GeoJSON.GeoJsonProperties",
+                    "title": "properties"
+                },
                 "type": {
                     "description": "Specifies the type of GeoJSON object.",
                     "type": "string",
                     "enum": [
-                        "Feature"
+                        "FeatureCollection"
                     ],
                     "title": "type"
-                },
-                "geometry": {
-                    "$ref": "#/definitions/GeoJSON.LineString",
-                    "description": "The feature's geometry",
-                    "title": "geometry"
-                },
-                "id": {
-                    "description": "A value that uniquely identifies this feature in a\nhttps://tools.ietf.org/html/rfc7946#section-3.2.",
-                    "type": [
-                        "string",
-                        "number"
-                    ],
-                    "title": "id"
-                },
-                "properties": {
-                    "$ref": "#/definitions/GeoJSON.GeoJsonProperties",
-                    "description": "Properties associated with this feature.",
-                    "title": "properties"
                 },
                 "bbox": {
                     "description": "Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.\nThe value of the bbox member is an array of length 2*n where n is the number of dimensions\nrepresented in the contained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.\nThe axes order of a bbox follows the axes order of geometries.\nhttps://tools.ietf.org/html/rfc7946#section-5",
@@ -1475,32 +1398,48 @@
             },
             "additionalProperties": false,
             "required": [
-                "geometry",
+                "features",
                 "properties",
                 "type"
             ]
         },
-        "GeoJSON.LineString": {
-            "description": "LineString geometry object.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.4",
-            "title": "GeoJSON.LineString",
+        "Blob": {
+            "title": "Blob",
+            "type": "object",
+            "properties": {
+                "size": {
+                    "type": "number",
+                    "title": "size"
+                },
+                "type": {
+                    "type": "string",
+                    "title": "type"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "size",
+                "type"
+            ]
+        },
+        "GeoJSON.Point": {
+            "description": "Point geometry object.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.2",
+            "title": "GeoJSON.Point",
             "type": "object",
             "properties": {
                 "type": {
                     "description": "Specifies the type of GeoJSON object.",
                     "type": "string",
                     "enum": [
-                        "LineString"
+                        "Point"
                     ],
                     "title": "type"
                 },
                 "coordinates": {
+                    "description": "A Position is an array of coordinates.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.1\nArray should contain between two and three elements.\nThe previous GeoJSON specification allowed more elements (e.g., which could be used to represent M values),\nbut the current specification only allows X, Y, and (optionally) Z to be defined.\n\nNote: the type will not be narrowed down to `[number, number] | [number, number, number]` due to\nmarginal benefits and the large impact of breaking change.\n\nSee previous discussions on the type narrowing:\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/pull/21590|Nov 2017}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/67773|Dec 2023}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/71441| Dec 2024}\n\nOne can use a\n{@link https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates|user-defined type guard that returns a type predicate}\nto determine if a position is a 2D or 3D position.",
                     "type": "array",
                     "items": {
-                        "description": "A Position is an array of coordinates.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.1\nArray should contain between two and three elements.\nThe previous GeoJSON specification allowed more elements (e.g., which could be used to represent M values),\nbut the current specification only allows X, Y, and (optionally) Z to be defined.\n\nNote: the type will not be narrowed down to `[number, number] | [number, number, number]` due to\nmarginal benefits and the large impact of breaking change.\n\nSee previous discussions on the type narrowing:\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/pull/21590|Nov 2017}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/67773|Dec 2023}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/71441| Dec 2024}\n\nOne can use a\n{@link https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates|user-defined type guard that returns a type predicate}\nto determine if a position is a 2D or 3D position.",
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
+                        "type": "number"
                     },
                     "title": "coordinates"
                 },
@@ -1561,55 +1500,27 @@
                 "type"
             ]
         },
-        "GeoJSON.GeoJsonProperties": {
-            "title": "GeoJSON.GeoJsonProperties",
-            "anyOf": [
-                {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                {
-                    "type": "null"
-                }
-            ]
-        },
-        "Blob": {
-            "title": "Blob",
-            "type": "object",
-            "properties": {
-                "size": {
-                    "type": "number",
-                    "title": "size"
-                },
-                "type": {
-                    "type": "string",
-                    "title": "type"
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "size",
-                "type"
-            ]
-        },
-        "GeoJSON.Point": {
-            "description": "Point geometry object.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.2",
-            "title": "GeoJSON.Point",
+        "GeoJSON.LineString": {
+            "description": "LineString geometry object.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.4",
+            "title": "GeoJSON.LineString",
             "type": "object",
             "properties": {
                 "type": {
                     "description": "Specifies the type of GeoJSON object.",
                     "type": "string",
                     "enum": [
-                        "Point"
+                        "LineString"
                     ],
                     "title": "type"
                 },
                 "coordinates": {
-                    "description": "A Position is an array of coordinates.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.1\nArray should contain between two and three elements.\nThe previous GeoJSON specification allowed more elements (e.g., which could be used to represent M values),\nbut the current specification only allows X, Y, and (optionally) Z to be defined.\n\nNote: the type will not be narrowed down to `[number, number] | [number, number, number]` due to\nmarginal benefits and the large impact of breaking change.\n\nSee previous discussions on the type narrowing:\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/pull/21590|Nov 2017}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/67773|Dec 2023}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/71441| Dec 2024}\n\nOne can use a\n{@link https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates|user-defined type guard that returns a type predicate}\nto determine if a position is a 2D or 3D position.",
                     "type": "array",
                     "items": {
-                        "type": "number"
+                        "description": "A Position is an array of coordinates.\nhttps://tools.ietf.org/html/rfc7946#section-3.1.1\nArray should contain between two and three elements.\nThe previous GeoJSON specification allowed more elements (e.g., which could be used to represent M values),\nbut the current specification only allows X, Y, and (optionally) Z to be defined.\n\nNote: the type will not be narrowed down to `[number, number] | [number, number, number]` due to\nmarginal benefits and the large impact of breaking change.\n\nSee previous discussions on the type narrowing:\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/pull/21590|Nov 2017}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/67773|Dec 2023}\n- {@link https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/71441| Dec 2024}\n\nOne can use a\n{@link https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates|user-defined type guard that returns a type predicate}\nto determine if a position is a 2D or 3D position.",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
                     },
                     "title": "coordinates"
                 },
@@ -1731,6 +1642,107 @@
                     ],
                     "minItems": 6,
                     "maxItems": 6
+                }
+            ]
+        },
+        "GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>": {
+            "description": "A feature object which contains a geometry and associated properties.\nhttps://tools.ietf.org/html/rfc7946#section-3.2",
+            "title": "GeoJSON.Feature<GeoJSON.LineString,GeoJSON.GeoJsonProperties>",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "Specifies the type of GeoJSON object.",
+                    "type": "string",
+                    "enum": [
+                        "Feature"
+                    ],
+                    "title": "type"
+                },
+                "geometry": {
+                    "$ref": "#/definitions/GeoJSON.LineString",
+                    "description": "The feature's geometry",
+                    "title": "geometry"
+                },
+                "id": {
+                    "description": "A value that uniquely identifies this feature in a\nhttps://tools.ietf.org/html/rfc7946#section-3.2.",
+                    "type": [
+                        "string",
+                        "number"
+                    ],
+                    "title": "id"
+                },
+                "properties": {
+                    "$ref": "#/definitions/GeoJSON.GeoJsonProperties",
+                    "description": "Properties associated with this feature.",
+                    "title": "properties"
+                },
+                "bbox": {
+                    "description": "Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.\nThe value of the bbox member is an array of length 2*n where n is the number of dimensions\nrepresented in the contained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.\nThe axes order of a bbox follows the axes order of geometries.\nhttps://tools.ietf.org/html/rfc7946#section-5",
+                    "anyOf": [
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ],
+                            "minItems": 4,
+                            "maxItems": 4
+                        },
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ],
+                            "minItems": 6,
+                            "maxItems": 6
+                        }
+                    ],
+                    "title": "bbox"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "geometry",
+                "properties",
+                "type"
+            ]
+        },
+        "GeoJSON.GeoJsonProperties": {
+            "title": "GeoJSON.GeoJsonProperties",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                {
+                    "type": "null"
                 }
             ]
         }

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { type RouteEntity } from '$lib/localDB';
+	import { type RouteEntity } from '$lib/db_data/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-	import { getUIRoutesManager } from './routesData.svelte';
+	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import {base} from '$app/paths';
 
 	let routeListElem: HTMLDivElement;
@@ -182,7 +182,7 @@
 		
 			<div class="text-sm leading-tight">
 				<a href="{base}?edit=true&id={route.id}" class="underline decoration-dotted after:ml-1 hover:no-underline hover:after:content-['✏']">{route.name}</a>
-				
+				<!-- <a href="#/edit-{route.id}" class="underline decoration-dotted after:ml-1 hover:no-underline hover:after:content-['✏']">{route.name}</a> -->
 			</div>
 			<div class="text-xs font-semibold text-slate-500">
 				{round(route.distance, 1)}km (+{round(route.elevation.positive, 0)}m, {round(
@@ -191,7 +191,18 @@
 				)}m)
 			</div>
 		</div>
-		<div class="ml-auto self-center">
+		<div class="ml-auto self-center flex">
+			{#if route.routeData.notes.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Notes Data</span>
+					<span class="text-slate-400">({route.routeData.notes.features.length} points)</span>
+				</span>
+			{/if}
+			{#if route.routeData.photos.features.length > 0}
+				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+					<span>Photos ({route.routeData.photos.features.length})</span>
+				</span>
+			{/if}
 			{#if route.routeData.sensors.features.length > 0}
 				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
 					<span>Sensors Data</span>
