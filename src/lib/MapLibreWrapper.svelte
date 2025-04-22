@@ -9,12 +9,17 @@
 
 	const defaultMapStyle: string | StyleSpecification = defaultStyle;
 
+	let {
+		mapStyle = defaultMapStyle,
+		pitch = 0
+	}: { mapStyle: string | StyleSpecification; pitch: number } = $props();
+
 	let uiRoutes = getUIRoutesManager();
 	let bounds = $derived.by(() => {
-		if (uiRoutes.routes) {
+		if (uiRoutes.routes && uiRoutes.routes.length > 0) {
 			let allFeatures = uiRoutes.routes
 				.filter((routeEntity) => routeEntity.visible)
-				.flatMap((routeEntity) => routeEntity.routeData.route.features);//remove this one ?
+				.flatMap((routeEntity) => routeEntity.routeData.route.features); //remove this one ?
 
 			let boundingBox = bbox({
 				type: 'FeatureCollection',
@@ -35,12 +40,10 @@
 			maxY += height * extendFactor;
 
 			return [minX, minY, maxX, maxY] as [number, number, number, number];
+		} else {
+			return [-31.266, 34.5, 39.869, 71.185] as [number, number, number, number];
 		}
 	});
-	let {
-		mapStyle = defaultMapStyle,
-		pitch = 0
-	}: { mapStyle: string | StyleSpecification; pitch: number } = $props();
 </script>
 
 {#if uiRoutes && uiRoutes.routes}

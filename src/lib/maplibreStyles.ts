@@ -15,8 +15,10 @@ export const stylesList = [
 		style:
 			'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json'
 	},
-	{name:"cycleosm", style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/cycleosm.json"},
-	{name:'protomaps - light', style:'https://api.protomaps.com/styles/v5/light/en.json?key=c524f2fd9a04c3e1'},
+	// {name:"cycleosm", style:"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/cycleosm.json"},
+	{name:'protomaps - light', style:'https://api.protomaps.com/styles/v5/light/en.json?key=7b8825069d41df4e'},
+	{name:'protomaps - white', style:'https://api.protomaps.com/styles/v5/white/en.json?key=7b8825069d41df4e'},
+	{name:'protomaps - greyscale', style:'https://api.protomaps.com/styles/v5/grayscale/en.json?key=7b8825069d41df4e'},
 	{ name: 'openfreemap - osm-liberty (3D)', style: 'https://tiles.openfreemap.org/styles/liberty' },
 	{
 		name: 'openfreemap - osm-bright',
