@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
-	import RoutesViewer from '$lib/MapLibreRoute.svelte';
+	import RouteViewer from '$lib/MapLibreRoute.svelte';
 	import type { RouteEntity } from '$lib';
 
 	interface Props {
@@ -8,8 +8,9 @@
 		mapStyle: StyleSpecification;
 		pitch: number;
 		photoSelection: { hovered: number | null; selected: number | null };
+		routePoint: { coords: [number, number]; distance: number; elevation: number } | null;
 	}
-	let { route: routeState, mapStyle, pitch, photoSelection }: Props = $props();
+	let { route: routeState, mapStyle, pitch, photoSelection, routePoint  }: Props = $props();
 
 	let bounds = $derived.by(() => {
 		if (routeState) {
@@ -47,5 +48,5 @@
 		}
 	]}
 >
-	<RoutesViewer route={routeState} {photoSelection} />
+	<RouteViewer route={routeState} {photoSelection} {routePoint} />
 </MapLibre>

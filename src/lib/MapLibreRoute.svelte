@@ -7,9 +7,10 @@
 	interface Props {
 		route: RouteEntity;
 		photoSelection: {hovered: number | null; selected: number | null};
+		routePoint: { coords: [number, number]; distance: number; elevation: number } | null;
 	}
 
-	let { route: localRouteEntity, photoSelection }: Props = $props();
+	let { route: localRouteEntity, photoSelection, routePoint }: Props = $props();
 
 	const { map, loaded } = $derived(getMapContext());
 	$effect(() => {
@@ -94,4 +95,12 @@
 			</GeoJSON>
 		{/if}
 	{/each}
+	{#if routePoint}
+		<Marker
+			anchor="center"
+			lngLat={routePoint.coords}
+		>
+			<div class=" rounded-full w-3 h-3 bg-amber-400 border-2 border-amber-500"></div>
+		</Marker>
+		{/if}
 {/if}

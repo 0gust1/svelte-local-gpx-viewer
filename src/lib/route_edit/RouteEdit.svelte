@@ -29,25 +29,33 @@
 		selected: null
 	});
 
-	let elevationValues: [number, number][] = $derived.by(() => {
-        if (routeState) {
-            let cumulativeDistance = 0;
-            return routeState.routeData.route.features
-                .filter((f) => f.geometry.type == 'LineString')
-                .flatMap((feature) => {
-                    const coords = feature.geometry.coordinates;
-                    return coords.map((c, i) => {
-                        if (i > 0) {
-                            const from = point(coords[i - 1]);
-                            const to = point(c);
-                            cumulativeDistance += distance(from, to, { units: 'kilometers' });
-                        }
-                        return [cumulativeDistance, c[2] as number];
-                    });
-                });
-        }
-        return [];
-    });
+	let routePoint: { coords: [number, number]; distance: number; elevation: number } | null =
+		$state(null);
+
+	let elevationValues: { coords: [number, number]; distance: number; elevation: number }[] =
+		$derived.by(() => {
+			if (routeState) {
+				let cumulativeDistance = 0;
+				return routeState.routeData.route.features
+					.filter((f) => f.geometry.type == 'LineString')
+					.flatMap((feature) => {
+						const coords = feature.geometry.coordinates;
+						return coords.map((c, i) => {
+							if (i > 0) {
+								const from = point(coords[i - 1]);
+								const to = point(c);
+								cumulativeDistance += distance(from, to, { units: 'kilometers' });
+							}
+							return {
+								coords: [c[0], c[1]],
+								distance: cumulativeDistance,
+								elevation: c[2]
+							};
+						});
+					});
+			}
+			return [];
+		});
 	//let elevationValues: number[] = routeState.routeData.route.features.filter(f=>f.properties.type='Track Path').map((feature) => feature.geometry.coordinates[2] as number);
 
 	// let hasChanged = $derived.by(() => {
@@ -121,8 +129,8 @@
 				<RouteDataEdit bind:route={routeState} bind:photoSelection />
 			</div>
 			<div class="col-span-2">
-				<RouteEditMap route={routeState} {mapStyle} {pitch} {photoSelection} />
-				<ElevationPlot {elevationValues} />
+				<RouteEditMap route={routeState} {mapStyle} {pitch} {photoSelection} {routePoint} />
+				<ElevationPlot {elevationValues} bind:routePoint />
 			</div>
 		</div>
 
