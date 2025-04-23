@@ -59,8 +59,8 @@
 	}
 
 
-	async function downloadAllRoutes() {
-		await uiRoutes.downloadAllRoutesArchive();
+	async function downloadRoutes(routesIds: number[] = []) {
+		await uiRoutes.downloadRoutesArchive(routesIds);
 	}
 
 	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
@@ -124,9 +124,9 @@
 		<button
 			disabled={!uiRoutes.routes || uiRoutes.routes.length === 0}
 			class="ml-auto rounded-sm bg-blue-500 px-2 py-1 text-white"
-			onclick={downloadAllRoutes}
+			onclick={()=>{downloadRoutes(uiRoutes.selectedRoutesIds.size > 0 ? Array.from(uiRoutes.selectedRoutesIds) : [])}}
 		>
-			Download All Routes (ZIP)
+			Export {uiRoutes.selectedRoutesIds.size > 0?'Selected':'All'} Routes (ZIP)
 		</button>
 	</div>
 	<ul class="routes-list">

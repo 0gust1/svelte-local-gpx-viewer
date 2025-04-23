@@ -2,7 +2,8 @@ import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './loca
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-import JSZip from 'jszip';
+import JSZipConstructor from 'jszip';
+import type JSZip from 'jszip';
 import { RouteEntitySchema } from './routes.generated.zod';
 import { fileSave } from 'browser-fs-access';
 import { simplify } from '@turf/turf';
@@ -90,42 +91,9 @@ export const getUIRoutesManager = () => {
 			if (!route) {
 				throw new Error(`Route with id ${id} not found`);
 			}
-			const zip = new JSZip();
-			// Add GPX file
-			const simplifiedGpx = GeoJsonToGpx(simplify(route.routeData.route, { tolerance: 0.00001, highQuality: true }));
-			const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
-			zip.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
+			const zip = new JSZipConstructor();
 
-			const rawGpx = GeoJsonToGpx(route.routeData.route);
-			const rawGpxData = new XMLSerializer().serializeToString(rawGpx);
-			zip.file(`${route.name}_raw.gpx`, rawGpxData);
-
-			if (route.originalGPXData) {
-				zip.file(`${route.name}_original.gpx`, route.originalGPXData);
-			}
-
-			if (route.originalFitData) {
-				const fitData = new Blob([route.originalFitData], { type: 'application/octet-stream' });
-				zip.file(`${route.name}_original.fit`, fitData);
-			}
-
-			// Add GeoJSON file
-			const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
-			zip.file(`${route.name}.geojson`, geoJSONData);
-			// Add full entity file
-			const fullEntityData = JSON.stringify(route, null, 2);
-			zip.file(`${route.name}.json`, fullEntityData);
-
-			// loop through the images and add them to the zip
-			if (route.routeData.photos) {
-				for (const photo of route.routeData.photos.features) {
-					if (photo.properties.type === 'Photo') {
-						const image = photo.properties.binaryContent;
-						const imageName = photo.properties.filename;
-						zip.file(`images/${imageName}`, image);
-					}
-				}
-			}
+			generateRouteExport(route, zip);
 
 			const blobP = zip.generateAsync({ type: 'blob' });
 
@@ -142,28 +110,15 @@ export const getUIRoutesManager = () => {
 				description: 'Route archive'
 			});
 		},
-		async downloadAllRoutesArchive() {
-			const zip = new JSZip();
-			const routes = uiRoutes;
+		async downloadRoutesArchive(routesIds: number[]) {
+			const zip = new JSZipConstructor();
+			const routes =
+				routesIds.length === 0
+					? uiRoutes
+					: uiRoutes.filter((route) => routesIds.includes(route.id));
 
 			for (const route of routes) {
-				// Add GPX file(s)
-
-				const simplifiedGpx = GeoJsonToGpx(simplify(route.routeData.route));
-				const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
-				zip.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
-
-				if (route.originalGPXData) {
-					zip.file(`${route.name}.gpx`, route.originalGPXData);
-				}
-
-				// Add GeoJSON file
-				const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
-				zip.file(`${route.name}.geojson`, geoJSONData);
-
-				// Add full entity file
-				const fullEntityData = JSON.stringify(route, null, 2);
-				zip.file(`${route.name}.json`, fullEntityData);
+				generateRouteExport(route, zip.folder(route.name));
 			}
 			const now = new Date();
 			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
@@ -182,3 +137,43 @@ export const getUIRoutesManager = () => {
 		}
 	};
 };
+
+function generateRouteExport(route: RouteEntity, zipfolder: JSZip) {
+	// Add GPX file
+	const simplifiedGpx = GeoJsonToGpx(
+		simplify(route.routeData.route, { tolerance: 0.00001, highQuality: true })
+	);
+	const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
+	zipfolder.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
+
+	const rawGpx = GeoJsonToGpx(route.routeData.route);
+	const rawGpxData = new XMLSerializer().serializeToString(rawGpx);
+	zipfolder.file(`${route.name}_raw.gpx`, rawGpxData);
+
+	if (route.originalGPXData) {
+		zipfolder.file(`${route.name}_original.gpx`, route.originalGPXData);
+	}
+
+	if (route.originalFitData) {
+		const fitData = new Blob([route.originalFitData], { type: 'application/octet-stream' });
+		zipfolder.file(`${route.name}_original.fit`, fitData);
+	}
+
+	// Add GeoJSON file
+	const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
+	zipfolder.file(`${route.name}.geojson`, geoJSONData);
+	// Add full entity file
+	const fullEntityData = JSON.stringify(route, null, 2);
+	zipfolder.file(`${route.name}.json`, fullEntityData);
+
+	// loop through the images and add them to the zip
+	if (route.routeData.photos) {
+		for (const photo of route.routeData.photos.features) {
+			if (photo.properties.type === 'Photo') {
+				const image = photo.properties.binaryContent;
+				const imageName = photo.properties.filename;
+				zipfolder.file(`images/${imageName}`, image);
+			}
+		}
+	}
+}
