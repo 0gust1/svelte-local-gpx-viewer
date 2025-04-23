@@ -96,7 +96,7 @@
 	</details>
 {/if}
 
-<details>
+<details open={true}>
 	<summary>
 		<h3 class="inline-block text-lg font-medium">
 			Photos ({route.routeData.photos.features.length})
@@ -107,4 +107,4 @@
 
 <h3 class="text-lg font-medium">Notes ({route.routeData.notes.features.length})</h3>
 
-<p>Add Notes</p>
+<p>Add geotagged Notes ?</p>

@@ -1,9 +1,12 @@
 <script lang="ts">
+	import {goto} from '$app/navigation';
+	import {base} from '$app/paths';
 	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
 	import { type RouteEntity } from '$lib/db_data/localDB';
 	import bbox from '@turf/bbox';
 	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import { onDestroy } from 'svelte';
+
 
 	interface Props {
 		localRoutes: Array<RouteEntity>;
@@ -93,14 +96,14 @@
 							map.getCanvas().style.cursor = '';
 						}}
 						onclick={() => {
-							if (uiRoutes.selectedRoutesIds.has(route.id)) {
-								// remove the route from the selected routes
-								uiRoutes.selectedRoutesIds.delete(route.id);
-							} else {
-								uiRoutes.selectedRoutesIds.add(route.id);
-							}
+							// if (uiRoutes.selectedRoutesIds.has(route.id)) {
+							// 	// remove the route from the selected routes
+							// 	uiRoutes.selectedRoutesIds.delete(route.id);
+							// } else {
+							// 	uiRoutes.selectedRoutesIds.add(route.id);
+							// }
+							goto(`${base}/?edit=true&id=${route.id}`);
 
-							console.log(`clicked on line ${index}`);
 						}}
 						layout={{
 							'line-cap': 'round',

@@ -17,7 +17,7 @@ import type {
 export interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		type: 'Photo';
-	} & { title?:string, textContent?:string, alternativeText?:string, filename: string; extension: string; content: Blob };
+	} & { title?:string, textContent?:string, alternativeText?:string, filename: string; extension: string; binaryContent?: Blob, url?: string };
 }
 
 /**
@@ -133,8 +133,8 @@ export interface Route {
 	distance: number;
 	elevation: { positive: number; negative: number };
 	originalGPXData?: string | null;
-	originalParsedFitData?: object | null;
 	originalFitData?: ArrayBuffer | null;
+	originalParsedFitData?: object | null;
 	color: string;
 	bbox: BBox;
 }

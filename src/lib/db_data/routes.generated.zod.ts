@@ -256,12 +256,13 @@ export type NoteGeoPoint = z.infer<typeof NoteGeoPointSchema>;
 
 export const PhotoGeoPointPropertiesSchema = z.object({
     "alternativeText": z.string().optional(),
-    "content": BlobSchema,
+    "binaryContent": BlobSchema.optional(),
     "extension": z.string(),
     "filename": z.string(),
     "textContent": z.string().optional(),
     "title": z.string().optional(),
     "type": PurpleTypeSchema,
+    "url": z.string().optional(),
 });
 export type PhotoGeoPointProperties = z.infer<typeof PhotoGeoPointPropertiesSchema>;
 
