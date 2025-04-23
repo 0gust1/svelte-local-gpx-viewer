@@ -4,7 +4,8 @@ import { SvelteSet } from 'svelte/reactivity';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZip from 'jszip';
 import { RouteEntitySchema } from './routes.generated.zod';
-
+import { fileSave } from 'browser-fs-access';
+import { simplify } from '@turf/turf';
 //const ajv = new Ajv({allErrors: true});
 // const ajv = new Ajv();
 // addFormats(ajv);
@@ -65,8 +66,8 @@ export const getUIRoutesManager = () => {
 		},
 		async updateRoute(obj: RouteEntity) {
 			//console.log('updateRoute', obj);
-			// TODO: validation 
-			obj.updatedAt = (new Date()).toUTCString();
+			// TODO: validation
+			obj.updatedAt = new Date().toUTCString();
 
 			try {
 				// Validate using Zod
@@ -84,18 +85,77 @@ export const getUIRoutesManager = () => {
 		async createRoute(obj: RouteEntityIn) {
 			await db.geoRoutes.add(obj);
 		},
+		async exportRoute(id: number) {
+			const route = await db.geoRoutes.get(id);
+			if (!route) {
+				throw new Error(`Route with id ${id} not found`);
+			}
+			const zip = new JSZip();
+			// Add GPX file
+			const simplifiedGpx = GeoJsonToGpx(simplify(route.routeData.route, { tolerance: 0.00001, highQuality: true }));
+			const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
+			zip.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
+
+			const rawGpx = GeoJsonToGpx(route.routeData.route);
+			const rawGpxData = new XMLSerializer().serializeToString(rawGpx);
+			zip.file(`${route.name}_raw.gpx`, rawGpxData);
+
+			if (route.originalGPXData) {
+				zip.file(`${route.name}_original.gpx`, route.originalGPXData);
+			}
+
+			if (route.originalFitData) {
+				const fitData = new Blob([route.originalFitData], { type: 'application/octet-stream' });
+				zip.file(`${route.name}_original.fit`, fitData);
+			}
+
+			// Add GeoJSON file
+			const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
+			zip.file(`${route.name}.geojson`, geoJSONData);
+			// Add full entity file
+			const fullEntityData = JSON.stringify(route, null, 2);
+			zip.file(`${route.name}.json`, fullEntityData);
+
+			// loop through the images and add them to the zip
+			if (route.routeData.photos) {
+				for (const photo of route.routeData.photos.features) {
+					if (photo.properties.type === 'Photo') {
+						const image = photo.properties.binaryContent;
+						const imageName = photo.properties.filename;
+						zip.file(`images/${imageName}`, image);
+					}
+				}
+			}
+
+			const blobP = zip.generateAsync({ type: 'blob' });
+
+			const now = new Date();
+			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+				now.getDate()
+			).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(
+				now.getMinutes()
+			).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+
+			await fileSave(blobP, {
+				fileName: `${route.name}_${timestamp}.zip`,
+				extensions: ['.zip'],
+				description: 'Route archive'
+			});
+		},
 		async downloadAllRoutesArchive() {
 			const zip = new JSZip();
 			const routes = uiRoutes;
 
 			for (const route of routes) {
-				// Add GPX file
-				let gpxData = route.originalGPXData;
-				if (!gpxData) {
-					const gpx = GeoJsonToGpx(route.routeData.route);
-					gpxData = new XMLSerializer().serializeToString(gpx);
+				// Add GPX file(s)
+
+				const simplifiedGpx = GeoJsonToGpx(simplify(route.routeData.route));
+				const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
+				zip.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
+
+				if (route.originalGPXData) {
+					zip.file(`${route.name}.gpx`, route.originalGPXData);
 				}
-				zip.file(`${route.name}.gpx`, gpxData);
 
 				// Add GeoJSON file
 				const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
@@ -105,12 +165,6 @@ export const getUIRoutesManager = () => {
 				const fullEntityData = JSON.stringify(route, null, 2);
 				zip.file(`${route.name}.json`, fullEntityData);
 			}
-
-			// Generate the ZIP file
-			const content = await zip.generateAsync({ type: 'blob' });
-			const url = URL.createObjectURL(content);
-
-			// Generate a timestamp for the filename
 			const now = new Date();
 			const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
 				now.getDate()
@@ -118,12 +172,13 @@ export const getUIRoutesManager = () => {
 				now.getMinutes()
 			).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
 
-			// Trigger download
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `routes-archive_${timestamp}.zip`;
-			a.click();
-			URL.revokeObjectURL(url);
+			const blobP = zip.generateAsync({ type: 'blob' });
+
+			await fileSave(blobP, {
+				fileName: `routes-archives_${timestamp}.zip`,
+				extensions: ['.zip'],
+				description: 'Route archive'
+			});
 		}
 	};
 };

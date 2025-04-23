@@ -64,6 +64,12 @@
 			});
 		}
 	}
+
+	function exportRoute() {
+		if (routeState) {
+			uiRoutes.exportRoute(routeState.id);
+		}
+	}
 </script>
 
 {#await routePromise}
@@ -77,7 +83,7 @@
 					 <span>hasChanges: {hasChanges}</span>
 					<span>{photoSelection}</span>
 					<button type="button" onclick={saveRoute}>Save ↩️</button>
-					<button type="button" disabled>Export ⬇️</button>
+					<button type="button" onclick={exportRoute}>Export ⬇️</button>
 				</div>
 				{#if persistencePromise !== null}
 					{#await persistencePromise}

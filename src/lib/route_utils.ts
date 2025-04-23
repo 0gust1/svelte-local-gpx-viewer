@@ -305,6 +305,7 @@ export async function prepareRoutesFromFiles(
 					visible: true,
 					originalGPXData: extension === 'gpx' ? file_as_text : null,
 					originalParsedFitData: extension === 'fit' ? originalParsedFitData : null,
+					originalFitData: extension === 'fit' ? file_as_arrayBuffer : null,
 					color: getRandomColor(),
 					bbox: boundingBox
 				};

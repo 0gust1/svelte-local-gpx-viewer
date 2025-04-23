@@ -38,13 +38,16 @@
                             "type": "string",
                             "title": "extension"
                         },
-                        "content": {
+                        "binaryContent": {
                             "$ref": "#/definitions/Blob",
-                            "title": "content"
+                            "title": "binaryContent"
+                        },
+                        "url": {
+                            "type": "string",
+                            "title": "url"
                         }
                     },
                     "required": [
-                        "content",
                         "extension",
                         "filename",
                         "type"
@@ -1150,6 +1153,17 @@
                     ],
                     "title": "originalGPXData"
                 },
+                "originalFitData": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/ArrayBuffer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "title": "originalFitData"
+                },
                 "originalParsedFitData": {
                     "anyOf": [
                         {
@@ -1162,17 +1176,6 @@
                         }
                     ],
                     "title": "originalParsedFitData"
-                },
-                "originalFitData": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/definitions/ArrayBuffer"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "title": "originalFitData"
                 },
                 "color": {
                     "type": "string",
@@ -1273,6 +1276,17 @@
                     ],
                     "title": "originalGPXData"
                 },
+                "originalFitData": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/ArrayBuffer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "title": "originalFitData"
+                },
                 "originalParsedFitData": {
                     "anyOf": [
                         {
@@ -1285,17 +1299,6 @@
                         }
                     ],
                     "title": "originalParsedFitData"
-                },
-                "originalFitData": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/definitions/ArrayBuffer"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "title": "originalFitData"
                 },
                 "color": {
                     "type": "string",
