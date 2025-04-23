@@ -15,7 +15,7 @@
 	let pitch = $state(0);
 
 	// we need to use $effect/onMount to access the page.url.searchParams object:
-	// it only exists in the browser, not at build time 
+	// it only exists in the browser, not at build time
 	let urlSearchParams: URLSearchParams | null = $state(null);
 	$effect(() => {
 		urlSearchParams = page.url.searchParams;
@@ -37,10 +37,8 @@
 
 <!-- url search: {@debug urlSearchParams} -->
 
-
 {#if shouldEdit && routeIdToEdit}
 	<a href="{base}/" class=" text-lg font-semibold text-blue-600">&lsaquo; all routes</a>
-
 {:else}
 	<h2 class="mb-4 text-2xl font-bold">Geo Routes</h2>
 {/if}
@@ -56,25 +54,24 @@
 {/if}
 
 <div class="mx-auto mt-3">
-	<div
-		class="grid items-center gap-1 border bg-slate-200 px-2 py-1 align-middle text-xs sm:grid-flow-col"
-	>
-		<label for="map-style" class='text-right mr-2'>Select Map Style:</label>
-		<select id="map-style" bind:value={selectedStyle} class="p-1 text-sm">
-			{#each stylesList as style}
-				<option value={style.style}>{style.name}</option>
-			{/each}
-		</select>
-
-		<label for="map-pitch" class="text-right mr-2">Map perspective (pitch): {pitch}</label>
-		<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
-	</div>
-
 	{#if shouldEdit && routeIdToEdit}
 		<div class="relative" transition:fade>
 			<RouteEdit routeId={routeIdToEdit} mapStyle={selectedStyle} {pitch} />
 		</div>
 	{:else}
+		<div
+			class="grid items-center gap-1 border bg-slate-200 px-2 py-1 align-middle text-xs sm:grid-flow-col"
+		>
+			<label for="map-style" class="mr-2 text-right">Select Map Style:</label>
+			<select id="map-style" bind:value={selectedStyle} class="p-1 text-sm">
+				{#each stylesList as style}
+					<option value={style.style}>{style.name}</option>
+				{/each}
+			</select>
+
+			<label for="map-pitch" class="mr-2 text-right">Map perspective (pitch): {pitch}</label>
+			<input id="map-pitch" type="range" min="0" max="60" step="1" bind:value={pitch} />
+		</div>
 		<div class="relative">
 			{#if uiRoutes.selectedRoutesIds.size > 0}
 				<div

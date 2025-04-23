@@ -80,8 +80,8 @@
 			<div class="text-xs">
 				<div class="flex gap-2">
 					<!-- <span>{hasChanges}</span> <span>{changeHistory.length}</span> -->
-					 <span>hasChanges: {hasChanges}</span>
-					<span>{photoSelection}</span>
+					 <!-- <span>hasChanges: {hasChanges}</span>
+					<span>{photoSelection}</span> -->
 					<button type="button" onclick={saveRoute}>Save ↩️</button>
 					<button type="button" onclick={exportRoute}>Export ⬇️</button>
 				</div>
@@ -115,7 +115,7 @@
 <style lang="postcss">
 	@reference "../../app.css";
 	button {
-		@apply rounded-md border border-slate-200 bg-slate-200 px-2 py-1 shadow;
+		@apply rounded border border-slate-300 bg-slate-200 px-2 py-1 shadow-2xs;
 	}
 	button:disabled {
 		@apply cursor-not-allowed opacity-50;

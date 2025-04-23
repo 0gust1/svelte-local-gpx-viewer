@@ -80,9 +80,18 @@
 	{#await addingPhotos}
 		<p>Loading...</p>
 	{:then editedPhotos}
-		<input type="checkbox" name="" id="images-editmode" bind:checked={detailEditMode} /><label
-			for="images-editmode">Edit</label
-		>
+		{#if photosToEdit.features.length > 0}
+		<div>
+			
+				<input
+					type="checkbox"
+					name=""
+					id="images-editmode"
+					bind:checked={detailEditMode}
+				/><label for="images-editmode" class="pl-1 inlline-block">Edit details</label
+			>
+		</div>
+		{/if}
 		{#if detailEditMode}
 			<div class="flex flex-wrap gap-1">
 				{#each photosToEdit.features as feature, i}
@@ -176,7 +185,7 @@
 
 {#snippet image(feature: PhotoGeoPoint, i: number)}
 	<div
-    class="relative hover:outline hover:outline-2 hover:outline-orange-500"
+		class="relative hover:outline hover:outline-2 hover:outline-orange-500"
 		onmouseenter={() => {
 			photoSelection.hovered = i;
 		}}
@@ -192,7 +201,6 @@
 			}}>❌</button
 		>
 		<img
-			
 			src={URL.createObjectURL(feature.properties.content)}
 			alt="Uploaded pic"
 			onclick={() => {

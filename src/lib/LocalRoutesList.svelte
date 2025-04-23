@@ -126,7 +126,7 @@
 			class="ml-auto rounded-sm bg-blue-500 px-2 py-1 text-white"
 			onclick={()=>{downloadRoutes(uiRoutes.selectedRoutesIds.size > 0 ? Array.from(uiRoutes.selectedRoutesIds) : [])}}
 		>
-			Export {uiRoutes.selectedRoutesIds.size > 0?'Selected':'All'} Routes (ZIP)
+			Export {uiRoutes.selectedRoutesIds.size > 0?'Selected':'All'} Routes {uiRoutes.selectedRoutesIds.size > 0?`(${uiRoutes.selectedRoutesIds.size})`:''}
 		</button>
 	</div>
 	<ul class="routes-list">
