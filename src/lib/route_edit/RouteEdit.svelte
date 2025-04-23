@@ -7,8 +7,10 @@
 	import RouteEditMap from './RouteEditMap.svelte';
 	import RouteDataEdit from './RouteDataEdit.svelte';
 	import ObjectDisplay from '$lib/ObjectDisplay.svelte';
-	import type { RouteEntity } from '$lib';
-
+	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
+	import ElevationPlot from './ElevationPlot.svelte';
+	import { point } from '@turf/helpers';
+	import distance from '@turf/distance';
 	let {
 		routeId,
 		mapStyle = defaultStyle,
@@ -27,6 +29,26 @@
 		selected: null
 	});
 
+	let elevationValues: [number, number][] = $derived.by(() => {
+        if (routeState) {
+            let cumulativeDistance = 0;
+            return routeState.routeData.route.features
+                .filter((f) => f.geometry.type == 'LineString')
+                .flatMap((feature) => {
+                    const coords = feature.geometry.coordinates;
+                    return coords.map((c, i) => {
+                        if (i > 0) {
+                            const from = point(coords[i - 1]);
+                            const to = point(c);
+                            cumulativeDistance += distance(from, to, { units: 'kilometers' });
+                        }
+                        return [cumulativeDistance, c[2] as number];
+                    });
+                });
+        }
+        return [];
+    });
+	//let elevationValues: number[] = routeState.routeData.route.features.filter(f=>f.properties.type='Track Path').map((feature) => feature.geometry.coordinates[2] as number);
 
 	// let hasChanged = $derived.by(() => {
 	// 	if (routeState && routeLoaded && changesCount !== null && changesCount > 0) {
@@ -45,8 +67,10 @@
 		});
 	});
 
-	let hasChanges = $derived.by(() => {
-		return true;}
+	let hasChanges = $derived.by(
+		() => {
+			return true;
+		}
 		// if (routeState && routeLoaded && changesCount !== null && changesCount > 0) {
 		// 	return true;
 		// 	}
@@ -80,7 +104,7 @@
 			<div class="text-xs">
 				<div class="flex gap-2">
 					<!-- <span>{hasChanges}</span> <span>{changeHistory.length}</span> -->
-					 <!-- <span>hasChanges: {hasChanges}</span>
+					<!-- <span>hasChanges: {hasChanges}</span>
 					<span>{photoSelection}</span> -->
 					<button type="button" onclick={saveRoute}>Save ↩️</button>
 					<button type="button" onclick={exportRoute}>Export ⬇️</button>
@@ -98,6 +122,7 @@
 			</div>
 			<div class="col-span-2">
 				<RouteEditMap route={routeState} {mapStyle} {pitch} {photoSelection} />
+				<ElevationPlot {elevationValues} />
 			</div>
 		</div>
 
