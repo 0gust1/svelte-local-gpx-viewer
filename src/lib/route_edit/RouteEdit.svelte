@@ -99,7 +99,7 @@
 
 	function exportRoute() {
 		if (routeState) {
-			uiRoutes.exportRoute(routeState.id);
+			uiRoutes.exportSelectedRoutes([routeState.id]);
 		}
 	}
 </script>

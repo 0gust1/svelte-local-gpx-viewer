@@ -60,7 +60,7 @@
 
 
 	async function downloadRoutes(routesIds: number[] = []) {
-		await uiRoutes.downloadRoutesArchive(routesIds);
+		await uiRoutes.exportSelectedRoutes(routesIds);
 	}
 
 	function handleMenuTrigger(event: MouseEvent | KeyboardEvent) {
@@ -192,6 +192,10 @@
 			</div>
 		</div>
 		<div class="ml-auto self-center flex">
+			<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
+				<span>Path</span>
+				<span class="text-slate-400">({route.routeData.route.features[0].geometry.coordinates.length} points)</span>
+			</span>
 			{#if route.routeData.notes.features.length > 0}
 				<span class="flex flex-col text-xs font-semibold text-slate-500 border border-slate-200 rounded-md px-1 py-0.5">
 					<span>Notes Data</span>
