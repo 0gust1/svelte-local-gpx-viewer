@@ -2,16 +2,16 @@ import * as z from "zod";
 
 // Specifies the type of GeoJSON object.
 
-export const GeoJsonLineStringTypeSchema = z.enum([
-    "LineString",
+export const GeoJsonPointTypeSchema = z.enum([
+    "Point",
 ]);
-export type GeoJsonLineStringType = z.infer<typeof GeoJsonLineStringTypeSchema>;
+export type GeoJsonPointType = z.infer<typeof GeoJsonPointTypeSchema>;
 
 
-export const StickyTypeSchema = z.enum([
-    "Track Path",
+export const FluffyTypeSchema = z.enum([
+    "Note",
 ]);
-export type StickyType = z.infer<typeof StickyTypeSchema>;
+export type FluffyType = z.infer<typeof FluffyTypeSchema>;
 
 // Specifies the type of GeoJSON object.
 
@@ -20,36 +20,11 @@ export const PhotoGeoPointTypeSchema = z.enum([
 ]);
 export type PhotoGeoPointType = z.infer<typeof PhotoGeoPointTypeSchema>;
 
-// Specifies the type of GeoJSON object.
 
-export const GeoJsonPointTypeSchema = z.enum([
-    "Point",
-]);
-export type GeoJsonPointType = z.infer<typeof GeoJsonPointTypeSchema>;
-
-
-export const PurpleNameSchema = z.enum([
-    "from",
-]);
-export type PurpleName = z.infer<typeof PurpleNameSchema>;
-
-
-export const FluffyNameSchema = z.enum([
-    "to",
-]);
-export type FluffyName = z.infer<typeof FluffyNameSchema>;
-
-
-export const FluffyTypeSchema = z.enum([
-    "Note",
-]);
-export type FluffyType = z.infer<typeof FluffyTypeSchema>;
-
-
-export const MagentaTypeSchema = z.enum([
+export const AmbitiousTypeSchema = z.enum([
     "Route Notes",
 ]);
-export type MagentaType = z.infer<typeof MagentaTypeSchema>;
+export type AmbitiousType = z.infer<typeof AmbitiousTypeSchema>;
 
 // Specifies the type of GeoJSON object.
 
@@ -72,32 +47,22 @@ export type IndecentType = z.infer<typeof IndecentTypeSchema>;
 
 // Specifies the type of GeoJSON object.
 
-export const HilariousTypeSchema = z.enum([
+export const GeoJsonLineStringTypeSchema = z.enum([
     "LineString",
-    "Point",
 ]);
-export type HilariousType = z.infer<typeof HilariousTypeSchema>;
+export type GeoJsonLineStringType = z.infer<typeof GeoJsonLineStringTypeSchema>;
 
 
-export const TentacledNameSchema = z.enum([
-    "from",
-    "to",
-]);
-export type TentacledName = z.infer<typeof TentacledNameSchema>;
-
-
-export const AmbitiousTypeSchema = z.enum([
-    "from",
-    "to",
+export const StickyTypeSchema = z.enum([
     "Track Path",
 ]);
-export type AmbitiousType = z.infer<typeof AmbitiousTypeSchema>;
+export type StickyType = z.infer<typeof StickyTypeSchema>;
 
 
-export const CunningTypeSchema = z.enum([
+export const HilariousTypeSchema = z.enum([
     "Route Paths",
 ]);
-export type CunningType = z.infer<typeof CunningTypeSchema>;
+export type HilariousType = z.infer<typeof HilariousTypeSchema>;
 
 
 export const TentacledTypeSchema = z.enum([
@@ -111,37 +76,6 @@ export const IndigoTypeSchema = z.enum([
 ]);
 export type IndigoType = z.infer<typeof IndigoTypeSchema>;
 
-export const GeoJsonLineStringSchema = z.object({
-    "bbox": z.array(z.number()).optional(),
-    "coordinates": z.array(z.array(z.number())),
-    "type": GeoJsonLineStringTypeSchema,
-});
-export type GeoJsonLineString = z.infer<typeof GeoJsonLineStringSchema>;
-
-export const TrackGeoPathPropertiesSchema = z.object({
-    "type": StickyTypeSchema,
-});
-export type TrackGeoPathProperties = z.infer<typeof TrackGeoPathPropertiesSchema>;
-
-export const GeoJsonPointSchema = z.object({
-    "bbox": z.array(z.number()).optional(),
-    "coordinates": z.array(z.number()),
-    "type": GeoJsonPointTypeSchema,
-});
-export type GeoJsonPoint = z.infer<typeof GeoJsonPointSchema>;
-
-export const TrackGeoPathFromPropertiesSchema = z.object({
-    "name": PurpleNameSchema,
-    "type": PurpleNameSchema,
-});
-export type TrackGeoPathFromProperties = z.infer<typeof TrackGeoPathFromPropertiesSchema>;
-
-export const TrackGeoPathToPropertiesSchema = z.object({
-    "name": FluffyNameSchema,
-    "type": FluffyNameSchema,
-});
-export type TrackGeoPathToProperties = z.infer<typeof TrackGeoPathToPropertiesSchema>;
-
 export const RouteElevationSchema = z.object({
     "negative": z.number(),
     "positive": z.number(),
@@ -153,6 +87,13 @@ export const ArrayBufferSchema = z.object({
 });
 export type ArrayBuffer = z.infer<typeof ArrayBufferSchema>;
 
+export const GeoJsonPointSchema = z.object({
+    "bbox": z.array(z.number()).optional(),
+    "coordinates": z.array(z.number()),
+    "type": GeoJsonPointTypeSchema,
+});
+export type GeoJsonPoint = z.infer<typeof GeoJsonPointSchema>;
+
 export const NoteGeoPointPropertiesSchema = z.object({
     "content": z.string(),
     "type": FluffyTypeSchema,
@@ -160,7 +101,7 @@ export const NoteGeoPointPropertiesSchema = z.object({
 export type NoteGeoPointProperties = z.infer<typeof NoteGeoPointPropertiesSchema>;
 
 export const RouteNotesPropertiesSchema = z.object({
-    "type": MagentaTypeSchema,
+    "type": AmbitiousTypeSchema,
 });
 export type RouteNotesProperties = z.infer<typeof RouteNotesPropertiesSchema>;
 
@@ -175,21 +116,20 @@ export const RoutePhotosPropertiesSchema = z.object({
 });
 export type RoutePhotosProperties = z.infer<typeof RoutePhotosPropertiesSchema>;
 
-export const GeoJsonSchema = z.object({
+export const GeoJsonLineStringSchema = z.object({
     "bbox": z.array(z.number()).optional(),
-    "coordinates": z.array(z.union([z.array(z.number()), z.number()])),
-    "type": HilariousTypeSchema,
+    "coordinates": z.array(z.array(z.number())),
+    "type": GeoJsonLineStringTypeSchema,
 });
-export type GeoJson = z.infer<typeof GeoJsonSchema>;
+export type GeoJsonLineString = z.infer<typeof GeoJsonLineStringSchema>;
 
-export const PurplePropertiesSchema = z.object({
-    "type": AmbitiousTypeSchema,
-    "name": TentacledNameSchema.optional(),
+export const TrackGeoPathPropertiesSchema = z.object({
+    "type": StickyTypeSchema,
 });
-export type PurpleProperties = z.infer<typeof PurplePropertiesSchema>;
+export type TrackGeoPathProperties = z.infer<typeof TrackGeoPathPropertiesSchema>;
 
 export const RoutePathsPropertiesSchema = z.object({
-    "type": CunningTypeSchema,
+    "type": HilariousTypeSchema,
 });
 export type RoutePathsProperties = z.infer<typeof RoutePathsPropertiesSchema>;
 
@@ -199,6 +139,33 @@ export const TrackerDataGeoPointPropertiesSchema = z.object({
 export type TrackerDataGeoPointProperties = z.infer<typeof TrackerDataGeoPointPropertiesSchema>;
 
 export const RouteSensorDatasPropertiesSchema = z.object({
+    "avgCadence": z.number().optional(),
+    "avgHeartRate": z.number().optional(),
+    "avgPower": z.number().optional(),
+    "avgSpeed": z.number(),
+    "avgTemperature": z.number().optional(),
+    "enhancedAvgRespirationRate": z.number(),
+    "enhancedAvgSpeed": z.number(),
+    "enhancedMaxRespirationRate": z.number(),
+    "enhancedMaxSpeed": z.number(),
+    "enhancedMinRespirationRate": z.number(),
+    "maxCadence": z.number().optional(),
+    "maxHeartRate": z.number().optional(),
+    "maxPower": z.number().optional(),
+    "maxSpeed": z.number(),
+    "minHeartRate": z.number().optional(),
+    "normalizedPower": z.number().optional(),
+    "sport": z.string(),
+    "startTime": z.coerce.date(),
+    "subSport": z.string(),
+    "timestamp": z.coerce.date(),
+    "totalAscent": z.number(),
+    "totalCalories": z.number(),
+    "totalDescent": z.number(),
+    "totalDistance": z.number(),
+    "totalElapsedTime": z.number(),
+    "totalTimerTime": z.number(),
+    "totalWork": z.number(),
     "type": IndigoTypeSchema,
 });
 export type RouteSensorDatasProperties = z.infer<typeof RouteSensorDatasPropertiesSchema>;
@@ -209,6 +176,60 @@ export const RouteEntityElevationSchema = z.object({
 });
 export type RouteEntityElevation = z.infer<typeof RouteEntityElevationSchema>;
 
+export const FitActivitySummarySchema = z.object({
+    "avgCadence": z.number().optional(),
+    "avgHeartRate": z.number().optional(),
+    "avgPower": z.number().optional(),
+    "avgSpeed": z.number(),
+    "avgTemperature": z.number().optional(),
+    "enhancedAvgRespirationRate": z.number(),
+    "enhancedAvgSpeed": z.number(),
+    "enhancedMaxRespirationRate": z.number(),
+    "enhancedMaxSpeed": z.number(),
+    "enhancedMinRespirationRate": z.number(),
+    "maxCadence": z.number().optional(),
+    "maxHeartRate": z.number().optional(),
+    "maxPower": z.number().optional(),
+    "maxSpeed": z.number(),
+    "minHeartRate": z.number().optional(),
+    "normalizedPower": z.number().optional(),
+    "sport": z.string(),
+    "startTime": z.coerce.date(),
+    "subSport": z.string(),
+    "timestamp": z.coerce.date(),
+    "totalAscent": z.number(),
+    "totalCalories": z.number(),
+    "totalDescent": z.number(),
+    "totalDistance": z.number(),
+    "totalElapsedTime": z.number(),
+    "totalTimerTime": z.number(),
+    "totalWork": z.number(),
+});
+export type FitActivitySummary = z.infer<typeof FitActivitySummarySchema>;
+
+export const FitDataFrameSchema = z.object({
+    "accumulatedPower": z.number(),
+    "activityType": z.string().optional(),
+    "altitude": z.number().optional(),
+    "cadence": z.number().optional(),
+    "distance": z.number(),
+    "enhancedAltitude": z.number(),
+    "enhancedRespirationRate": z.number().optional(),
+    "enhancedSpeed": z.number(),
+    "fractionalCadence": z.number().optional(),
+    "heartRate": z.number().optional(),
+    "power": z.number().optional(),
+    "speed": z.number().optional(),
+    "temperature": z.number().optional(),
+    "timestamp": z.coerce.date(),
+});
+export type FitDataFrame = z.infer<typeof FitDataFrameSchema>;
+
+export const RoutePointSchema = z.object({
+    "coords": z.array(z.number()),
+});
+export type RoutePoint = z.infer<typeof RoutePointSchema>;
+
 export const GeoJsonFeatureGeoJsonLineStringGeoJsonGeoJsonPropertiesSchema = z.object({
     "bbox": z.array(z.number()).optional(),
     "geometry": GeoJsonLineStringSchema,
@@ -217,33 +238,6 @@ export const GeoJsonFeatureGeoJsonLineStringGeoJsonGeoJsonPropertiesSchema = z.o
     "type": PhotoGeoPointTypeSchema,
 });
 export type GeoJsonFeatureGeoJsonLineStringGeoJsonGeoJsonProperties = z.infer<typeof GeoJsonFeatureGeoJsonLineStringGeoJsonGeoJsonPropertiesSchema>;
-
-export const TrackGeoPathSchema = z.object({
-    "bbox": z.array(z.number()).optional(),
-    "geometry": GeoJsonLineStringSchema,
-    "id": z.union([z.number(), z.string()]).optional(),
-    "properties": TrackGeoPathPropertiesSchema,
-    "type": PhotoGeoPointTypeSchema,
-});
-export type TrackGeoPath = z.infer<typeof TrackGeoPathSchema>;
-
-export const TrackGeoPathFromSchema = z.object({
-    "bbox": z.array(z.number()).optional(),
-    "geometry": GeoJsonPointSchema,
-    "id": z.union([z.number(), z.string()]).optional(),
-    "properties": TrackGeoPathFromPropertiesSchema,
-    "type": PhotoGeoPointTypeSchema,
-});
-export type TrackGeoPathFrom = z.infer<typeof TrackGeoPathFromSchema>;
-
-export const TrackGeoPathToSchema = z.object({
-    "bbox": z.array(z.number()).optional(),
-    "geometry": GeoJsonPointSchema,
-    "id": z.union([z.number(), z.string()]).optional(),
-    "properties": TrackGeoPathToPropertiesSchema,
-    "type": PhotoGeoPointTypeSchema,
-});
-export type TrackGeoPathTo = z.infer<typeof TrackGeoPathToSchema>;
 
 export const NoteGeoPointSchema = z.object({
     "bbox": z.array(z.number()).optional(),
@@ -266,14 +260,14 @@ export const PhotoGeoPointPropertiesSchema = z.object({
 });
 export type PhotoGeoPointProperties = z.infer<typeof PhotoGeoPointPropertiesSchema>;
 
-export const FeatureSchema = z.object({
+export const TrackGeoPathSchema = z.object({
     "bbox": z.array(z.number()).optional(),
-    "geometry": GeoJsonSchema,
+    "geometry": GeoJsonLineStringSchema,
     "id": z.union([z.number(), z.string()]).optional(),
-    "properties": PurplePropertiesSchema,
+    "properties": TrackGeoPathPropertiesSchema,
     "type": PhotoGeoPointTypeSchema,
 });
-export type Feature = z.infer<typeof FeatureSchema>;
+export type TrackGeoPath = z.infer<typeof TrackGeoPathSchema>;
 
 export const TrackerDataGeoPointSchema = z.object({
     "bbox": z.array(z.number()).optional(),
@@ -311,7 +305,7 @@ export type PhotoGeoPoint = z.infer<typeof PhotoGeoPointSchema>;
 
 export const RoutePathsSchema = z.object({
     "bbox": z.array(z.number()).optional(),
-    "features": z.array(FeatureSchema),
+    "features": z.array(TrackGeoPathSchema),
     "properties": RoutePathsPropertiesSchema,
     "type": RouteSensorDatasTypeSchema,
 });

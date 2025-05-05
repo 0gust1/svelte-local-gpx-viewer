@@ -44,12 +44,12 @@
 						title: imgData.tags?.title?.description || 'Untitled',
 						filename: imgData.file.name,
 						extension: imgData.file.name.split('.').pop() || '',
-						content: imgData.file
+						binaryContent: imgData.file
 					}
 				}))
 				.sort((a, b) => {
-					const aDate = a.properties.content.lastModified;
-					const bDate = b.properties.content.lastModified;
+					const aDate = a.properties.binaryContent.lastModified;
+					const bDate = b.properties.binaryContent.lastModified;
 					return aDate - bDate;
 				});
 
@@ -137,7 +137,7 @@
 {#snippet imageWithFields(feature: PhotoGeoPoint, i: number)}
 	<div class="flex gap-1">
 		<img
-			src={URL.createObjectURL(feature.properties.content)}
+			src={URL.createObjectURL(feature.properties.binaryContent)}
 			alt="Uploaded pic"
 			style="max-width: 200px; max-height: 200px;"
 			onmouseenter={() => {
@@ -201,7 +201,7 @@
 			}}>❌</button
 		>
 		<img
-			src={URL.createObjectURL(feature.properties.content)}
+			src={URL.createObjectURL(feature.properties.binaryContent)}
 			alt="Uploaded pic"
 			onclick={() => {
 				photoSelection.selected = i;
