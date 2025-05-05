@@ -73,25 +73,64 @@
 		{/if}
 	{/each}
 	{#each localRouteEntity.routeData.photos.features as feature,i}
+	{@const imageUrl = feature.properties.binaryContent?URL.createObjectURL(feature.properties.binaryContent):null}
+		{#if feature.geometry.type === 'LineString'}
+			<GeoJSON data={feature}>
+				<LineLayer
+					layout={{
+						'line-cap': 'round',
+						'line-join': 'round'
+					}}
+					paint={{
+						'line-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`#bada55`,
+						'line-width': 5,
+						'line-opacity': 0.8,
+						'line-blur': 0
+					}}
+				/>
+			</GeoJSON>
+		{/if}
 		{#if feature.geometry.type === 'Point'}
 			<GeoJSON data={feature}>
 				<CircleLayer
 					paint={{
 						'circle-radius': 5,
-						'circle-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`#bada55`,
+						'circle-color': 'transparent',
 						'circle-opacity': 1.0,
-						'circle-stroke-width': 1,
-						'circle-stroke-color': 'white'
+						'circle-stroke-width': 2,
+						'circle-stroke-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`transparent`
 					}}
 				/>
-				<!-- <Marker
-					anchor="center"
-					offset={[0, -20]}
-					longitude={feature.geometry.coordinates[0]}
-					latitude={feature.geometry.coordinates[1]}
+				<div class="relative">
+					
+				</div>
+				<Marker
+					anchor="bottom"
+					offset={[30, -10]}
+					lngLat={feature.geometry.coordinates}
 				>
-					<img src={feature.properties.content} alt="Uploaded pic" style="max-width: 50px; max-height: 50px;" />
-				</Marker> -->
+				<div class="relative shadow">
+					<svg class="absolute -bottom-3 -left-3 w-8 h-8 z-0">
+						<line
+							x1="30"
+							y1="0"
+							x2="0"
+							y2="30"
+							stroke={photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`red`}
+							stroke-width="2"/>
+						<!-- <polygon
+								points="0,20 10,0 20,20"
+								fill={photoSelection.hovered != null && photoSelection.hovered == i ? `#ff0000` : `#fff`}
+						/> -->
+				</svg>
+				<img
+						src={imageUrl}
+						alt="Uploaded pic"
+						class="relative max-w-10 max-h-10 rounded border-2 border-white outline-1 outline-indigo-300 z-10"
+						onload={() => URL.revokeObjectURL(imageUrl)}
+				/>
+			</div>
+				</Marker>
 			</GeoJSON>
 		{/if}
 	{/each}

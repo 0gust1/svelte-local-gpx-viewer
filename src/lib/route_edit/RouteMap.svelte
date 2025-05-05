@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
-	import RouteViewer from '$lib/MapLibreRoute.svelte';
+	import MapLibreRoute from '$lib/MapLibreRoute.svelte';
 	import type { RouteEntity } from '$lib';
 
 	interface Props {
@@ -48,5 +48,5 @@
 		}
 	]}
 >
-	<RouteViewer route={routeState} {photoSelection} {routePoint} />
+	<MapLibreRoute route={routeState} {photoSelection} {routePoint} />
 </MapLibre>

@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { base } from '$app/paths';
 	import { defaultStyle } from '$lib/maplibreStyles';
 	import type { StyleSpecification } from 'maplibre-gl';
 	import { page } from '$app/state';
 	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
-	import RouteEditMap from './RouteEditMap.svelte';
+	import RouteEditMap from './RouteMap.svelte';
 	import RouteDataEdit from './RouteDataEdit.svelte';
-	import ObjectDisplay from '$lib/ObjectDisplay.svelte';
 	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 	import ElevationPlot from './ElevationPlot.svelte';
 	import { point } from '@turf/helpers';
@@ -22,8 +20,6 @@
 
 	let persistencePromise: Promise<number> | null = $state(null);
 
-	let sensorsOpen = $state(false);
-
 	let photoSelection: { hovered: number | null; selected: number | null } = $state({
 		hovered: null,
 		selected: null
@@ -35,24 +31,42 @@
 	let elevationValues: { coords: [number, number]; distance: number; elevation: number }[] =
 		$derived.by(() => {
 			if (routeState) {
-				let cumulativeDistance = 0;
-				return routeState.routeData.route.features
-					.filter((f) => f.geometry.type == 'LineString')
-					.flatMap((feature) => {
-						const coords = feature.geometry.coordinates;
-						return coords.map((c, i) => {
-							if (i > 0) {
-								const from = point(coords[i - 1]);
-								const to = point(c);
-								cumulativeDistance += distance(from, to, { units: 'kilometers' });
-							}
-							return {
-								coords: [c[0], c[1]],
-								distance: cumulativeDistance,
-								elevation: c[2]
-							};
-						});
+				// if there are sensor datas (i.e. data coming from a fit file), we can get directly the distance
+				// if not, we have to calculate it
+				if (routeState.routeData.sensors.features.length > 0) {
+					return routeState.routeData.sensors.features.map((sensorPoint) => {
+						const coords = sensorPoint.geometry.coordinates;
+						return {
+							coords: [coords[0], coords[1]],
+							distance: sensorPoint.properties.distance/1000, // convert to km
+							elevation: sensorPoint.properties.altitude,
+							power: sensorPoint.properties.power,
+							heartRate: sensorPoint.properties.heartRate,
+							cadence: sensorPoint.properties.cadence,
+							temperature: sensorPoint.properties.temperature,
+							speed: sensorPoint.properties.enhancedSpeed ?? sensorPoint.properties.speed
+						};
 					});
+				} else {
+					let cumulativeDistance = 0;
+					return routeState.routeData.route.features
+						.filter((f) => f.geometry.type == 'LineString')
+						.flatMap((feature) => {
+							const coords = feature.geometry.coordinates;
+							return coords.map((c, i) => {
+								if (i > 0) {
+									const from = point(coords[i - 1]);
+									const to = point(c);
+									cumulativeDistance += distance(from, to, { units: 'kilometers' });
+								}
+								return {
+									coords: [c[0], c[1]],
+									distance: cumulativeDistance,
+									elevation: c[2]
+								};
+							});
+						});
+				}
 			}
 			return [];
 		});
@@ -99,7 +113,7 @@
 
 	function exportRoute() {
 		if (routeState) {
-			uiRoutes.exportRoute(routeState.id);
+			uiRoutes.exportSelectedRoutes([routeState.id]);
 		}
 	}
 </script>
@@ -133,13 +147,6 @@
 				<ElevationPlot {elevationValues} bind:routePoint />
 			</div>
 		</div>
-
-		<details open={sensorsOpen} ontoggle={() => (sensorsOpen = !sensorsOpen)}>
-			<summary>Sensor data ({routeState.routeData.sensors.features.length})</summary>
-			{#if sensorsOpen}
-				<ObjectDisplay data={routeState.routeData.sensors} />
-			{/if}
-		</details>
 	{/if}
 {:catch error}
 	<p>Error loading route: {error.message}</p>

@@ -17,7 +17,14 @@ import type {
 export interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		type: 'Photo';
-	} & { title?:string, textContent?:string, alternativeText?:string, filename: string; extension: string; binaryContent?: Blob, url?: string };
+		title?: string;
+		textContent?: string;
+		alternativeText?: string;
+		filename: string;
+		extension: string;
+		binaryContent?: Blob;
+		url?: string;
+	};
 }
 
 /**
@@ -49,33 +56,13 @@ export interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
 }
 
 /**
- * TrackGeoPathFrom is a GeoJSON Point Feature representing a track path starting point.
- */
-export interface TrackGeoPathFrom extends Feature<Point, GeoJsonProperties> {
-	properties: GeoJsonProperties & {
-		name: 'from';
-		type: 'from';
-	};
-}
-
-/**
- * TrackGeoPathTo is a GeoJSON Point Feature representing a track path ending point.
- */
-export interface TrackGeoPathTo extends Feature<Point, GeoJsonProperties> {
-	properties: GeoJsonProperties & {
-		name: 'to';
-		type: 'to';
-	};
-}
-
-/**
  * SensorDatas is an extension of GeoJSON FeatureCollection representing a collection of tracker data points.
  */
 export interface RouteSensorDatas extends FeatureCollection {
 	features: TrackerDataGeoPoint[];
 	properties: GeoJsonProperties & {
 		type: 'Sensors Datas';
-	};
+	} & FitActivitySummary;
 }
 
 /**
@@ -92,7 +79,7 @@ export interface RoutePhotos extends FeatureCollection {
  * RoutePaths is a FeatureCollection representing a collection of track paths.
  */
 export interface RoutePaths extends FeatureCollection<LineString | Point, GeoJsonProperties> {
-	features: Array<TrackGeoPath | TrackGeoPathFrom | TrackGeoPathTo>;
+	features: Array<TrackGeoPath>;
 	properties: GeoJsonProperties & {
 		type: 'Route Paths';
 	};
@@ -147,6 +134,56 @@ export interface RouteEntity extends Route {
 	visible: boolean;
 }
 
+export interface FitActivitySummary {
+	sport: string;
+	subSport: string;
+	startTime: Date;
+	timestamp: Date;
+	totalElapsedTime: number;
+	totalTimerTime: number;
+	totalDistance: number;
+	totalCalories: number;
+	maxHeartRate?: number;
+	minHeartRate?: number;
+	avgHeartRate?: number;
+	avgTemperature?: number;
+	totalAscent: number;
+	totalDescent: number;
+	maxCadence?: number;
+	avgCadence?: number;
+	maxSpeed: number;
+	avgSpeed: number;
+	enhancedMaxSpeed: number;
+	enhancedAvgSpeed: number;
+	maxPower?: number;
+	avgPower?: number;
+	totalWork: number;
+	normalizedPower?: number;
+	enhancedAvgRespirationRate: number;
+	enhancedMaxRespirationRate: number;
+	enhancedMinRespirationRate: number;
+}
+
+export interface FitDataFrame {
+	timestamp: Date;
+	activityType?: string;
+	distance: number;
+	accumulatedPower: number;
+	speed?: number;
+	enhancedSpeed: number;
+	altitude?: number;
+	enhancedAltitude: number;
+	power?: number;
+	enhancedRespirationRate?: number;
+	heartRate?: number;
+	cadence?: number;
+	temperature?: number;
+	fractionalCadence?: number;
+}
+
+export interface RoutePoint {
+	coords: [number, number] | [number, number, number];
+}
 
 /** IN data types:
  *  data coming from the outside world (e.g. from a file, from a server, etc.)
@@ -157,4 +194,3 @@ export interface ParsedRouteGeoJSON extends FeatureCollection<LineString, GeoJso
 	features: Feature<LineString, GeoJsonProperties>[];
 	properties: GeoJsonProperties;
 }
-

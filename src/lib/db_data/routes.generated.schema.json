@@ -444,226 +444,6 @@
                 "type"
             ]
         },
-        "TrackGeoPathFrom": {
-            "description": "TrackGeoPathFrom is a GeoJSON Point Feature representing a track path starting point.",
-            "title": "TrackGeoPathFrom",
-            "type": "object",
-            "properties": {
-                "properties": {
-                    "description": "Properties associated with this feature.",
-                    "additionalProperties": false,
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string",
-                            "enum": [
-                                "from"
-                            ],
-                            "title": "name"
-                        },
-                        "type": {
-                            "type": "string",
-                            "enum": [
-                                "from"
-                            ],
-                            "title": "type"
-                        }
-                    },
-                    "required": [
-                        "name",
-                        "type"
-                    ],
-                    "title": "properties"
-                },
-                "type": {
-                    "description": "Specifies the type of GeoJSON object.",
-                    "type": "string",
-                    "enum": [
-                        "Feature"
-                    ],
-                    "title": "type"
-                },
-                "geometry": {
-                    "$ref": "#/definitions/GeoJSON.Point",
-                    "description": "The feature's geometry",
-                    "title": "geometry"
-                },
-                "id": {
-                    "description": "A value that uniquely identifies this feature in a\nhttps://tools.ietf.org/html/rfc7946#section-3.2.",
-                    "type": [
-                        "string",
-                        "number"
-                    ],
-                    "title": "id"
-                },
-                "bbox": {
-                    "description": "Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.\nThe value of the bbox member is an array of length 2*n where n is the number of dimensions\nrepresented in the contained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.\nThe axes order of a bbox follows the axes order of geometries.\nhttps://tools.ietf.org/html/rfc7946#section-5",
-                    "anyOf": [
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 4,
-                            "maxItems": 4
-                        },
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 6,
-                            "maxItems": 6
-                        }
-                    ],
-                    "title": "bbox"
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "geometry",
-                "properties",
-                "type"
-            ]
-        },
-        "TrackGeoPathTo": {
-            "description": "TrackGeoPathTo is a GeoJSON Point Feature representing a track path ending point.",
-            "title": "TrackGeoPathTo",
-            "type": "object",
-            "properties": {
-                "properties": {
-                    "description": "Properties associated with this feature.",
-                    "additionalProperties": false,
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string",
-                            "enum": [
-                                "to"
-                            ],
-                            "title": "name"
-                        },
-                        "type": {
-                            "type": "string",
-                            "enum": [
-                                "to"
-                            ],
-                            "title": "type"
-                        }
-                    },
-                    "required": [
-                        "name",
-                        "type"
-                    ],
-                    "title": "properties"
-                },
-                "type": {
-                    "description": "Specifies the type of GeoJSON object.",
-                    "type": "string",
-                    "enum": [
-                        "Feature"
-                    ],
-                    "title": "type"
-                },
-                "geometry": {
-                    "$ref": "#/definitions/GeoJSON.Point",
-                    "description": "The feature's geometry",
-                    "title": "geometry"
-                },
-                "id": {
-                    "description": "A value that uniquely identifies this feature in a\nhttps://tools.ietf.org/html/rfc7946#section-3.2.",
-                    "type": [
-                        "string",
-                        "number"
-                    ],
-                    "title": "id"
-                },
-                "bbox": {
-                    "description": "Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.\nThe value of the bbox member is an array of length 2*n where n is the number of dimensions\nrepresented in the contained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.\nThe axes order of a bbox follows the axes order of geometries.\nhttps://tools.ietf.org/html/rfc7946#section-5",
-                    "anyOf": [
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 4,
-                            "maxItems": 4
-                        },
-                        {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ],
-                            "minItems": 6,
-                            "maxItems": 6
-                        }
-                    ],
-                    "title": "bbox"
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "geometry",
-                "properties",
-                "type"
-            ]
-        },
         "RouteSensorDatas": {
             "description": "SensorDatas is an extension of GeoJSON FeatureCollection representing a collection of tracker data points.",
             "title": "RouteSensorDatas",
@@ -686,9 +466,137 @@
                                 "Sensors Datas"
                             ],
                             "title": "type"
+                        },
+                        "sport": {
+                            "type": "string",
+                            "title": "sport"
+                        },
+                        "subSport": {
+                            "type": "string",
+                            "title": "subSport"
+                        },
+                        "startTime": {
+                            "type": "string",
+                            "format": "date-time",
+                            "title": "startTime"
+                        },
+                        "timestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "title": "timestamp"
+                        },
+                        "totalElapsedTime": {
+                            "type": "number",
+                            "title": "totalElapsedTime"
+                        },
+                        "totalTimerTime": {
+                            "type": "number",
+                            "title": "totalTimerTime"
+                        },
+                        "totalDistance": {
+                            "type": "number",
+                            "title": "totalDistance"
+                        },
+                        "totalCalories": {
+                            "type": "number",
+                            "title": "totalCalories"
+                        },
+                        "maxHeartRate": {
+                            "type": "number",
+                            "title": "maxHeartRate"
+                        },
+                        "minHeartRate": {
+                            "type": "number",
+                            "title": "minHeartRate"
+                        },
+                        "avgHeartRate": {
+                            "type": "number",
+                            "title": "avgHeartRate"
+                        },
+                        "avgTemperature": {
+                            "type": "number",
+                            "title": "avgTemperature"
+                        },
+                        "totalAscent": {
+                            "type": "number",
+                            "title": "totalAscent"
+                        },
+                        "totalDescent": {
+                            "type": "number",
+                            "title": "totalDescent"
+                        },
+                        "maxCadence": {
+                            "type": "number",
+                            "title": "maxCadence"
+                        },
+                        "avgCadence": {
+                            "type": "number",
+                            "title": "avgCadence"
+                        },
+                        "maxSpeed": {
+                            "type": "number",
+                            "title": "maxSpeed"
+                        },
+                        "avgSpeed": {
+                            "type": "number",
+                            "title": "avgSpeed"
+                        },
+                        "enhancedMaxSpeed": {
+                            "type": "number",
+                            "title": "enhancedMaxSpeed"
+                        },
+                        "enhancedAvgSpeed": {
+                            "type": "number",
+                            "title": "enhancedAvgSpeed"
+                        },
+                        "maxPower": {
+                            "type": "number",
+                            "title": "maxPower"
+                        },
+                        "avgPower": {
+                            "type": "number",
+                            "title": "avgPower"
+                        },
+                        "totalWork": {
+                            "type": "number",
+                            "title": "totalWork"
+                        },
+                        "normalizedPower": {
+                            "type": "number",
+                            "title": "normalizedPower"
+                        },
+                        "enhancedAvgRespirationRate": {
+                            "type": "number",
+                            "title": "enhancedAvgRespirationRate"
+                        },
+                        "enhancedMaxRespirationRate": {
+                            "type": "number",
+                            "title": "enhancedMaxRespirationRate"
+                        },
+                        "enhancedMinRespirationRate": {
+                            "type": "number",
+                            "title": "enhancedMinRespirationRate"
                         }
                     },
                     "required": [
+                        "avgSpeed",
+                        "enhancedAvgRespirationRate",
+                        "enhancedAvgSpeed",
+                        "enhancedMaxRespirationRate",
+                        "enhancedMaxSpeed",
+                        "enhancedMinRespirationRate",
+                        "maxSpeed",
+                        "sport",
+                        "startTime",
+                        "subSport",
+                        "timestamp",
+                        "totalAscent",
+                        "totalCalories",
+                        "totalDescent",
+                        "totalDistance",
+                        "totalElapsedTime",
+                        "totalTimerTime",
+                        "totalWork",
                         "type"
                     ],
                     "title": "properties"
@@ -862,17 +770,7 @@
                 "features": {
                     "type": "array",
                     "items": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/TrackGeoPath"
-                            },
-                            {
-                                "$ref": "#/definitions/TrackGeoPathFrom"
-                            },
-                            {
-                                "$ref": "#/definitions/TrackGeoPathTo"
-                            }
-                        ]
+                        "$ref": "#/definitions/TrackGeoPath"
                     },
                     "title": "features"
                 },
@@ -1322,6 +1220,258 @@
                 "tags",
                 "updatedAt",
                 "visible"
+            ]
+        },
+        "FitActivitySummary": {
+            "title": "FitActivitySummary",
+            "type": "object",
+            "properties": {
+                "sport": {
+                    "type": "string",
+                    "title": "sport"
+                },
+                "subSport": {
+                    "type": "string",
+                    "title": "subSport"
+                },
+                "startTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "startTime"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "timestamp"
+                },
+                "totalElapsedTime": {
+                    "type": "number",
+                    "title": "totalElapsedTime"
+                },
+                "totalTimerTime": {
+                    "type": "number",
+                    "title": "totalTimerTime"
+                },
+                "totalDistance": {
+                    "type": "number",
+                    "title": "totalDistance"
+                },
+                "totalCalories": {
+                    "type": "number",
+                    "title": "totalCalories"
+                },
+                "maxHeartRate": {
+                    "type": "number",
+                    "title": "maxHeartRate"
+                },
+                "minHeartRate": {
+                    "type": "number",
+                    "title": "minHeartRate"
+                },
+                "avgHeartRate": {
+                    "type": "number",
+                    "title": "avgHeartRate"
+                },
+                "avgTemperature": {
+                    "type": "number",
+                    "title": "avgTemperature"
+                },
+                "totalAscent": {
+                    "type": "number",
+                    "title": "totalAscent"
+                },
+                "totalDescent": {
+                    "type": "number",
+                    "title": "totalDescent"
+                },
+                "maxCadence": {
+                    "type": "number",
+                    "title": "maxCadence"
+                },
+                "avgCadence": {
+                    "type": "number",
+                    "title": "avgCadence"
+                },
+                "maxSpeed": {
+                    "type": "number",
+                    "title": "maxSpeed"
+                },
+                "avgSpeed": {
+                    "type": "number",
+                    "title": "avgSpeed"
+                },
+                "enhancedMaxSpeed": {
+                    "type": "number",
+                    "title": "enhancedMaxSpeed"
+                },
+                "enhancedAvgSpeed": {
+                    "type": "number",
+                    "title": "enhancedAvgSpeed"
+                },
+                "maxPower": {
+                    "type": "number",
+                    "title": "maxPower"
+                },
+                "avgPower": {
+                    "type": "number",
+                    "title": "avgPower"
+                },
+                "totalWork": {
+                    "type": "number",
+                    "title": "totalWork"
+                },
+                "normalizedPower": {
+                    "type": "number",
+                    "title": "normalizedPower"
+                },
+                "enhancedAvgRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedAvgRespirationRate"
+                },
+                "enhancedMaxRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedMaxRespirationRate"
+                },
+                "enhancedMinRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedMinRespirationRate"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "avgSpeed",
+                "enhancedAvgRespirationRate",
+                "enhancedAvgSpeed",
+                "enhancedMaxRespirationRate",
+                "enhancedMaxSpeed",
+                "enhancedMinRespirationRate",
+                "maxSpeed",
+                "sport",
+                "startTime",
+                "subSport",
+                "timestamp",
+                "totalAscent",
+                "totalCalories",
+                "totalDescent",
+                "totalDistance",
+                "totalElapsedTime",
+                "totalTimerTime",
+                "totalWork"
+            ]
+        },
+        "FitDataFrame": {
+            "title": "FitDataFrame",
+            "type": "object",
+            "properties": {
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "timestamp"
+                },
+                "activityType": {
+                    "type": "string",
+                    "title": "activityType"
+                },
+                "distance": {
+                    "type": "number",
+                    "title": "distance"
+                },
+                "accumulatedPower": {
+                    "type": "number",
+                    "title": "accumulatedPower"
+                },
+                "speed": {
+                    "type": "number",
+                    "title": "speed"
+                },
+                "enhancedSpeed": {
+                    "type": "number",
+                    "title": "enhancedSpeed"
+                },
+                "altitude": {
+                    "type": "number",
+                    "title": "altitude"
+                },
+                "enhancedAltitude": {
+                    "type": "number",
+                    "title": "enhancedAltitude"
+                },
+                "power": {
+                    "type": "number",
+                    "title": "power"
+                },
+                "enhancedRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedRespirationRate"
+                },
+                "heartRate": {
+                    "type": "number",
+                    "title": "heartRate"
+                },
+                "cadence": {
+                    "type": "number",
+                    "title": "cadence"
+                },
+                "temperature": {
+                    "type": "number",
+                    "title": "temperature"
+                },
+                "fractionalCadence": {
+                    "type": "number",
+                    "title": "fractionalCadence"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "accumulatedPower",
+                "distance",
+                "enhancedAltitude",
+                "enhancedSpeed",
+                "timestamp"
+            ]
+        },
+        "RoutePoint": {
+            "title": "RoutePoint",
+            "type": "object",
+            "properties": {
+                "coords": {
+                    "anyOf": [
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ],
+                            "minItems": 2,
+                            "maxItems": 2
+                        },
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ],
+                            "minItems": 3,
+                            "maxItems": 3
+                        }
+                    ],
+                    "title": "coords"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "coords"
             ]
         },
         "ParsedRouteGeoJSON": {

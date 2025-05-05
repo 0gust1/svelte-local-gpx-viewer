@@ -339,13 +339,13 @@ function extractFitData(recordMesgs): TrackerDataGeoPoint[] {
 				]
 			},
 			properties: {
+				...message,
 				type: 'Tracker Data',
-				time: message.timestamp || null, // Timestamp of the record
 				altitude: message.enhancedAltitude || message.altitude || 0, // Use enhanced altitude if available
-				heartRate: message.heartRate || 0, // Heart rate
-				cadence: message.cadence || 0, // Cadence
+				heartRate: message.heartRate || null, // Heart rate
+				cadence: message.cadence || null, // Cadence
 				speed: message.enhancedSpeed || message.speed || 0, // Speed in m/s
-				temperature: message.temperature || null // Temperature
+				temperature: message.temperature || null, // Temperature
 			}
 		}));
 }
