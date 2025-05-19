@@ -12,7 +12,7 @@ import type {
  */
 
 /**
- * PhotoGeoPoint is an extension of GeoJSON Point Feature representing a photo location.
+ * PhotoGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a photo location.
  */
 export interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
@@ -28,7 +28,7 @@ export interface PhotoGeoPoint extends Feature<Point, GeoJsonProperties> {
 }
 
 /**
- * NoteGeoPoint is an extension of GeoJSON Point Feature representing a note location.
+ * NoteGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a note location.
  */
 export interface NoteGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
@@ -38,16 +38,16 @@ export interface NoteGeoPoint extends Feature<Point, GeoJsonProperties> {
 }
 
 /**
- * TrackerDataGeoPoint is an extension of GeoJSON Point Feature representing a tracker geolocalized data frame
+ * TrackerDataGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a tracker geolocalized data frame
  */
 export interface TrackerDataGeoPoint extends Feature<Point, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
 		type: 'Tracker Data';
-	};
+	} & SensorsDataFrame;
 }
 
 /**
- * TrackGeoPath is an extension of GeoJSON LineString Feature representing a track path.
+ * TrackGeoPath is an narrowed subtype of GeoJSON LineString Feature representing a track path.
  */
 export interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
 	properties: GeoJsonProperties & {
@@ -56,7 +56,7 @@ export interface TrackGeoPath extends Feature<LineString, GeoJsonProperties> {
 }
 
 /**
- * SensorDatas is an extension of GeoJSON FeatureCollection representing a collection of tracker data points.
+ * SensorDatas is an narrowed subtype of GeoJSON FeatureCollection representing a collection of tracker data points.
  */
 export interface RouteSensorDatas extends FeatureCollection {
 	features: TrackerDataGeoPoint[];
@@ -121,7 +121,7 @@ export interface Route {
 	elevation: { positive: number; negative: number };
 	originalGPXData?: string | null;
 	originalFitData?: ArrayBuffer | null;
-	originalParsedFitData?: object | null;
+	originalParsedFitData?: object | null; // FIXME: remove this later
 	color: string;
 	bbox: BBox;
 }
@@ -164,15 +164,15 @@ export interface FitActivitySummary {
 	enhancedMinRespirationRate: number;
 }
 
-export interface FitDataFrame {
-	timestamp: Date;
+export interface SensorsDataFrame {
+	timestamp?: Date;
 	activityType?: string;
 	distance: number;
-	accumulatedPower: number;
+	accumulatedPower?: number;
 	speed?: number;
-	enhancedSpeed: number;
-	altitude?: number;
-	enhancedAltitude: number;
+	enhancedSpeed?: number;
+	altitude: number;
+	enhancedAltitude?: number;
 	power?: number;
 	enhancedRespirationRate?: number;
 	heartRate?: number;
@@ -181,9 +181,16 @@ export interface FitDataFrame {
 	fractionalCadence?: number;
 }
 
-export interface RoutePoint {
+export interface FitDataFrame extends SensorsDataFrame{
+	timestamp: Date;
+	positionLat: number;
+	positionLong: number;
+} 
+
+export interface RouteInteractivePoint extends SensorsDataFrame {
 	coords: [number, number] | [number, number, number];
-}
+	
+} 
 
 /** IN data types:
  *  data coming from the outside world (e.g. from a file, from a server, etc.)

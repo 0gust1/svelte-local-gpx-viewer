@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
 	import MapLibreRoute from '$lib/MapLibreRoute.svelte';
-	import type { RouteEntity } from '$lib';
+	import type { RouteEntity,RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
 
 	interface Props {
 		route: RouteEntity;
 		mapStyle: StyleSpecification;
 		pitch: number;
 		photoSelection: { hovered: number | null; selected: number | null };
-		routePoint: { coords: [number, number]; distance: number; elevation: number } | null;
+		routePoint: RouteInteractivePoint | null;
 	}
 	let { route: routeState, mapStyle, pitch, photoSelection, routePoint  }: Props = $props();
 

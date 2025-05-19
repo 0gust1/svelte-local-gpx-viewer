@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
         "PhotoGeoPoint": {
-            "description": "PhotoGeoPoint is an extension of GeoJSON Point Feature representing a photo location.",
+            "description": "PhotoGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a photo location.",
             "title": "PhotoGeoPoint",
             "type": "object",
             "properties": {
@@ -134,7 +134,7 @@
             ]
         },
         "NoteGeoPoint": {
-            "description": "NoteGeoPoint is an extension of GeoJSON Point Feature representing a note location.",
+            "description": "NoteGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a note location.",
             "title": "NoteGeoPoint",
             "type": "object",
             "properties": {
@@ -241,7 +241,7 @@
             ]
         },
         "TrackerDataGeoPoint": {
-            "description": "TrackerDataGeoPoint is an extension of GeoJSON Point Feature representing a tracker geolocalized data frame",
+            "description": "TrackerDataGeoPoint is an narrowed subtype of GeoJSON Point Feature representing a tracker geolocalized data frame",
             "title": "TrackerDataGeoPoint",
             "type": "object",
             "properties": {
@@ -256,9 +256,68 @@
                                 "Tracker Data"
                             ],
                             "title": "type"
+                        },
+                        "timestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "title": "timestamp"
+                        },
+                        "activityType": {
+                            "type": "string",
+                            "title": "activityType"
+                        },
+                        "distance": {
+                            "type": "number",
+                            "title": "distance"
+                        },
+                        "accumulatedPower": {
+                            "type": "number",
+                            "title": "accumulatedPower"
+                        },
+                        "speed": {
+                            "type": "number",
+                            "title": "speed"
+                        },
+                        "enhancedSpeed": {
+                            "type": "number",
+                            "title": "enhancedSpeed"
+                        },
+                        "altitude": {
+                            "type": "number",
+                            "title": "altitude"
+                        },
+                        "enhancedAltitude": {
+                            "type": "number",
+                            "title": "enhancedAltitude"
+                        },
+                        "power": {
+                            "type": "number",
+                            "title": "power"
+                        },
+                        "enhancedRespirationRate": {
+                            "type": "number",
+                            "title": "enhancedRespirationRate"
+                        },
+                        "heartRate": {
+                            "type": "number",
+                            "title": "heartRate"
+                        },
+                        "cadence": {
+                            "type": "number",
+                            "title": "cadence"
+                        },
+                        "temperature": {
+                            "type": "number",
+                            "title": "temperature"
+                        },
+                        "fractionalCadence": {
+                            "type": "number",
+                            "title": "fractionalCadence"
                         }
                     },
                     "required": [
+                        "altitude",
+                        "distance",
                         "type"
                     ],
                     "title": "properties"
@@ -343,7 +402,7 @@
             ]
         },
         "TrackGeoPath": {
-            "description": "TrackGeoPath is an extension of GeoJSON LineString Feature representing a track path.",
+            "description": "TrackGeoPath is an narrowed subtype of GeoJSON LineString Feature representing a track path.",
             "title": "TrackGeoPath",
             "type": "object",
             "properties": {
@@ -445,7 +504,7 @@
             ]
         },
         "RouteSensorDatas": {
-            "description": "SensorDatas is an extension of GeoJSON FeatureCollection representing a collection of tracker data points.",
+            "description": "SensorDatas is an narrowed subtype of GeoJSON FeatureCollection representing a collection of tracker data points.",
             "title": "RouteSensorDatas",
             "type": "object",
             "properties": {
@@ -1359,8 +1418,8 @@
                 "totalWork"
             ]
         },
-        "FitDataFrame": {
-            "title": "FitDataFrame",
+        "SensorsDataFrame": {
+            "title": "SensorsDataFrame",
             "type": "object",
             "properties": {
                 "timestamp": {
@@ -1423,15 +1482,91 @@
             },
             "additionalProperties": false,
             "required": [
-                "accumulatedPower",
+                "altitude",
+                "distance"
+            ]
+        },
+        "FitDataFrame": {
+            "title": "FitDataFrame",
+            "type": "object",
+            "properties": {
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "timestamp"
+                },
+                "positionLat": {
+                    "type": "number",
+                    "title": "positionLat"
+                },
+                "positionLong": {
+                    "type": "number",
+                    "title": "positionLong"
+                },
+                "activityType": {
+                    "type": "string",
+                    "title": "activityType"
+                },
+                "distance": {
+                    "type": "number",
+                    "title": "distance"
+                },
+                "accumulatedPower": {
+                    "type": "number",
+                    "title": "accumulatedPower"
+                },
+                "speed": {
+                    "type": "number",
+                    "title": "speed"
+                },
+                "enhancedSpeed": {
+                    "type": "number",
+                    "title": "enhancedSpeed"
+                },
+                "altitude": {
+                    "type": "number",
+                    "title": "altitude"
+                },
+                "enhancedAltitude": {
+                    "type": "number",
+                    "title": "enhancedAltitude"
+                },
+                "power": {
+                    "type": "number",
+                    "title": "power"
+                },
+                "enhancedRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedRespirationRate"
+                },
+                "heartRate": {
+                    "type": "number",
+                    "title": "heartRate"
+                },
+                "cadence": {
+                    "type": "number",
+                    "title": "cadence"
+                },
+                "temperature": {
+                    "type": "number",
+                    "title": "temperature"
+                },
+                "fractionalCadence": {
+                    "type": "number",
+                    "title": "fractionalCadence"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "altitude",
                 "distance",
-                "enhancedAltitude",
-                "enhancedSpeed",
+                "positionLat",
+                "positionLong",
                 "timestamp"
             ]
         },
-        "RoutePoint": {
-            "title": "RoutePoint",
+        "RouteInteractivePoint": {
+            "title": "RouteInteractivePoint",
             "type": "object",
             "properties": {
                 "coords": {
@@ -1467,11 +1602,70 @@
                         }
                     ],
                     "title": "coords"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "timestamp"
+                },
+                "activityType": {
+                    "type": "string",
+                    "title": "activityType"
+                },
+                "distance": {
+                    "type": "number",
+                    "title": "distance"
+                },
+                "accumulatedPower": {
+                    "type": "number",
+                    "title": "accumulatedPower"
+                },
+                "speed": {
+                    "type": "number",
+                    "title": "speed"
+                },
+                "enhancedSpeed": {
+                    "type": "number",
+                    "title": "enhancedSpeed"
+                },
+                "altitude": {
+                    "type": "number",
+                    "title": "altitude"
+                },
+                "enhancedAltitude": {
+                    "type": "number",
+                    "title": "enhancedAltitude"
+                },
+                "power": {
+                    "type": "number",
+                    "title": "power"
+                },
+                "enhancedRespirationRate": {
+                    "type": "number",
+                    "title": "enhancedRespirationRate"
+                },
+                "heartRate": {
+                    "type": "number",
+                    "title": "heartRate"
+                },
+                "cadence": {
+                    "type": "number",
+                    "title": "cadence"
+                },
+                "temperature": {
+                    "type": "number",
+                    "title": "temperature"
+                },
+                "fractionalCadence": {
+                    "type": "number",
+                    "title": "fractionalCadence"
                 }
             },
             "additionalProperties": false,
             "required": [
-                "coords"
+                "altitude",
+                "coords",
+                "distance"
             ]
         },
         "ParsedRouteGeoJSON": {

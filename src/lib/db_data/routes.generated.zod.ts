@@ -134,6 +134,20 @@ export const RoutePathsPropertiesSchema = z.object({
 export type RoutePathsProperties = z.infer<typeof RoutePathsPropertiesSchema>;
 
 export const TrackerDataGeoPointPropertiesSchema = z.object({
+    "accumulatedPower": z.number().optional(),
+    "activityType": z.string().optional(),
+    "altitude": z.number(),
+    "cadence": z.number().optional(),
+    "distance": z.number(),
+    "enhancedAltitude": z.number().optional(),
+    "enhancedRespirationRate": z.number().optional(),
+    "enhancedSpeed": z.number().optional(),
+    "fractionalCadence": z.number().optional(),
+    "heartRate": z.number().optional(),
+    "power": z.number().optional(),
+    "speed": z.number().optional(),
+    "temperature": z.number().optional(),
+    "timestamp": z.coerce.date().optional(),
     "type": TentacledTypeSchema,
 });
 export type TrackerDataGeoPointProperties = z.infer<typeof TrackerDataGeoPointPropertiesSchema>;
@@ -207,17 +221,37 @@ export const FitActivitySummarySchema = z.object({
 });
 export type FitActivitySummary = z.infer<typeof FitActivitySummarySchema>;
 
-export const FitDataFrameSchema = z.object({
-    "accumulatedPower": z.number(),
+export const SensorsDataFrameSchema = z.object({
+    "accumulatedPower": z.number().optional(),
     "activityType": z.string().optional(),
-    "altitude": z.number().optional(),
+    "altitude": z.number(),
     "cadence": z.number().optional(),
     "distance": z.number(),
-    "enhancedAltitude": z.number(),
+    "enhancedAltitude": z.number().optional(),
     "enhancedRespirationRate": z.number().optional(),
-    "enhancedSpeed": z.number(),
+    "enhancedSpeed": z.number().optional(),
     "fractionalCadence": z.number().optional(),
     "heartRate": z.number().optional(),
+    "power": z.number().optional(),
+    "speed": z.number().optional(),
+    "temperature": z.number().optional(),
+    "timestamp": z.coerce.date().optional(),
+});
+export type SensorsDataFrame = z.infer<typeof SensorsDataFrameSchema>;
+
+export const FitDataFrameSchema = z.object({
+    "accumulatedPower": z.number().optional(),
+    "activityType": z.string().optional(),
+    "altitude": z.number(),
+    "cadence": z.number().optional(),
+    "distance": z.number(),
+    "enhancedAltitude": z.number().optional(),
+    "enhancedRespirationRate": z.number().optional(),
+    "enhancedSpeed": z.number().optional(),
+    "fractionalCadence": z.number().optional(),
+    "heartRate": z.number().optional(),
+    "positionLat": z.number(),
+    "positionLong": z.number(),
     "power": z.number().optional(),
     "speed": z.number().optional(),
     "temperature": z.number().optional(),
@@ -225,10 +259,24 @@ export const FitDataFrameSchema = z.object({
 });
 export type FitDataFrame = z.infer<typeof FitDataFrameSchema>;
 
-export const RoutePointSchema = z.object({
+export const RouteInteractivePointSchema = z.object({
+    "accumulatedPower": z.number().optional(),
+    "activityType": z.string().optional(),
+    "altitude": z.number(),
+    "cadence": z.number().optional(),
     "coords": z.array(z.number()),
+    "distance": z.number(),
+    "enhancedAltitude": z.number().optional(),
+    "enhancedRespirationRate": z.number().optional(),
+    "enhancedSpeed": z.number().optional(),
+    "fractionalCadence": z.number().optional(),
+    "heartRate": z.number().optional(),
+    "power": z.number().optional(),
+    "speed": z.number().optional(),
+    "temperature": z.number().optional(),
+    "timestamp": z.coerce.date().optional(),
 });
-export type RoutePoint = z.infer<typeof RoutePointSchema>;
+export type RouteInteractivePoint = z.infer<typeof RouteInteractivePointSchema>;
 
 export const GeoJsonFeatureGeoJsonLineStringGeoJsonGeoJsonPropertiesSchema = z.object({
     "bbox": z.array(z.number()).optional(),
