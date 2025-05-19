@@ -90,7 +90,7 @@
 		"@tmcw/togeojson": "^7.0.0",
 		"@turf/turf": "^7.1.0",
 		"ajv": "^8.17.1",
-		"browser-fs-access": "^0.35.0",
+		"browser-fs-access": "^0.37.0",
 		"d3": "^7.9.0",
 		"dexie": "^4.0.9",
 		"exifreader": "^4.28.1",
