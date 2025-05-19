@@ -341,10 +341,10 @@ function extractFitData(recordMesgs): TrackerDataGeoPoint[] {
 			properties: {
 				...message,
 				type: 'Tracker Data',
-				altitude: message.enhancedAltitude || message.altitude || 0, // Use enhanced altitude if available
+				altitude: message.enhancedAltitude || message.altitude || null, // Use enhanced altitude if available
 				heartRate: message.heartRate || null, // Heart rate
 				cadence: message.cadence || null, // Cadence
-				speed: message.enhancedSpeed || message.speed || 0, // Speed in m/s
+				speed: message.enhancedSpeed || message.speed || null, // Speed in m/s
 				temperature: message.temperature || null, // Temperature
 			}
 		}));

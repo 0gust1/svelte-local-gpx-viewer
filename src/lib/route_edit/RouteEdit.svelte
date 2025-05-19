@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { defaultStyle } from '$lib/maplibreStyles';
 	import type { StyleSpecification } from 'maplibre-gl';
+	import type { RouteEntity, RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
+
+	import { defaultStyle } from '$lib/maplibreStyles';
 	import { page } from '$app/state';
 	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import RouteEditMap from './RouteMap.svelte';
 	import RouteDataEdit from './RouteDataEdit.svelte';
-	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
-	import ElevationPlot from './ElevationPlot.svelte';
-	import { point } from '@turf/helpers';
-	import distance from '@turf/distance';
+
+	import DataPlots from './DataPlots.svelte';
+
 	let {
 		routeId,
 		mapStyle = defaultStyle,
@@ -25,51 +26,8 @@
 		selected: null
 	});
 
-	let routePoint: { coords: [number, number]; distance: number; elevation: number } | null =
-		$state(null);
+	let routePoint: RouteInteractivePoint | null = $state(null);
 
-	let elevationValues: { coords: [number, number]; distance: number; elevation: number }[] =
-		$derived.by(() => {
-			if (routeState) {
-				// if there are sensor datas (i.e. data coming from a fit file), we can get directly the distance
-				// if not, we have to calculate it
-				if (routeState.routeData.sensors.features.length > 0) {
-					return routeState.routeData.sensors.features.map((sensorPoint) => {
-						const coords = sensorPoint.geometry.coordinates;
-						return {
-							coords: [coords[0], coords[1]],
-							distance: sensorPoint.properties.distance/1000, // convert to km
-							elevation: sensorPoint.properties.altitude,
-							power: sensorPoint.properties.power,
-							heartRate: sensorPoint.properties.heartRate,
-							cadence: sensorPoint.properties.cadence,
-							temperature: sensorPoint.properties.temperature,
-							speed: sensorPoint.properties.enhancedSpeed ?? sensorPoint.properties.speed
-						};
-					});
-				} else {
-					let cumulativeDistance = 0;
-					return routeState.routeData.route.features
-						.filter((f) => f.geometry.type == 'LineString')
-						.flatMap((feature) => {
-							const coords = feature.geometry.coordinates;
-							return coords.map((c, i) => {
-								if (i > 0) {
-									const from = point(coords[i - 1]);
-									const to = point(c);
-									cumulativeDistance += distance(from, to, { units: 'kilometers' });
-								}
-								return {
-									coords: [c[0], c[1]],
-									distance: cumulativeDistance,
-									elevation: c[2]
-								};
-							});
-						});
-				}
-			}
-			return [];
-		});
 	//let elevationValues: number[] = routeState.routeData.route.features.filter(f=>f.properties.type='Track Path').map((feature) => feature.geometry.coordinates[2] as number);
 
 	// let hasChanged = $derived.by(() => {
@@ -144,7 +102,7 @@
 			</div>
 			<div class="col-span-2">
 				<RouteEditMap route={routeState} {mapStyle} {pitch} {photoSelection} {routePoint} />
-				<ElevationPlot {elevationValues} bind:routePoint />
+				<DataPlots route={routeState} bind:routePoint />
 			</div>
 		</div>
 	{/if}
