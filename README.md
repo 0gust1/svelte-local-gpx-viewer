@@ -18,8 +18,6 @@ Notable technical features:
 
 ## DB and data structures
 
-
-
 ## Using the components in a Svelte/Sveltekit project
 
 See Documentation website: [https://0gust1.github.io/svelte-local-gpx-viewer/](https://0gust1.github.io/svelte-local-gpx-viewer/)
@@ -77,15 +75,50 @@ refs:
 
 ## Publishing
 
-To publish the library to [npm](https://www.npmjs.com):
+To manually publish the library to [npm](https://www.npmjs.com):
 
 ```bash
 npm publish
 ```
 
+### Publishing through GitHub Actions
+
+The workflow `.github/workflows/publish.yml` is set up to automatically publish the library to npm when a new release is created on GitHub.
+
+This workflow will:
+
+1. Detect pre-release status using github.event.release.prerelease
+2. Determine the appropriate npm tag based on the release tag name
+   - `alpha` for versions containing "alpha" (e.g., `v1.0.0-alpha.1`)
+   - `beta` for versions containing "beta" (e.g., `v1.0.0-beta.1`)
+   - `rc` for versions containing "rc" (e.g., `v1.0.0-rc.1`)
+   - `next` for other pre-releases
+   - `latest` for stable releases
+
+#### Creating Pre-release Versions
+
+When creating releases on GitHub:
+
+1. For alpha versions: Tag as `v1.0.0-alpha.1` and check "Set as a pre-release"
+2. For beta versions: Tag as `v1.0.0-beta.1` and check "Set as a pre-release"
+3. For release candidates: Tag as `v1.0.0-rc.1` and check "Set as a pre-release"
+
+#### Installing Pre-release Versions
+
+```bash
+# Install latest alpha
+npm install your-package@alpha
+
+# Install latest beta
+npm install your-package@beta
+
+# Install specific version
+npm install your-package@1.0.0-alpha.1
+```
 
 ## Dev notes
 
 **hash router or classic router ?**
+
 - Classical file routing promotes a better source code structure, but static-adapter doesn't like (understandably) dynamic routes (e.g. `edit-[id]`)
 - One solution could be to use Sveltekit's hash router, but it is not working well with paraglide (i18n)
