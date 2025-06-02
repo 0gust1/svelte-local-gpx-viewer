@@ -1,13 +1,21 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { resolve } from 'path'
 
-
+const widgets = [
+    "src/lib/widgets/SimpleRoute.svelte",
+    "src/lib/widgets/Route.svelte"
+]
  
 export default {
+    resolve: {
+        alias: {
+            $lib: resolve('./src/lib'),
+        },
+    },
     build: {
         lib: {
-            entry: 'src/lib/widgets/Route.svelte',
-            name: 'MyComponent',
-            fileName: (format) => `my-component.${format}.js`,
+            entry: widgets,
+            fileName: (format, entryName) => `${entryName}.${format}.js`,
             formats: ['es'],
         },
         rollupOptions: {
@@ -18,7 +26,7 @@ export default {
                 },
             },
         },
-        sourcemap: 'inline',
+        sourcemap: true,
     },
     plugins: [
         svelte({
