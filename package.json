@@ -14,7 +14,7 @@
 		"quicktype": "npx quicktype --src src/lib/db_data/routes.datatypes.ts --src-lang typescript --lang 'schema' --out src/lib/db_data/routes.generated.schema.json && npx quicktype --src src/lib/db_data/routes.datatypes.ts --src-lang typescript --lang 'typescript-zod' --out src/lib/db_data/routes.generated.zod.ts",
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
-		"build:ce": "vite build --config vite.widgets.config.ts",
+		"build:ce": "vite build --config vite.widgets.config.ts --outDir dist/widgets --emptyOutDir false",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "svelte-kit sync && svelte-package && publint",
