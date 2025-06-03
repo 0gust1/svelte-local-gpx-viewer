@@ -1,20 +1,26 @@
 <svelte:options customElement="gpx-simple-route" />
 
 <script lang="ts">
-  import type { Route, RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
-  import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
-  import MapLibreRoute from '$lib/MapLibreRoute.svelte';
+	import type { Route, RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
+	import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
+	import MapLibreRoute from '$lib/MapLibreRoute.svelte';
 
-  interface Props {
+	interface Props {
 		route: Route;
 		mapStyle: StyleSpecification;
 		pitch: number;
-		photoSelection: { hovered: number | null; selected: number | null };
+		photoSelection?: { hovered: number | null; selected: number | null } | null;
 		routePoint?: RouteInteractivePoint | null; // Add this property as optional
 	}
-  let { route: routeState, mapStyle, pitch, photoSelection, routePoint = null }: Props = $props();
+	let {
+		route: routeState,
+		mapStyle,
+		pitch,
+		photoSelection = null,
+		routePoint = null
+	}: Props = $props();
 
-  let bounds = $derived.by(() => {
+	let bounds = $derived.by(() => {
 		if (routeState) {
 			//if bounding box has 6 elements, it means it is a 3D bounding box, so we need to remove the last 2 elements
 			let EXTEND_FACTOR = 0.1;

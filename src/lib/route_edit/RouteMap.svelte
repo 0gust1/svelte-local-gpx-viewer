@@ -15,7 +15,7 @@
 	let bounds = $derived.by(() => {
 		if (routeState) {
 			//if bounding box has 6 elements, it means it is a 3D bounding box, so we need to remove the last 2 elements
-			let extendFactor = 0.1;
+			let EXTEND_FACTOR = 0.1;
 			let [minX, minY, maxX, maxY] =
 				routeState.bbox.length === 6 ? routeState.bbox.slice(0, 4) : routeState.bbox;
 
@@ -23,10 +23,10 @@
 			const width = maxX - minX;
 			const height = maxY - minY;
 
-			minX -= width * extendFactor;
-			maxX += width * extendFactor;
-			minY -= height * extendFactor;
-			maxY += height * extendFactor;
+			minX -= width * EXTEND_FACTOR;
+			maxX += width * EXTEND_FACTOR;
+			minY -= height * EXTEND_FACTOR;
+			maxY += height * EXTEND_FACTOR;
 
 			return [minX, minY, maxX, maxY] as [number, number, number, number];
 		}

@@ -88,6 +88,7 @@
 					<span>{photoSelection}</span> -->
 					<button type="button" onclick={saveRoute}>Save ↩️</button>
 					<button type="button" onclick={exportRoute}>Export ⬇️</button>
+					<a href="?preview=true&id={routeState.id}">Preview</a>
 				</div>
 				{#if persistencePromise !== null}
 					{#await persistencePromise}
