@@ -66,7 +66,8 @@ export const getUIRoutesManager = () => {
 				RouteEntitySchema.parse(obj);
 			} catch (error) {
 				console.error(error.errors);
-				throw new Error('Invalid route entity');
+				console.dir(obj)
+				throw new Error('Invalid route entity', { cause: error });
 			}
 
 			return await db.geoRoutes.put(obj);
@@ -84,10 +85,10 @@ export const getUIRoutesManager = () => {
 					: uiRoutes.filter((route) => routesIds.includes(route.id));
 
 			if (routes.length === 0) {
-				throw new Error('No routes selected');
+				throw new Error('No routes selected', { cause: 'No routes to export' });
 			}
 
-			await routesExport(routes, 'routes-archives', 'Routes archive', config);
+			await routesExport(routes, routes.length>1 ? 'routes-archives': routes[0].name, 'Routes archive', config);
 		}
 	};
 };

@@ -88,19 +88,23 @@ export function getBoundingBox(geojson_feats: GeoJSON.Feature[]): [number, numbe
  */
 export function parseFitToJSON(fitData: ArrayBuffer): {
 	routeData: RouteData | null;
-	errors: Error[],
+	errors: Error[];
 	originalParsedFitData: object | null | undefined;
 } {
 	const stream = Stream.fromByteArray(new Uint8Array(fitData));
 	if (!stream) {
-		throw new Error('Failed to create stream from FIT data');
+		throw new Error('Failed to create stream from FIT data', { cause: fitData });
 	}
 
 	const decoder = new Decoder(stream);
 
 	if (!decoder.isFIT()) {
 		console.error('Unrecognizable FIT file');
-		return { routeData: null, errors: [new Error('File invalid, unrecognizable format')], originalParsedFitData: null };
+		return {
+			routeData: null,
+			errors: [new Error('File invalid, unrecognizable format')],
+			originalParsedFitData: null
+		};
 	}
 
 	if (!decoder.checkIntegrity()) {
@@ -121,7 +125,6 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 			message.positionLat / (2 ** 31 / 180) || 0, // Convert latitude to degrees
 			message.enhancedAltitude || message.altitude || 0 // Use altitude if available
 		]);
-	
 
 	return {
 		routeData: {
@@ -138,7 +141,8 @@ export function parseFitToJSON(fitData: ArrayBuffer): {
 					}
 				],
 				properties: {
-					...sessionMesgsToProperties(messages.sessionMesgs), type: 'Route Paths',
+					...sessionMesgsToProperties(messages.sessionMesgs),
+					type: 'Route Paths'
 				}
 			},
 			sensors: {
@@ -184,7 +188,7 @@ function parseGpxFile(filename: string, fileAsText: string): RouteData | Error {
 		photos: { type: 'FeatureCollection', features: [], properties: { type: 'Route Photos' } },
 		sensors: { type: 'FeatureCollection', features: [], properties: { type: 'Sensors Datas' } },
 		notes: { type: 'FeatureCollection', features: [], properties: { type: 'Route Notes' } }
-	}
+	};
 	console.log('routeData', routeData);
 	return routeData;
 	// return {
@@ -211,7 +215,7 @@ export async function prepareRoutesFromFiles(
 		try {
 			let routeData: RouteData | null = null;
 			let errors: Error[] = [];
-			let originalParsedFitData:object | null | undefined = null;
+			let originalParsedFitData: object | null | undefined = null;
 
 			if (extension === 'gpx') {
 				// Use the new parseGpxFile function
@@ -219,7 +223,7 @@ export async function prepareRoutesFromFiles(
 				if (!routeDataOrError || routeDataOrError instanceof Error) {
 					console.error(`${file.name} - Failed to parse GPX file`);
 					errors.push(new Error(`Failed to parse GPX file ${file.name}`));
-				}else{
+				} else {
 					routeData = routeDataOrError;
 				}
 			} else if (extension === 'fit') {
@@ -234,7 +238,9 @@ export async function prepareRoutesFromFiles(
 				// routeData is not null: we have a valid routeData object, but there were errors
 				// in the parsing process
 				if (parseResult.errors.length) {
-					console.error(`${file.name} parsed, but there were errors: ${parseResult.errors.map((e) => e.message)}`);
+					console.error(
+						`${file.name} parsed, but there were errors: ${parseResult.errors.map((e) => e.message)}`
+					);
 					errors = parseResult.errors;
 				}
 				routeData = parseResult.routeData;
@@ -329,25 +335,49 @@ export async function prepareRoutesFromFiles(
 function extractFitData(recordMesgs): TrackerDataGeoPoint[] {
 	return recordMesgs
 		.filter((message) => message.positionLat !== undefined && message.positionLong !== undefined)
-		.map((message) => ({
-			type: 'Feature',
-			geometry: {
-				type: 'Point',
-				coordinates: [
-					message.positionLong / (2 ** 31 / 180) || 0, // Convert longitude to degrees
-					message.positionLat / (2 ** 31 / 180) || 0 // Convert latitude to degrees
-				]
-			},
-			properties: {
+		.map((message) => {
+			const properties: any = {
 				...message,
-				type: 'Tracker Data',
-				altitude: message.enhancedAltitude || message.altitude || null, // Use enhanced altitude if available
-				heartRate: message.heartRate || null, // Heart rate
-				cadence: message.cadence || null, // Cadence
-				speed: message.enhancedSpeed || message.speed || null, // Speed in m/s
-				temperature: message.temperature || null, // Temperature
+				type: 'Tracker Data'
+			};
+
+			// Only add altitude if either enhancedAltitude or altitude exists
+			if (message.enhancedAltitude !== undefined || message.altitude !== undefined) {
+				properties.altitude = message.enhancedAltitude || message.altitude;
 			}
-		}));
+
+			// Only add heartRate if it exists
+			if (message.heartRate !== undefined) {
+				properties.heartRate = message.heartRate;
+			}
+
+			// Only add cadence if it exists
+			if (message.cadence !== undefined) {
+				properties.cadence = message.cadence;
+			}
+
+			// Only add speed if either enhancedSpeed or speed exists
+			if (message.enhancedSpeed !== undefined || message.speed !== undefined) {
+				properties.speed = message.enhancedSpeed || message.speed;
+			}
+
+			// Only add temperature if it exists
+			if (message.temperature !== undefined) {
+				properties.temperature = message.temperature;
+			}
+
+			return {
+				type: 'Feature',
+				geometry: {
+					type: 'Point',
+					coordinates: [
+						message.positionLong / (2 ** 31 / 180) || 0, // Convert longitude to degrees
+						message.positionLat / (2 ** 31 / 180) || 0 // Convert latitude to degrees
+					]
+				},
+				properties
+			};
+		});
 }
 
 interface SessionMessage {
