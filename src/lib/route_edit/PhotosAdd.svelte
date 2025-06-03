@@ -185,7 +185,7 @@
 
 {#snippet image(feature: PhotoGeoPoint, i: number)}
 	<div
-		class="relative hover:outline hover:outline-2 hover:outline-orange-500"
+		class="relative hover:outline hover:outline-2 hover:outline-orange-500 {photoSelection.selected === i ? 'outline outline-2 outline-blue-500' : ''}"
 		onmouseenter={() => {
 			photoSelection.hovered = i;
 		}}
@@ -204,7 +204,11 @@
 			src={URL.createObjectURL(feature.properties.binaryContent)}
 			alt="Uploaded pic"
 			onclick={() => {
-				photoSelection.selected = i;
+				if (photoSelection.selected === i) {
+					photoSelection.selected = null;
+				} else {
+					photoSelection.selected = i;
+				}
 				photoSelection.hovered = null;
 			}}
 		/>
