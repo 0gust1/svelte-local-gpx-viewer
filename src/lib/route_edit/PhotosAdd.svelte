@@ -1,17 +1,23 @@
 <script lang="ts">
 	import ExifReader from 'exifreader';
-	import { type PhotoGeoPoint } from '$lib/routes.datatypes';
+	import { point } from '@turf/turf';
+	import { type PhotoGeoPoint, type RoutePhotos } from '$lib/db_data/routes.datatypes';
 	import ObjectDisplay from '$lib/ObjectDisplay.svelte';
-	import { type RoutePhotos } from '$lib/routes.datatypes';
+
 
 	let {
 		photosToEdit = $bindable(),
-		photoSelection = $bindable()
+		photoSelection = $bindable(),
+		isPhotoWithinRouteBounds,
+		isPhotoNearRoute
 	}: {
 		photosToEdit: RoutePhotos;
 		photoSelection: { hovered: number | null; selected: number | null };
+		isPhotoWithinRouteBounds: (lng: number, lat: number, tolerance?: number) => boolean;
+		isPhotoNearRoute: (lng: number, lat: number, maxDistance?: number) => boolean;
 	} = $props();
-	let detailEditMode = $state(false);
+	
+	let imagesListMode = $state(true);
 	let files = $state<FileList | null>(null);
 
 	let imagesData = $derived.by(async () => {
@@ -30,36 +36,86 @@
 	});
 
 	let addingPhotos = $derived.by(async () => {
-		const imgsData = await imagesData;
-		if (imgsData && imgsData.length > 0) {
-			const updatedFeatures = imgsData
-				.map((imgData) => ({
-					type: 'Feature',
-					geometry: {
-						type: 'Point',
-						coordinates: [imgData.tags?.gps?.Longitude || 0, imgData.tags?.gps?.Latitude || 0]
-					},
-					properties: {
-						type: 'Photo',
-						title: imgData.tags?.title?.description || 'Untitled',
-						filename: imgData.file.name,
-						extension: imgData.file.name.split('.').pop() || '',
-						binaryContent: imgData.file
-					}
-				}))
-				.sort((a, b) => {
-					const aDate = a.properties.binaryContent.lastModified;
-					const bDate = b.properties.binaryContent.lastModified;
-					return aDate - bDate;
-				});
+    const imgsData = await imagesData;
+    if (imgsData && imgsData.length > 0) {
+        const updatedFeatures = imgsData
+            .map((imgData) => {
+                const lng = imgData.tags?.gps?.Longitude || 0;
+                const lat = imgData.tags?.gps?.Latitude || 0;
+                
+                // Check if coordinates are missing (both 0 or no GPS data)
+                const hasCoordinates = imgData.tags?.gps && (lng !== 0 || lat !== 0);
+                
+                // Validate photo location using Turf.js-based functions only if coordinates exist
+                const isValidLocation = hasCoordinates ? isPhotoWithinRouteBounds(lng, lat) : false;
+                const isNearRoute = hasCoordinates ? isPhotoNearRoute(lng, lat) : false;
+                
+                return {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [lng, lat]
+                    },
+                    properties: {
+                        type: 'Photo',
+                        title: imgData.tags?.title?.description || 'Untitled',
+                        filename: imgData.file.name,
+                        extension: imgData.file.name.split('.').pop() || '',
+                        binaryContent: imgData.file,
+                        // Add validation flags
+                        hasCoordinates,
+                        isValidLocation,
+                        isNearRoute
+                    }
+                };
+            })
+            .sort((a, b) => {
+                const aDate = a.properties.binaryContent.lastModified;
+                const bDate = b.properties.binaryContent.lastModified;
+                return aDate - bDate;
+            });
+			  
+        photosToEdit = {
+            ...photosToEdit,
+            features: [...(photosToEdit.features || []), ...updatedFeatures]
+        };
+				
+				if(photosToEdit.features.length >=10){
+					imagesListMode = false;
+			  }
+    }
+    return true;
+});
 
-			photosToEdit = {
-				...photosToEdit,
-				features: [...(photosToEdit.features || []), ...updatedFeatures]
-			};
-		}
-		return true;
-	});
+// Helper function to get visual classes based on photo validation
+function getPhotoStatusClasses(feature: PhotoGeoPoint): string {
+    const { hasCoordinates, isValidLocation, isNearRoute } = feature.properties;
+    
+    if (!hasCoordinates) {
+        return 'ring-2 ring-gray-500 opacity-50';
+    } else if (!isValidLocation && !isNearRoute) {
+        return 'ring-2 ring-red-500 opacity-60';
+    } else if (!isValidLocation || !isNearRoute) {
+        return 'ring-2 ring-yellow-500 opacity-75';
+    }
+    return '';
+}
+
+// Helper function to get status text
+function getPhotoStatusText(feature: PhotoGeoPoint): string {
+    const { hasCoordinates, isValidLocation, isNearRoute } = feature.properties;
+    
+    if (!hasCoordinates) {
+        return 'No GPS coordinates';
+    } else if (!isValidLocation && !isNearRoute) {
+        return 'Far from route';
+    } else if (!isValidLocation) {
+        return 'Outside bounding box';
+    } else if (!isNearRoute) {
+        return 'Far from route path';
+    }
+    return '';
+}
 
 	function deletePhoto(index: number) {
 		photosToEdit.features.splice(index, 1);
@@ -71,7 +127,7 @@
 	class="mb-2 border bg-slate-200 p-1"
 	type="file"
 	id="fileInput"
-	accept="image/*"
+	accept="image/*, .webp, .avif, .heif, .heic"
 	multiple
 	bind:files
 />
@@ -81,18 +137,28 @@
 		<p>Loading...</p>
 	{:then editedPhotos}
 		{#if photosToEdit.features.length > 0}
-		<div>
+            <div class="mb-2 flex items-center gap-2">
+                <span class="text-sm font-medium">View:</span>
+                <label class="flex items-center gap-1 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        bind:checked={imagesListMode}
+                        class="sr-only"
+                    />
+                    <div class="flex bg-gray-200 rounded-md p-1">
+                        <span class="px-2 py-1 text-xs rounded transition-colors {imagesListMode ? 'bg-blue-500 text-white' : 'text-gray-600'}">
+                            List
+                        </span>
+                        <span class="px-2 py-1 text-xs rounded transition-colors {!imagesListMode ? 'bg-blue-500 text-white' : 'text-gray-600'}">
+                            Grid
+                        </span>
+                    </div>
+                </label>
+            </div>
 			
-				<input
-					type="checkbox"
-					name=""
-					id="images-editmode"
-					bind:checked={detailEditMode}
-				/><label for="images-editmode" class="pl-1 inlline-block">Edit details</label
-			>
-		</div>
 		{/if}
-		{#if detailEditMode}
+		
+		{#if imagesListMode}
 			<div class="flex flex-wrap gap-1">
 				{#each photosToEdit.features as feature, i}
 					{@render imageWithFields(feature, i)}
@@ -108,72 +174,63 @@
 	{:catch error}
 		<p class="text-red-500">Error: {error.message}</p>
 	{/await}
-
-	<!-- {#if files}
-		{#await imagesData}
-			<p>Loading...</p>
-		{:then imgsData}
-			{#if imgsData.length > 0}
-				{#each imgsData as imgData}
-					<div class="flex gap-1">
-						<img
-							src={imgData.url}
-							alt="Uploaded pic"
-							style="max-width: 200px; max-height: 200px;"
-						/>
-						<div>
-							<h3 class="text-sm font-bold">Exif Data</h3>
-							<ObjectDisplay data={imgData.tags} />
-						</div>
-					</div>
-				{/each}
-			{/if}
-		{:catch error}
-			<p class="text-red-500">Error: {error.message}</p>
-		{/await}
-	{/if} -->
 </div>
 
 {#snippet imageWithFields(feature: PhotoGeoPoint, i: number)}
-	<div class="flex gap-1">
-		<img
-			src={URL.createObjectURL(feature.properties.binaryContent)}
-			alt="Uploaded pic"
-			style="max-width: 200px; max-height: 200px;"
-			onmouseenter={() => {
-				photoSelection.hovered = i;
-			}}
-			onmouseleave={() => {
-				photoSelection.hovered = null;
-			}}
-		/>
+	<div class="flex gap-1 {getPhotoStatusClasses(feature)}">
+		<div class="relative">
+			<img
+				src={URL.createObjectURL(feature.properties.binaryContent)}
+				alt="Uploaded pic"
+				style="max-width: 200px; max-height: 200px;"
+				onmouseenter={() => {
+					photoSelection.hovered = i;
+				}}
+				onmouseleave={() => {
+					photoSelection.hovered = null;
+				}}
+			/>
+			{#if getPhotoStatusText(feature)}
+				<div class="absolute top-1 left-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded" title="{getPhotoStatusText(feature)}">
+					⚠️ {getPhotoStatusText(feature)}
+				</div>
+			{/if}
+		</div>
 		<div>
-			<!-- <ObjectDisplay data={feature.properties} /> -->
-			<div>
-				{feature.properties.filename} ({feature.properties.extension})
+			<div class="flex items-center gap-2">
+				<span>{feature.properties.filename} ({feature.properties.extension})</span>
 				<button
 					type="button"
 					onclick={() => {
 						deletePhoto(i);
-					}}>❌</button
+					}}
+					class="text-red-500 hover:text-red-700"
 				>
+					❌
+				</button>
 			</div>
 
-			<div>
+			{#if getPhotoStatusText(feature)}
+				<div class="text-xs text-orange-600 mb-2" title="{getPhotoStatusText(feature)}">
+					⚠️ {getPhotoStatusText(feature)}
+				</div>
+			{/if}
+
+			<div class="space-y-1">
 				<input
-					class="text-xs"
+					class="text-xs w-full p-1 border rounded"
 					type="text"
 					bind:value={feature.properties.title}
 					placeholder="Title"
 				/>
 				<input
-					class="text-xs"
+					class="text-xs w-full p-1 border rounded"
 					type="text"
 					bind:value={feature.properties.textContent}
 					placeholder="Description"
 				/>
 				<input
-					class="text-xs"
+					class="text-xs w-full p-1 border rounded"
 					type="text"
 					bind:value={feature.properties.alternativeText}
 					placeholder="Alternative text"
@@ -185,7 +242,7 @@
 
 {#snippet image(feature: PhotoGeoPoint, i: number)}
 	<div
-		class="relative hover:outline hover:outline-2 hover:outline-orange-500 {photoSelection.selected === i ? 'outline outline-2 outline-blue-500' : ''}"
+		class="relative hover:outline hover:outline-2 hover:outline-orange-500 {photoSelection.selected === i ? 'outline outline-2 outline-blue-500' : ''} {getPhotoStatusClasses(feature)}"
 		onmouseenter={() => {
 			photoSelection.hovered = i;
 		}}
@@ -194,12 +251,21 @@
 		}}
 	>
 		<button
-			class="absolute top-0 right-0 rounded-bl-md border border-slate-200 bg-slate-200 p-0.5 text-xs opacity-70 hover:opacity-100"
+			class="absolute top-0 right-0 rounded-bl-md border border-slate-200 bg-slate-200 p-0.5 text-xs opacity-70 hover:opacity-100 z-10"
 			type="button"
 			onclick={() => {
 				deletePhoto(i);
-			}}>❌</button
+			}}
 		>
+			❌
+		</button>
+		
+		{#if getPhotoStatusText(feature)}
+			<div class="absolute top-1 left-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded z-10" title="{getPhotoStatusText(feature)}">
+				⚠️
+			</div>
+		{/if}
+		
 		<img
 			src={URL.createObjectURL(feature.properties.binaryContent)}
 			alt="Uploaded pic"
@@ -212,8 +278,12 @@
 				photoSelection.hovered = null;
 			}}
 		/>
+		
 		<div class="flex w-full justify-between gap-1 bg-slate-50 bg-slate-200 p-1 text-xs">
 			<span class="break-all">{feature.properties.filename}</span>
+			{#if getPhotoStatusText(feature)}
+				<span class="text-orange-600 font-semibold" title="{getPhotoStatusText(feature)}">⚠️</span>
+			{/if}
 		</div>
 	</div>
 {/snippet}

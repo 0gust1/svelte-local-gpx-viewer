@@ -11,21 +11,17 @@
 		selectedStyle: StyleSpecification;
 		pitch: number;
 	}
-	let { routeIdToPreview: routeIdToPreview, selectedStyle, pitch }: Props = $props();
+	let { routeIdToPreview, selectedStyle, pitch }: Props = $props();
 
 	let uiRoutes = getUIRoutesManager();
 
-	let routeState: RouteEntity | null = $state(null);
-
-	let routePromise = $derived.by(() => {
-    console.log(`Fetching route with ID: ${routeIdToPreview}`);
-		return uiRoutes.getRoute(parseInt(routeIdToPreview)).then((route) => {
-			if (!route) {
-				throw new Error(`Route ${routeIdToPreview} not found`);
-			}
-			routeState = route;
-			return true;
-		});
+	let routePromise = $derived.by(async () => {
+		console.log(`Fetching route with ID: ${routeIdToPreview}`);
+		const route = await uiRoutes.getRoute(parseInt(routeIdToPreview));
+		if (!route) {
+			throw new Error(`Route ${routeIdToPreview} not found`);
+		}
+		return route;
 	});
 </script>
 
@@ -35,11 +31,9 @@
 	<div class="relative">
 		{#await routePromise}
 			<h2 class="mb-4 text-2xl font-bold">Loading Route {routeIdToPreview}...</h2>
-		{:then status}
-			{#if status && routeState !== null}
-      <h3>SimpleRoute component</h3>
-				<SimpleRoute route={routeState} mapStyle={selectedStyle} {pitch} />
-			{/if}
+		{:then route}
+			<h3>SimpleRoute component</h3>
+			<SimpleRoute {route} mapStyle={selectedStyle} {pitch} />
 		{:catch error}
 			<h2 class="mb-4 text-2xl font-bold text-red-600">Error loading route: {error.message}</h2>
 		{/await}
