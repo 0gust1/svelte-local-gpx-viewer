@@ -11,6 +11,12 @@ const path = fileURLToPath(new URL('package.json', import.meta.url));
 const pkg = JSON.parse(readFileSync(path, 'utf8'));
 
 export default defineConfig({
+	optimizeDeps: {
+		exclude: ["@jsquash/avif", "@jsquash/jpeg", "@jsquash/jxl", "@jsquash/png", "@jsquash/webp", "@jsquash/resize"]
+	},
+	worker: {
+		format: 'es', // needed for deps above (wasm)
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
