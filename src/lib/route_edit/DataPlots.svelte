@@ -91,7 +91,7 @@
 	});
 </script>
 
-<div class="flex h-2 gap-2">
+<div class="flex gap-2">
 	<div class="text-xs flex gap-2">
 		<label>
 			<input

@@ -2,9 +2,8 @@ import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './loca
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import { RouteEntitySchema } from './routes.generated.zod';
-import { routesExport, type ExportOptions } from '$lib/export_utils';
-
-const defaultExportOptions = {filesUrlPrefix:'', filesUrlSuffix:'', imagesUrlPrefix:'', imagesUrlSuffix:'', simplifyConfig:{tolerance:0.00001, highQuality:true}}
+import { routesExport, type ExportOptions, defaultExportOptions } from '$lib/export_utils';
+import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 
@@ -66,7 +65,8 @@ export const getUIRoutesManager = () => {
 				RouteEntitySchema.parse(obj);
 			} catch (error) {
 				console.error(error.errors);
-				throw new Error('Invalid route entity');
+				console.dir(obj);
+				throw new Error('Invalid route entity', { cause: error });
 			}
 
 			return await db.geoRoutes.put(obj);
@@ -77,17 +77,27 @@ export const getUIRoutesManager = () => {
 		async createRoute(obj: RouteEntityIn) {
 			await db.geoRoutes.add(obj);
 		},
-		async exportSelectedRoutes(routesIds: number[], config: ExportOptions = defaultExportOptions) {
+		async exportSelectedRoutes(
+			routesIds: number[],
+			config: ExportOptions = defaultExportOptions,
+			onProgress?: (progress: ExportProgress) => void
+		) {
 			const routes =
 				routesIds.length === 0
 					? uiRoutes
 					: uiRoutes.filter((route) => routesIds.includes(route.id));
 
 			if (routes.length === 0) {
-				throw new Error('No routes selected');
+				throw new Error('No routes selected', { cause: 'No routes to export' });
 			}
 
-			await routesExport(routes, 'routes-archives', 'Routes archive', config);
+			return await routesExport(
+				routes,
+				routes.length > 1 ? 'routes-archives' : routes[0].name,
+				'Routes archive',
+				config,
+				onProgress
+			);
 		}
 	};
 };
