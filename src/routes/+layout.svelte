@@ -2,6 +2,7 @@
 	import { version } from '$app/environment';
 	import { base } from '$app/paths';
 	import '../app.css';
+	import ModalManager from '$lib/components/ModalManager.svelte';
 	let { children } = $props();
 </script>
 
@@ -18,6 +19,7 @@
 	</h1>
 	<nav class="ml-auto mr-4">
 	<ul class="flex h-full place-self-end-safe gap-3">
+		<li><a href="{base}/modal-demo">Modal Demo</a></li>
 		<li><a href="{base}/about">About/help</a></li>
 	</ul>
 	</nav>
@@ -35,6 +37,9 @@
 <div class="px-2 antialiased">
 	{@render children()}
 </div>
+
+<!-- Modal Manager -->
+<ModalManager />
 
 <style lang="postcss">
 	@reference "../app.css";
