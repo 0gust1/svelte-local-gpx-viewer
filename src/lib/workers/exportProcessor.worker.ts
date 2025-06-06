@@ -4,7 +4,6 @@ import { sanitizeFileName } from '$lib/export_utils';
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 import type { ExportOptions } from '$lib/export_utils';
 import type { ImageProcessorWorker } from './imageProcessor.worker';
-import type { CancellationToken } from './workerManager';
 
 export interface ExportProgress {
     current: number;
@@ -27,8 +26,7 @@ export interface ExportProcessorWorker {
     processRoutes(
         routes: RouteEntity[], 
         options: ExportOptions,
-        progressCallback: (progress: ExportProgress) => void,
-        cancellationToken?: CancellationToken
+        progressCallback: (progress: ExportProgress) => void
     ): Promise<{
         processedRoutes: ProcessedRoute[];
         imageFiles: Map<string, Blob>;
@@ -65,7 +63,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
         options: ExportOptions,
         totalPhotos: number,
         routeName: string,
-        cancellationToken?: CancellationToken,
         onProgress?: (current: number, total: number, message: string, detailedMessage?: string) => void
     ): Promise<{ processedPhotos: any[]; imageFiles: Map<string, Blob> }> {
         const imageFiles = new Map<string, Blob>();
@@ -73,8 +70,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
         const batchEnd = Math.min(batchStartIndex + batchSize, photos.length);
 
         for (let i = batchStartIndex; i < batchEnd; i++) {
-            // Check for cancellation before processing each image
-            cancellationToken?.throwIfCancelled();
 
             const photo = photos[i];
             const globalPhotoIndex = i + 1; // 1-based index
@@ -97,9 +92,7 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
 
             // Always add original image
             if (options.imageProcessing?.includeOriginal !== false) {
-                // Check for cancellation before adding original
-                cancellationToken?.throwIfCancelled();
-                
+   
                 imageFiles.set(`images/original/${imageName}`, image);
                 photo.properties.originalUrl = this.formatImageNameToURL(`original/${imageName}`, options);
             }
@@ -107,8 +100,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
             // Process image if enabled
             if (options.imageProcessing?.enabled) {
                 try {
-                    // Check for cancellation before image processing
-                    cancellationToken?.throwIfCancelled();
 
                     // Update progress for starting image processing
                     onProgress?.(globalPhotoIndex, totalPhotos, mainMessage, `Converting ${imageName} to processable format...`);
@@ -116,17 +107,13 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
                     const imageWorker = await this.getImageWorker();
                     const imageBuffer = await image.arrayBuffer();
                     
-                    // Additional check after arrayBuffer conversion
-                    cancellationToken?.throwIfCancelled();
-                    
                     // Update progress for actual processing
                     onProgress?.(globalPhotoIndex, totalPhotos, mainMessage, `Generating optimized variants for ${imageName}...`);
                     
                     const processedImage = await imageWorker.processImage(
                         imageBuffer, 
                         imageName, 
-                        options.imageProcessing.options,
-                        cancellationToken
+                        options.imageProcessing.options
                     );
 
                     // Create responsive images structure
@@ -146,8 +133,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
 
                     // Add each variant with progress updates
                     for (const [variantIndex, variant] of processedImage.variants.entries()) {
-                        // Check for cancellation before processing each variant
-                        cancellationToken?.throwIfCancelled();
 
                         const variantName = `${baseImageName}_${variant.width}w.${variant.format}`;
                         const variantPath = `images/responsive/${variantName}`;
@@ -158,9 +143,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
                         
                         // Fetch the blob from the blob URL
                         const response = await fetch(variant.src);
-                        
-                        // Check for cancellation after fetch
-                        cancellationToken?.throwIfCancelled();
                         
                         const blob = await response.blob();
                         imageFiles.set(variantPath, blob);
@@ -180,8 +162,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
 
                     // Handle fallback image
                     if (processedImage.fallback) {
-                        // Check for cancellation before fallback processing
-                        cancellationToken?.throwIfCancelled();
                         
                         const fallbackName = `${baseImageName}_fallback${imageExtension}`;
                         const fallbackPath = `images/responsive/${fallbackName}`;
@@ -233,7 +213,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
         photos: any[],
         options: ExportOptions,
         routeName: string,
-        cancellationToken?: CancellationToken,
         onProgress?: (current: number, total: number, message: string, detailedMessage?: string) => void
     ): Promise<{ processedPhotos: any[]; imageFiles: Map<string, Blob> }> {
         const imageFiles = new Map<string, Blob>();
@@ -244,8 +223,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
         const totalPhotos = photos.length;
 
         for (let i = 0; i < photos.length; i += batchSize) {
-            // Check for cancellation before each batch
-            cancellationToken?.throwIfCancelled();
 
             const { processedPhotos: batchProcessedPhotos, imageFiles: batchImageFiles } = 
                 await this.processImageBatch(
@@ -255,7 +232,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
                     options,
                     totalPhotos,
                     routeName,
-                    cancellationToken,
                     onProgress
                 );
 
@@ -274,7 +250,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
         routes: RouteEntity[], 
         options: ExportOptions,
         progressCallback: (progress: ExportProgress) => void,
-        cancellationToken?: CancellationToken
     ): Promise<{
         processedRoutes: ProcessedRoute[];
         imageFiles: Map<string, Blob>;
@@ -294,8 +269,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
 
         try {
             for (const [routeIndex, route] of routes.entries()) {
-                // Check for cancellation before processing each route
-                cancellationToken?.throwIfCancelled();
 
                 // Update progress for route processing start
                 const routeMainMessage = `Processing route ${routeIndex + 1}/${routes.length}`;
@@ -322,7 +295,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
                         route.routeData.photos.features,
                         options,
                         `Route ${routeIndex + 1}/${routes.length} (${route.name})`,
-                        cancellationToken,
                         (photoIndex, totalRoutePhotos, message, detailedMessage) => {
                             // Calculate the actual current work unit position
                             // We've already processed currentWorkUnit items, and we're now on photo photoIndex (1-based)

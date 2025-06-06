@@ -112,6 +112,15 @@
         
         try {
             cancelExport();
+            exportProgress.isExporting = false;
+            exportProgress.isCancelling = false;
+            exportProgress.percentage = 0;
+            exportProgress.current = 0;
+            exportProgress.total = 0;
+            exportProgress.message = 'Export cancelled';
+            exportProgress.detailedMessage = 'User cancelled the export process';
+            exportProgress = { ...exportProgress };
+            console.log('Export cancelled successfully');
         } catch (error) {
             console.warn('Error during export cancellation:', error);
         }

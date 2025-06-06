@@ -3,11 +3,6 @@ import type { ExportProcessorWorker, ExportProgress, ProcessedRoute } from './ex
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 import type { ExportOptions } from '$lib/export_utils';
 
-// Custom cancellation token that can be passed to workers
-export interface CancellationToken {
-    isCancelled(): boolean;
-    throwIfCancelled(): void;
-}
 
 export class WorkerManager {
     private exportWorker: Worker | null = null;
@@ -35,22 +30,12 @@ export class WorkerManager {
         const exportId = this.currentExportId;
         
         const worker = await this.getExportWorker();
-        
-        // Create a cancellation token that checks the current export ID
-        const cancellationToken = Comlink.proxy({
-            isCancelled: () => this.currentExportId !== exportId,
-            throwIfCancelled: () => {
-                if (this.currentExportId !== exportId) {
-                    throw new Error('Export cancelled by user');
-                }
-            }
-        } satisfies CancellationToken);
-        
+
         // Use Comlink to handle the progress callback, always provide a function
         const progressCallback = Comlink.proxy(onProgress ?? (() => {}));
         
         try {
-            return await worker.processRoutes(routes, options, progressCallback, cancellationToken);
+            return await worker.processRoutes(routes, options, progressCallback);
         } catch (error) {
             if (error instanceof Error && error.message === 'Export cancelled by user') {
                 throw new Error('Export was cancelled');

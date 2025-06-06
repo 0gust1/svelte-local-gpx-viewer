@@ -6,7 +6,6 @@ import {type EncodeOptions as WebpEncodeOptions} from "@jsquash/webp/meta"
 import { encode as encodeAVIF } from '@jsquash/avif';
 import {type EncodeOptions as AvifEncodeOptions} from "@jsquash/avif/meta"
 import resize from '@jsquash/resize';
-import type { CancellationToken } from './workerManager';
 
 export interface ImageVariant {
 	src: string;
@@ -104,8 +103,7 @@ export interface ImageProcessorWorker {
 	processImage(
 		imageData: ArrayBuffer,
 		imageName: string,
-		options?: ImageProcessingOptions,
-		cancellationToken?: CancellationToken
+		options?: ImageProcessingOptions
 	): Promise<ProcessedImage>;
 	terminate(): void;
 }
@@ -137,20 +135,14 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 	}
 
 	private async arrayBufferToImageData(
-		arrayBuffer: ArrayBuffer,
-		cancellationToken?: CancellationToken
+		arrayBuffer: ArrayBuffer
 	): Promise<ImageData> {
-		// Check for cancellation before processing
-		cancellationToken?.throwIfCancelled();
 
 		// Create a blob from the array buffer
 		const blob = new Blob([arrayBuffer]);
 
 		// Use createImageBitmap (available in workers) instead of Image
 		const imageBitmap = await createImageBitmap(blob);
-
-		// Check for cancellation after bitmap creation
-		cancellationToken?.throwIfCancelled();
 
 		// Create OffscreenCanvas and draw the image
 		const canvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
@@ -177,11 +169,8 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		format: string,
 		options: Required<Omit<ImageProcessingOptions, 'formatOptions'>> & {
 			formatOptions: Required<FormatSpecificOptions>;
-		},
-		cancellationToken?: CancellationToken
+		}
 	): Promise<ArrayBuffer> {
-		// Check for cancellation before encoding
-		cancellationToken?.throwIfCancelled();
 
 		// Add debugging info
 		const startTime = performance.now();
@@ -202,9 +191,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 				throw new Error(`Unsupported format: ${format}`);
 		}
 
-		// Check for cancellation after encoding
-		cancellationToken?.throwIfCancelled();
-
 		const endTime = performance.now();
 		const sizeKB = (encodedBuffer.byteLength / 1024).toFixed(1);
 		const duration = (endTime - startTime).toFixed(1);
@@ -219,13 +205,9 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 	async processImage(
 		imageData: ArrayBuffer,
 		imageName: string,
-		options: ImageProcessingOptions = {},
-		cancellationToken?: CancellationToken
+		options: ImageProcessingOptions = {}
 	): Promise<ProcessedImage> {
 		await this.initialize();
-
-		// Check for cancellation before starting
-		cancellationToken?.throwIfCancelled();
 
 		// Merge options with defaults, handling the deep merge for formatOptions
 		const mergedFormatOptions: Required<FormatSpecificOptions> = {
@@ -241,10 +223,7 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		};
 
 		// Convert ArrayBuffer to ImageData using OffscreenCanvas
-		const originalImageData = await this.arrayBufferToImageData(imageData, cancellationToken);
-
-		// Check for cancellation after image conversion
-		cancellationToken?.throwIfCancelled();
+		const originalImageData = await this.arrayBufferToImageData(imageData);
 
 		const originalWidth = originalImageData.width;
 		const originalHeight = originalImageData.height;
@@ -258,8 +237,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		try {
 			// Generate variants for each width and format combination
 			for (const width of opts.widths) {
-				// Check for cancellation before each width
-				cancellationToken?.throwIfCancelled();
 
 				// Skip if requested width is larger than original
 				if (width > originalWidth) continue;
@@ -273,26 +250,17 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 					method: 'lanczos3'
 				});
 
-				// Check for cancellation after resize and before format processing
-				cancellationToken?.throwIfCancelled();
+
 
 				for (const format of opts.formats) {
-					// Check for cancellation before each format - this is the key addition
-					cancellationToken?.throwIfCancelled();
 
 					try {
-						// Check again right before encoding (most time-consuming operation)
-						cancellationToken?.throwIfCancelled();
 
 						const encodedBuffer = await this.encodeImage(
 							resizedImageData,
 							format,
-							opts,
-							cancellationToken
+							opts
 						);
-
-						// Check after encoding but before blob creation
-						cancellationToken?.throwIfCancelled();
 
 						const blob = new Blob([encodedBuffer], {
 							type: this.getMimeType(format)
@@ -326,8 +294,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 			// Generate fallback (JPEG at medium size)
 			let fallback = '';
 			if (opts.generateFallback) {
-				// Check for cancellation before fallback generation
-				cancellationToken?.throwIfCancelled();
 
 				try {
 					const fallbackWidth = Math.min(800, originalWidth);
@@ -339,13 +305,7 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 						method: 'lanczos3'
 					});
 
-					// Check for cancellation after fallback resize
-					cancellationToken?.throwIfCancelled();
-
 					const fallbackBuffer = await encodeJPEG(fallbackImageData, opts.formatOptions.jpeg);
-
-					// Check after fallback encoding
-					cancellationToken?.throwIfCancelled();
 
 					const fallbackBlob = new Blob([fallbackBuffer], { type: 'image/jpeg' });
 					fallback = URL.createObjectURL(fallbackBlob);
