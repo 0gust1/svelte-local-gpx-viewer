@@ -1,16 +1,12 @@
 <script lang="ts">
 	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
+	import { modalStore } from '$lib/stores/modal.svelte.js';
 	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
 	import { cancelExport, defaultExportOptions } from '$lib/export_utils';
 	import { fileSave } from 'browser-fs-access';
+	import { onMount } from 'svelte';
 
-	let {
-		route,
-		disabled = false
-	}: {
-		route: RouteEntity;
-		disabled?: boolean;
-	} = $props();
+	let { route }: { route: RouteEntity } = $props();
 
 	let uiRoutes = getUIRoutesManager();
 
@@ -37,6 +33,11 @@
 	let archive: { blob: Blob; fileName: string; description: string; extensions: string[] } | null =
 		$state(null);
 
+	// Start export automatically when modal opens
+	onMount(() => {
+		exportRoute();
+	});
+
 	async function downloadArchive() {
 		if (archive) {
 			try {
@@ -46,6 +47,7 @@
 					extensions: archive.extensions
 				});
 				console.log('File saved successfully:', fileHandle);
+				modalStore.close();
 			} catch (error) {
 				console.error('Error saving file:', error);
 				alert('Failed to save the exported route. Please try again.');
@@ -73,8 +75,10 @@
 			exportProgress.detailedMessage = 'User cancelled the export process';
 			exportProgress = { ...exportProgress };
 			console.log('Export cancelled successfully');
+			modalStore.close();
 		} catch (error) {
 			console.warn('Error during export cancellation:', error);
+			modalStore.close();
 		}
 	}
 
@@ -172,34 +176,17 @@
 	}
 </script>
 
-<div class="export-container">
-	<div class="flex gap-2">
-		<button
-			type="button"
-			onclick={exportRoute}
-			disabled={disabled || exportProgress.isExporting}
-			class="relative overflow-hidden transition-all duration-300"
-			class:opacity-50={disabled}
-			class:animate-pulse={exportProgress.isExporting}
-		>
-			<span class="relative z-10 font-mono">
-					Export&nbsp;⬇️
-			</span>
-		</button>
-		{#if exportProgress.isExporting && !exportProgress.isCancelling}
-			<button
-				type="button"
-				onclick={cancelExportProcess}
-				class="relative overflow-hidden border-red-300 bg-red-100 transition-all duration-200 hover:bg-red-200"
-			>
-				<span class="relative z-10 font-mono text-red-700"> Cancel ✕ </span>
-			</button>
-		{/if}
+<div class="export-modal-container space-y-4">
+	<div class="mb-4">
+		<h3 class="mb-2 text-lg font-semibold text-stone-800">
+			Exporting Route: {route.name || `Route ${route.id}`}
+		</h3>
+		<p class="text-sm text-stone-600">Please wait while we prepare your route export...</p>
 	</div>
 
 	{#if exportProgress.isExporting}
 		<div
-			class="animate-slide-down my-3 rounded border p-4 shadow-sm"
+			class="animate-slide-down rounded border p-4 shadow-sm"
 			class:border-blue-200={!exportProgress.isCancelling}
 			class:bg-gradient-to-r={!exportProgress.isCancelling}
 			class:from-blue-50={!exportProgress.isCancelling}
@@ -326,33 +313,56 @@
 			{/if}
 		</div>
 	{/if}
+
 	{#if exportProgress.isExportReady && archive}
-		<div class="mt-4">
+		<div class="mt-4 space-y-3">
+			<div class="rounded-lg border border-green-200 bg-green-50 p-4">
+				<div class="mb-2 flex items-center gap-2">
+					<svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"
+						></path>
+					</svg>
+					<span class="font-medium text-green-800">Export Ready!</span>
+				</div>
+				<p class="text-sm text-green-700">
+					Your route export has been prepared and is ready for download.
+				</p>
+			</div>
 			<button
 				type="button"
 				onclick={downloadArchive}
-				class="rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600"
+				class="w-full rounded bg-green-500 px-4 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
 			>
 				Download Exported Route
 			</button>
 		</div>
 	{/if}
+
+	<div class="flex gap-2 border-t border-stone-200 pt-4">
+		{#if exportProgress.isExporting && !exportProgress.isCancelling && !exportProgress.isExportReady}
+			<button
+				type="button"
+				onclick={cancelExportProcess}
+				class="rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+			>
+				Cancel Export
+			</button>
+		{:else}
+			<button
+				type="button"
+				onclick={() => modalStore.close()}
+				class="rounded bg-stone-500 px-4 py-2 text-white transition-colors hover:bg-stone-600 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none"
+				class:ml-auto={!exportProgress.isExporting ||
+					exportProgress.isCancelling ||
+					exportProgress.isExportReady}
+			>
+				Close
+			</button>
+		{/if}
+	</div>
 </div>
 
 <style lang="postcss">
-	@reference "../../app.css";
-	button {
-		@apply rounded border border-slate-300 bg-slate-200 px-2 py-1 shadow-2xs transition-all duration-200;
-	}
-
-	button:hover:not(:disabled) {
-		@apply bg-slate-300 shadow-xs;
-	}
-
-	button:disabled {
-		@apply cursor-not-allowed opacity-50;
-	}
-
 	@keyframes shimmer-fast {
 		0% {
 			transform: translateX(-100%);

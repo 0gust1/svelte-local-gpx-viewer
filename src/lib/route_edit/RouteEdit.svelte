@@ -9,7 +9,8 @@
 	import RouteEditMap from './RouteMap.svelte';
 	import RouteDataEdit from './RouteDataEdit.svelte';
 	import DataPlots from './DataPlots.svelte';
-	import Export from './Export.svelte';
+	import ExportModal from '$lib/components/modals/ExportModal.svelte';
+	import { modalStore } from '$lib/stores/modal.svelte.js';
 	import { cleanupWorkers } from '$lib/workers/workerManager';
 
 	let {
@@ -85,6 +86,19 @@
 			});
 		}
 	}
+
+	function openExportModal() {
+		if (routeState) {
+			modalStore.open({
+				id: 'export-modal',
+				title: 'Export Route',
+				component: ExportModal as any,
+				props: { route: routeState },
+				size: 'lg',
+				closable: false
+			});
+		}
+	}
 </script>
 
 {#await routePromise}
@@ -97,7 +111,9 @@
 					<button type="button" onclick={saveRoute} disabled={!isDirty} class:opacity-50={!isDirty}>
 						Save ↩️ {isDirty ? '•' : ''}
 					</button>
-					<Export route={routeState} disabled={isDirty} />
+					<button type="button" onclick={openExportModal} disabled={isDirty} class:opacity-50={isDirty}>
+						Export ⬇️
+					</button>
 					<a href="?preview=true&id={routeState.id}">Preview</a>
 				</div>
 
