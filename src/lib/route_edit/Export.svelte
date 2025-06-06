@@ -183,19 +183,8 @@
 			class:animate-pulse={exportProgress.isExporting}
 		>
 			<span class="relative z-10 font-mono">
-				{#if exportProgress.isExporting}
-					{exportProgress.percentage}%
-				{:else}
-					Export
-				{/if}
-				⬇️
+					Export&nbsp;⬇️
 			</span>
-			{#if exportProgress.isExporting}
-				<div
-					class="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-400 transition-all duration-500 ease-out"
-					style="width: {exportProgress.percentage}%; opacity: 0.4"
-				></div>
-			{/if}
 		</button>
 		{#if exportProgress.isExporting && !exportProgress.isCancelling}
 			<button
