@@ -179,9 +179,11 @@
 <div class="export-modal-container space-y-4">
 	<div class="mb-4">
 		<h3 class="mb-2 text-lg font-semibold text-stone-800">
-			Exporting Route: {route.name || `Route ${route.id}`}
+			Exporting {route.name || `Route ${route.id}`}
 		</h3>
+    {#if exportProgress.isExporting}
 		<p class="text-sm text-stone-600">Please wait while we prepare your route export...</p>
+    {/if}
 	</div>
 
 	{#if exportProgress.isExporting}
@@ -333,7 +335,7 @@
 				onclick={downloadArchive}
 				class="w-full rounded bg-green-500 px-4 py-3 font-medium text-white transition-colors hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
 			>
-				Download Exported Route
+				Download {archive.fileName}
 			</button>
 		</div>
 	{/if}
