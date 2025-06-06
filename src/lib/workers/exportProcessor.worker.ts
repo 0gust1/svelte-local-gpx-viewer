@@ -1,5 +1,6 @@
 import * as Comlink from 'comlink';
 import { simplify } from '@turf/turf';
+import { sanitizeFileName } from '$lib/export_utils';
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 import type { ExportOptions } from '$lib/export_utils';
 import type { ImageProcessorWorker } from './imageProcessor.worker';
@@ -48,18 +49,6 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
             this.imageWorkerProxy = Comlink.wrap(this.imageWorker);
         }
         return this.imageWorkerProxy!;
-    }
-
-    private sanitizeFileName(fileName: string): string {
-        // Normalize to NFC (precomposed form)
-        fileName = fileName.normalize('NFC');
-
-        // Replace invalid characters with an underscore
-        return fileName
-            .replace(/[\s]+/g, '_') // Replace spaces with underscores
-            .replace(/[\\/:*?"<>|]/g, '_') // Replace invalid characters
-            .replace(/^\.+/, '') // Remove leading dots
-            .substring(0, 255); // Limit to 255 characters
     }
 
     private formatImageNameToURL(filename: string, options: ExportOptions) {
@@ -350,7 +339,7 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
                     
                     // Add route image files to the global collection
                     // If there are multiple routes, prefix with route name
-                    const routePrefix = routes.length > 1 ? `${this.sanitizeFileName(route.name)}/` : '';
+                    const routePrefix = routes.length > 1 ? `${sanitizeFileName(route.name)}/` : '';
                     for (const [imagePath, imageBlob] of routeImageFiles) {
                         allImageFiles.set(`${routePrefix}${imagePath}`, imageBlob);
                     }

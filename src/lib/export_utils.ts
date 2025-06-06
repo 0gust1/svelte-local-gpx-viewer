@@ -22,6 +22,18 @@ export interface ExportOptions {
     };
 }
 
+export const sanitizeFileName = (fileName: string): string => {
+        // Normalize to NFC (precomposed form)
+        fileName = fileName.normalize('NFC');
+
+        // Replace invalid characters with an underscore
+        return fileName
+            .replace(/[\s]+/g, '_') // Replace spaces with underscores
+            .replace(/[\\/:*?"<>|]/g, '_') // Replace invalid characters
+            .replace(/^\.+/, '') // Remove leading dots
+            .substring(0, 255); // Limit to 255 characters
+    }
+
 export const defaultExportOptions: ExportOptions = {
     filesUrlPrefix: '',
     filesUrlSuffix: '',
