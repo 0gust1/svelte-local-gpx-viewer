@@ -2,10 +2,8 @@ import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './loca
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import { RouteEntitySchema } from './routes.generated.zod';
-import { routesExport, type ExportOptions } from '$lib/export_utils';
+import { routesExport, type ExportOptions, defaultExportOptions } from '$lib/export_utils';
 import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
-
-const defaultExportOptions = {filesUrlPrefix:'', filesUrlSuffix:'', imagesUrlPrefix:'', imagesUrlSuffix:'', simplifyConfig:{tolerance:0.00001, highQuality:true}}
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 

@@ -1,6 +1,6 @@
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 import { fileSave } from 'browser-fs-access';
-import type { ImageProcessingOptions } from './imageProcessor';
+import type { ImageProcessingOptions } from '$lib/workers/imageProcessor.worker';
 import { getWorkerManager } from './workers/workerManager';
 import type { ExportProgress, ProcessedRoute } from './workers/exportProcessor.worker';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
@@ -19,21 +19,49 @@ export interface ExportOptions {
         enabled: boolean;
         options?: ImageProcessingOptions;
         includeOriginal?: boolean;
-        useWorkers?: boolean;
     };
 }
 
-export function sanitizeFileName(fileName: string): string {
-    // Normalize to NFC (precomposed form)
-    fileName = fileName.normalize('NFC');
-
-    // Replace invalid characters with an underscore
-    return fileName
-        .replace(/[\s]+/g, '_') // Replace spaces with underscores
-        .replace(/[\\/:*?"<>|]/g, '_') // Replace invalid characters
-        .replace(/^\.+/, '') // Remove leading dots
-        .substring(0, 255); // Limit to 255 characters
-}
+export const defaultExportOptions: ExportOptions = {
+    filesUrlPrefix: '',
+    filesUrlSuffix: '',
+    imagesUrlPrefix: '',
+    imagesUrlSuffix: '',
+    simplifyConfig: {
+        tolerance: 0.00001,
+        highQuality: true
+    },
+    imageProcessing: {
+        enabled: true,
+        options: {
+            widths: [400, 800, 1200, 1600],
+            formats: ['avif', 'webp', 'jpeg'],
+            quality: 80, // Global fallback
+            generateFallback: true,
+            progressive: true,
+            effort: 4,
+            formatOptions: {
+                jpeg: {
+                    quality: 80,
+                    progressive: true,
+                    optimize_coding: true
+                },
+                webp: {
+                    quality: 65, // Lower quality for better compression
+                    method: 6
+                },
+                avif: {
+                    quality: 50, // Much lower quality for AVIF efficiency
+                    speed: 6,
+                    subsample: 1, // 4:2:0 chroma subsampling
+                    tileRowsLog2: 1, // Enable tiling for better parallelization
+                    tileColsLog2: 1
+                }
+            }
+        },
+        includeOriginal: true,
+    }
+};
 
 async function generateZipFromProcessedRoutes(
     processedRoutes: ProcessedRoute[],
@@ -67,7 +95,7 @@ async function generateZipFromProcessedRoutes(
 
         if (!folder) continue;
 
-        // Generate GPX files (this works in main thread)
+        // Generate GPX files (this works in main thread, because it uses DOM APIs)
         const simplifiedGpx = GeoJsonToGpx(processedRoute.simplifiedGeoJSON);
         const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
         folder.file(`${processedRoute.name}_simplified.gpx`, simplifiedGpxData);
@@ -168,7 +196,8 @@ export async function routesExport(
 
 export function cancelExport(): void {
     const workerManager = getWorkerManager();
-    workerManager.cancelExport();
+    //workerManager.cancelExport();
+		workerManager.terminate();
 }
 
 export function isExporting(): boolean {

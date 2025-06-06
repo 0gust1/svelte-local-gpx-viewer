@@ -1,18 +1,17 @@
 <script lang="ts">
     import type { StyleSpecification } from 'maplibre-gl';
     import type { RouteEntity, RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
+    import type { ExportOptions } from '$lib/export_utils';
     import { beforeNavigate } from '$app/navigation';
     import { page } from '$app/state';
     import { onDestroy } from 'svelte';
-
     import { defaultStyle } from '$lib/maplibreStyles';
     import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
     import RouteEditMap from './RouteMap.svelte';
     import RouteDataEdit from './RouteDataEdit.svelte';
     import DataPlots from './DataPlots.svelte';
-    import type { ExportOptions } from '$lib/export_utils';
     import { cleanupWorkers } from '$lib/workers/workerManager';
-    import { cancelExport } from '$lib/export_utils';
+    import { cancelExport, defaultExportOptions } from '$lib/export_utils';
 
     let {
         routeId,
@@ -129,49 +128,6 @@
             exportProgress.isCancelling = false;
 
             try {
-                const defaultExportOptions: ExportOptions = {
-                    filesUrlPrefix: '',
-                    filesUrlSuffix: '',
-                    imagesUrlPrefix: '',
-                    imagesUrlSuffix: '',
-                    simplifyConfig: {
-                        tolerance: 0.0001,
-                        highQuality: true
-                    },
-                    imageProcessing: {
-                        enabled: true,
-                        options: {
-                            widths: [400, 800, 1200, 1600],
-                            formats: ['avif', 'webp', 'jpeg'],
-                            quality: 80, // Global fallback
-                            generateFallback: true,
-                            progressive: true,
-                            effort: 4,
-                            formatOptions: {
-                                jpeg: {
-                                    quality: 80,
-                                    progressive: true,
-                                    optimize_coding: true
-                                },
-                                webp: {
-                                    quality: 65, // Lower quality for better compression
-                                    effort: 4,
-                                    method: 6
-                                },
-                                avif: {
-                                    quality: 50, // Much lower quality for AVIF efficiency
-                                    speed: 6,
-                                    subsample: 1, // 4:2:0 chroma subsampling
-                                    tile_rows: 1, // Enable tiling for better parallelization
-                                    tile_cols: 1
-                                }
-                            }
-                        },
-                        includeOriginal: true,
-                        useWorkers: true
-                    }
-                };
-
                 await uiRoutes.exportSelectedRoutes([routeState.id], defaultExportOptions, (progress) => {
                     // Don't update progress if we're cancelling
                     if (exportProgress.isCancelling) return;
@@ -292,7 +248,7 @@
 
                 {#if exportProgress.isExporting}
                     <div
-                        class="animate-slide-down mt-3 rounded-lg border shadow-sm p-4"
+                        class="animate-slide-down my-3 rounded border shadow-sm p-4"
                         class:border-blue-200={!exportProgress.isCancelling}
                         class:bg-gradient-to-r={!exportProgress.isCancelling}
                         class:from-blue-50={!exportProgress.isCancelling}
@@ -324,24 +280,15 @@
                                     </div>
                                 {/if}
                             </div>
-                            <div 
-                                class="rounded px-2 py-1 font-mono text-xs"
-                                class:bg-blue-100={!exportProgress.isCancelling}
-                                class:text-blue-600={!exportProgress.isCancelling}
-                                class:bg-orange-100={exportProgress.isCancelling}
-                                class:text-orange-600={exportProgress.isCancelling}
-                            >
-                                {exportProgress.percentage}%
-                            </div>
                         </div>
 
                         {#if exportProgress.total > 0}
                             <div class="space-y-3">
                                 <!-- Enhanced progress bar -->
-                                <div class="relative h-4 overflow-hidden rounded-full bg-gray-200 shadow-inner">
+                                <div class="relative h-4 overflow-hidden rounded-md bg-gray-200 shadow-inner">
                                     <!-- Main progress fill -->
                                     <div
-                                        class="absolute top-0 left-0 h-full rounded-full shadow-sm transition-all duration-300 ease-out"
+                                        class="absolute top-0 left-0 h-full rounded shadow-sm transition-all duration-300 ease-out"
                                         class:bg-gradient-to-r={!exportProgress.isCancelling}
                                         class:from-blue-500={!exportProgress.isCancelling}
                                         class:via-blue-600={!exportProgress.isCancelling}

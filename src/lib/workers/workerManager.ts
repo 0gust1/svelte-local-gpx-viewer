@@ -46,8 +46,8 @@ export class WorkerManager {
             }
         } satisfies CancellationToken);
         
-        // Use Comlink to handle the progress callback
-        const progressCallback = onProgress ? Comlink.proxy(onProgress) : undefined;
+        // Use Comlink to handle the progress callback, always provide a function
+        const progressCallback = Comlink.proxy(onProgress ?? (() => {}));
         
         try {
             return await worker.processRoutes(routes, options, progressCallback, cancellationToken);
@@ -77,6 +77,7 @@ export class WorkerManager {
     terminate(): void {
         this.currentExportId = null;
         if (this.exportWorker) {
+            // Terminate the worker and clear references
             this.exportWorker.terminate();
             this.exportWorker = null;
             this.exportWorkerProxy = null;
