@@ -62,7 +62,7 @@ export interface RouteSensorDatas extends FeatureCollection {
 	features: TrackerDataGeoPoint[];
 	properties: GeoJsonProperties & {
 		type: 'Sensors Datas';
-	} & FitActivitySummary;
+	} & Partial<FitActivitySummary>;
 }
 
 /**
@@ -159,9 +159,9 @@ export interface FitActivitySummary {
 	avgPower?: number;
 	totalWork: number;
 	normalizedPower?: number;
-	enhancedAvgRespirationRate: number;
-	enhancedMaxRespirationRate: number;
-	enhancedMinRespirationRate: number;
+	enhancedAvgRespirationRate?: number;
+	enhancedMaxRespirationRate?: number;
+	enhancedMinRespirationRate?: number;
 }
 
 export interface SensorsDataFrame {
@@ -201,3 +201,12 @@ export interface ParsedRouteGeoJSON extends FeatureCollection<LineString, GeoJso
 	features: Feature<LineString, GeoJsonProperties>[];
 	properties: GeoJsonProperties;
 }
+
+
+/** OUT data types:
+ *  Data types that are used to serialize the date, to be used later in an application or a website (through a component or an universal webcomponent).
+ */
+
+// export interface RouteDataForWebComponent {
+
+// }

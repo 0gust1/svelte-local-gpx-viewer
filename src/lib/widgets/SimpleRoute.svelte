@@ -1,16 +1,24 @@
+<svelte:options customElement="gpx-simple-route" />
+
 <script lang="ts">
+	import type { Route, RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
 	import { MapLibre, type StyleSpecification } from 'svelte-maplibre';
 	import MapLibreRoute from '$lib/MapLibreRoute.svelte';
-	import type { RouteEntity,RouteInteractivePoint } from '$lib/db_data/routes.datatypes';
 
 	interface Props {
-		route: RouteEntity;
+		route: Route;
 		mapStyle: StyleSpecification;
 		pitch: number;
-		photoSelection: { hovered: number | null; selected: number | null };
-		routePoint: RouteInteractivePoint | null;
+		photoSelection?: { hovered: number | null; selected: number | null } | null;
+		routePoint?: RouteInteractivePoint | null; // Add this property as optional
 	}
-	let { route: routeState, mapStyle, pitch, photoSelection, routePoint  }: Props = $props();
+	let {
+		route: routeState,
+		mapStyle,
+		pitch,
+		photoSelection = null,
+		routePoint = null
+	}: Props = $props();
 
 	let bounds = $derived.by(() => {
 		if (routeState) {

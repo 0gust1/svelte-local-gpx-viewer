@@ -2,7 +2,7 @@
 	import { MapLibre } from 'svelte-maplibre';
 	import type { StyleSpecification } from 'maplibre-gl';
 	import bbox from '@turf/bbox';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import RoutesViewer from '$lib/MapLibreLocalRoutes.svelte';
 	import { defaultStyle } from './maplibreStyles';
 	import { getBoundingBox } from './route_utils';

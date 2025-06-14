@@ -1,18 +1,36 @@
 name: Publish Package to npmjs
 on:
-  release:
-    types: [published]
+    release:
+        types: [published]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # Setup .npmrc file to publish to npm
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '22'
+                registry-url: 'https://registry.npmjs.org'
+            - run: npm ci
+            - name: Determine npm tag
+              id: npm-tag
+              run: |
+                if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+                    if [[ "${{ github.event.release.tag_name }}" == *"alpha"* ]]; then
+                        echo "tag=alpha" >> $GITHUB_OUTPUT
+                    elif [[ "${{ github.event.release.tag_name }}" == *"beta"* ]]; then
+                        echo "tag=beta" >> $GITHUB_OUTPUT
+                    elif [[ "${{ github.event.release.tag_name }}" == *"rc"* ]]; then
+                        echo "tag=rc" >> $GITHUB_OUTPUT
+                    else
+                        echo "tag=next" >> $GITHUB_OUTPUT
+                    fi
+                else
+                    echo "tag=latest" >> $GITHUB_OUTPUT
+                fi
+            - name: Publish to npm
+              run: npm publish --tag ${{ steps.npm-tag.outputs.tag }}
+              env:
+                NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

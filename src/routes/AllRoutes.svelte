@@ -3,7 +3,7 @@
 	import GpxLoad from '$lib/GPXLoad.svelte';
 	import LocalRoutesList from '$lib/LocalRoutesList.svelte';
 	import MapLibreWrapper from '$lib/MapLibreWrapper.svelte';
-  import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+  import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
   import { stylesList, defaultStyle } from '$lib/maplibreStyles';
 
   interface Props {

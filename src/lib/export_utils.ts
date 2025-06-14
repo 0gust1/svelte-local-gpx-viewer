@@ -1,23 +1,12 @@
-import type JSZip from 'jszip';
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
-
+import type { ExportOptions } from '$lib/db_data/config.datatypes';
+import { getWorkerManager } from './workers/workerManager';
+import type { ExportProgress, ProcessedRoute } from './workers/exportProcessor.worker';
+import type { RouteManifest } from './db_data/exported_route.datatypes';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-import { simplify } from '@turf/turf';
 import JSZipConstructor from 'jszip';
-import { fileSave } from 'browser-fs-access';
 
-export interface ExportOptions {
-	filesUrlPrefix: string;
-	filesUrlSuffix: string;
-	imagesUrlPrefix: string;
-	imagesUrlSuffix: string;
-	simplifyConfig: {
-		tolerance: number;
-		highQuality: boolean;
-	};
-}
-
-export function sanitizeFileName(fileName: string): string {
+export const sanitizeFileName = (fileName: string): string => {
 	// Normalize to NFC (precomposed form)
 	fileName = fileName.normalize('NFC');
 
@@ -27,108 +16,179 @@ export function sanitizeFileName(fileName: string): string {
 		.replace(/[\\/:*?"<>|]/g, '_') // Replace invalid characters
 		.replace(/^\.+/, '') // Remove leading dots
 		.substring(0, 255); // Limit to 255 characters
-}
+};
 
-function formatImageNameToURL(filename: string, options: ExportOptions) {
-  if(options.imagesUrlPrefix === '' && options.imagesUrlSuffix === '') {
-    return `images/${filename}`;
-  }
-	return `${options.filesUrlPrefix}${filename}${options.filesUrlSuffix}`;
-}
+async function generateZipFromProcessedRoutes(
+	processedRoutes: ProcessedRoute[],
+	imageFiles: Map<string, Blob>,
+	options: ExportOptions,
+	onProgress?: (progress: ExportProgress) => void
+): Promise<ArrayBuffer> {
+	const zip = new JSZipConstructor();
 
-export function generateRouteExport(
-	route: RouteEntity,
-	zipfolder: JSZip,
-	options: ExportOptions
-): void {
-	// Add GPX file
-	const simplifiedGpx = GeoJsonToGpx(
-		simplify(route.routeData.route, {
-			tolerance: options.simplifyConfig.tolerance,
-			highQuality: options.simplifyConfig.highQuality
-		})
-	);
-	const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
-	zipfolder.file(`${route.name}_simplified.gpx`, simplifiedGpxData);
+	const totalItems = processedRoutes.length + imageFiles.size;
+	let currentItem = 0;
 
-	const rawGpx = GeoJsonToGpx(route.routeData.route);
-	const rawGpxData = new XMLSerializer().serializeToString(rawGpx);
-	zipfolder.file(`${route.name}_raw.gpx`, rawGpxData);
+	onProgress?.({
+		current: currentItem,
+		total: totalItems,
+		message: 'Creating archive...',
+		detailedMessage: 'Initializing ZIP file structure'
+	});
 
-	if (route.originalGPXData) {
-		zipfolder.file(
-			`${route.name}_original.gpx`,
-			route.originalGPXData
-		);
-	}
+	for (const processedRoute of processedRoutes) {
+		onProgress?.({
+			current: currentItem++,
+			total: totalItems,
+			message: `Adding files for route: ${processedRoute.name}`,
+			detailedMessage: `Generating GPX and GeoJSON files for "${processedRoute.name}"`
+		});
 
-	if (route.originalFitData) {
-		const fitData = new Blob([route.originalFitData], { type: 'application/octet-stream' });
-		zipfolder.file(
-			`${route.name}_original.fit`,
-			fitData
-		);
-	}
+		const folder =
+			processedRoutes.length > 1 ? zip.folder(`${sanitizeFileName(processedRoute.name)}`) : zip;
 
-	// Add GeoJSON file
-	const geoJSONData = JSON.stringify(route.routeData.route, null, 2);
-	zipfolder.file(`${route.name}.geojson`, geoJSONData);
-	
+		if (!folder) continue;
 
-	// loop through the images and add them to the zip
-	if (route.routeData.photos) {
-		for (const photo of route.routeData.photos.features) {
-			if (photo.properties.type === 'Photo') {
-				const image = photo.properties.binaryContent;
-				const imageName = photo.properties.filename;
-        // add the image to the zip
-				zipfolder.file(`images/${imageName}`, image);
-        // muutate the image name to be a URL
-        photo.properties.url = formatImageNameToURL(imageName, options);
-        // remove the binaryContent property
-        delete photo.properties.binaryContent;
-			}
+		// Generate GPX files (this works in main thread, because it uses DOM APIs)
+		const simplifiedGpx = GeoJsonToGpx(processedRoute.simplifiedGeoJSON);
+		const simplifiedGpxData = new XMLSerializer().serializeToString(simplifiedGpx);
+		folder.file(`${processedRoute.name}_simplified.gpx`, simplifiedGpxData);
+
+		const rawGpx = GeoJsonToGpx(processedRoute.rawGeoJSON);
+		const rawGpxData = new XMLSerializer().serializeToString(rawGpx);
+		folder.file(`${processedRoute.name}_raw.gpx`, rawGpxData);
+
+		if (processedRoute.originalGPXData) {
+			folder.file(`${processedRoute.name}_original.gpx`, processedRoute.originalGPXData);
 		}
+
+		if (processedRoute.originalFitData) {
+			const fitData = new Blob([processedRoute.originalFitData], {
+				type: 'application/octet-stream'
+			});
+			folder.file(`${processedRoute.name}_original.fit`, fitData);
+		}
+
+		// Add GeoJSON file
+		const geoJSONData = JSON.stringify(processedRoute.rawGeoJSON, null, 2);
+		folder.file(`${processedRoute.name}.geojson`, geoJSONData);
+
+		// Add full entity file
+		const fullEntityData = JSON.stringify(processedRoute.fullEntity, null, 2);
+		folder.file(`${processedRoute.name}.json`, fullEntityData);
+
+		// Add manifest file
+		const manifest: RouteManifest = {
+			paths: {
+				geojson: `${processedRoute.name}.geojson`,
+				json: `${processedRoute.name}.json`,
+				gpx: `${processedRoute.name}_simplified.gpx`,
+				fit: processedRoute.originalFitData ? `${processedRoute.name}_original.fit` : ''
+			}
+		};
+		folder.file(`route_manifest.json`, JSON.stringify(manifest, null, 2));
 	}
 
-  // Add full entity file
-	const fullEntityData = JSON.stringify(route, null, 2);
-	zipfolder.file(`${route.name}.json`, fullEntityData);
+	// Add all image files to the zip
+	for (const [imagePath, imageBlob] of imageFiles) {
+		onProgress?.({
+			current: currentItem++,
+			total: totalItems,
+			message: `Adding image: ${imagePath.split('/').pop()}`,
+			detailedMessage: `Writing ${imagePath} to archive`
+		});
+
+		zip.file(imagePath, imageBlob);
+	}
+
+	onProgress?.({
+		current: totalItems,
+		total: totalItems,
+		message: 'Generating zip file...',
+		detailedMessage: 'Compressing and finalizing archive'
+	});
+
+	// Generate zip as ArrayBuffer
+	const zipBuffer = await zip.generateAsync({ type: 'arraybuffer' });
+
+	onProgress?.({
+		current: totalItems,
+		total: totalItems,
+		message: 'Export complete!',
+		detailedMessage: 'Archive created successfully'
+	});
+
+	return zipBuffer;
 }
 
 export async function routesExport(
 	routes: RouteEntity[],
 	zipName: string,
 	zipDescription: string,
-	options: ExportOptions
-): Promise<void> {
-	// Create a new JSZip instance
-	const zip = new JSZipConstructor();
+	options: ExportOptions,
+	onProgress?: (progress: ExportProgress) => void
+): Promise<{
+	blob: Blob;
+	fileName: string;
+	description: string;
+	extensions: string[];
+}> {
+	const workerManager = getWorkerManager();
 
-	if (routes.length > 1) {
-		// Add each route to the zip
-		for (const route of routes) {
-			const folder = zip.folder(`${sanitizeFileName(route.name)}`);
-			if (folder) {
-				generateRouteExport(route, folder, options);
-			}
-		}
-	} else {
-		generateRouteExport(routes[0], zip, options);
+	try {
+		// Process routes in worker (everything except GPX generation)
+		const { processedRoutes, imageFiles } = await workerManager.processRoutes(
+			routes,
+			options,
+			onProgress
+		);
+
+		// Generate zip in main thread (where we have access to DOM for GPX generation)
+		const zipBuffer = await generateZipFromProcessedRoutes(
+			processedRoutes,
+			imageFiles,
+			options,
+			onProgress
+		);
+
+		// Generate timestamp for filename
+		const now = new Date();
+		const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+			now.getDate()
+		).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(
+			now.getMinutes()
+		).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+
+		// Convert ArrayBuffer to Blob
+		const blob = new Blob([zipBuffer], { type: 'application/zip' });
+
+		// return blob and archive informations
+		return {
+			blob,
+			fileName: `${sanitizeFileName(zipName)}_${timestamp}.zip`,
+			description: zipDescription,
+			extensions: ['.zip']
+		};
+
+		// Save file
+		// await fileSave(blob, {
+		//     fileName: `${sanitizeFileName(zipName)}_${timestamp}.zip`,
+		//     description: zipDescription,
+		//     extensions: ['.zip']
+		// });
+	} catch (error) {
+		console.error('Export failed:', error);
+		throw error;
 	}
+}
 
-	const now = new Date();
-	const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
-		now.getDate()
-	).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(
-		now.getMinutes()
-	).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+export function cancelExport(): void {
+	const workerManager = getWorkerManager();
+	//workerManager.cancelExport();
+	workerManager.terminate();
+}
 
-	const blobP = zip.generateAsync({ type: 'blob' });
-
-	fileSave(blobP, {
-		fileName: `${sanitizeFileName(zipName)}_${timestamp}.zip`,
-		description: zipDescription,
-		extensions: ['.zip']
-	});
+export function isExporting(): boolean {
+	const workerManager = getWorkerManager();
+	return workerManager.isExporting();
 }

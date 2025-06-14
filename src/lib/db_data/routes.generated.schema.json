@@ -638,24 +638,6 @@
                         }
                     },
                     "required": [
-                        "avgSpeed",
-                        "enhancedAvgRespirationRate",
-                        "enhancedAvgSpeed",
-                        "enhancedMaxRespirationRate",
-                        "enhancedMaxSpeed",
-                        "enhancedMinRespirationRate",
-                        "maxSpeed",
-                        "sport",
-                        "startTime",
-                        "subSport",
-                        "timestamp",
-                        "totalAscent",
-                        "totalCalories",
-                        "totalDescent",
-                        "totalDistance",
-                        "totalElapsedTime",
-                        "totalTimerTime",
-                        "totalWork",
                         "type"
                     ],
                     "title": "properties"
@@ -1399,11 +1381,8 @@
             "additionalProperties": false,
             "required": [
                 "avgSpeed",
-                "enhancedAvgRespirationRate",
                 "enhancedAvgSpeed",
-                "enhancedMaxRespirationRate",
                 "enhancedMaxSpeed",
-                "enhancedMinRespirationRate",
                 "maxSpeed",
                 "sport",
                 "startTime",
