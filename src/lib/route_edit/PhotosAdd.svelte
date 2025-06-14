@@ -195,19 +195,20 @@ function getPhotoStatusText(feature: PhotoGeoPoint): string {
 					⚠️ {getPhotoStatusText(feature)}
 				</div>
 			{/if}
-		</div>
-		<div>
-			<div class="flex items-center gap-2">
-				<span>{feature.properties.filename} ({feature.properties.extension})</span>
-				<button
+			<button
 					type="button"
 					onclick={() => {
 						deletePhoto(i);
 					}}
-					class="text-red-500 hover:text-red-700"
+					class="absolute top-0 right-0 rounded-bl-md border border-slate-200 bg-slate-200 p-0.5 text-xs opacity-70 hover:opacity-100 z-10"
 				>
 					❌
 				</button>
+		</div>
+		<div>
+			<div class="flex items-center gap-2">
+				<span>{feature.properties.filename}</span>
+				
 			</div>
 
 			{#if getPhotoStatusText(feature)}
