@@ -2,7 +2,8 @@
 	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 	import { modalStore } from '$lib/stores/modal.svelte.js';
 	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
-	import { cancelExport, defaultExportOptions } from '$lib/export_utils';
+	import { cancelExport } from '$lib/export_utils';
+	import { defaultExportOptions } from '$lib/db_data/config.datatypes';
 	import { fileSave } from 'browser-fs-access';
 	import { onMount } from 'svelte';
 

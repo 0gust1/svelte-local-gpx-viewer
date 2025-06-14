@@ -1,25 +1,11 @@
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
-import type { ImageProcessingOptions } from '$lib/workers/imageProcessor.worker';
+import type { ExportOptions } from '$lib/db_data/config.datatypes';
 import { getWorkerManager } from './workers/workerManager';
 import type { ExportProgress, ProcessedRoute } from './workers/exportProcessor.worker';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZipConstructor from 'jszip';
 
-export interface ExportOptions {
-	filesUrlPrefix: string;
-	filesUrlSuffix: string;
-	imagesUrlPrefix: string;
-	imagesUrlSuffix: string;
-	simplifyConfig: {
-		tolerance: number;
-		highQuality: boolean;
-	};
-	imageProcessing?: {
-		enabled: boolean;
-		options?: ImageProcessingOptions;
-		includeOriginal?: boolean;
-	};
-}
+
 
 export const sanitizeFileName = (fileName: string): string => {
 	// Normalize to NFC (precomposed form)
@@ -31,47 +17,6 @@ export const sanitizeFileName = (fileName: string): string => {
 		.replace(/[\\/:*?"<>|]/g, '_') // Replace invalid characters
 		.replace(/^\.+/, '') // Remove leading dots
 		.substring(0, 255); // Limit to 255 characters
-};
-
-export const defaultExportOptions: ExportOptions = {
-	filesUrlPrefix: '',
-	filesUrlSuffix: '',
-	imagesUrlPrefix: '',
-	imagesUrlSuffix: '',
-	simplifyConfig: {
-		tolerance: 0.00001,
-		highQuality: true
-	},
-	imageProcessing: {
-		enabled: true,
-		options: {
-			widths: [400, 800, 1200, 1600],
-			formats: ['avif', 'webp', 'jpeg'],
-			quality: 80, // Global fallback
-			generateFallback: true,
-			progressive: true,
-			effort: 4,
-			formatOptions: {
-				jpeg: {
-					quality: 80,
-					progressive: true,
-					optimize_coding: true
-				},
-				webp: {
-					quality: 65, // Lower quality for better compression
-					method: 6
-				},
-				avif: {
-					quality: 50, // Much lower quality for AVIF efficiency
-					speed: 6,
-					subsample: 1, // 4:2:0 chroma subsampling
-					tileRowsLog2: 1, // Enable tiling for better parallelization
-					tileColsLog2: 1
-				}
-			}
-		},
-		includeOriginal: true
-	}
 };
 
 async function generateZipFromProcessedRoutes(

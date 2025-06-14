@@ -2,7 +2,7 @@ import * as Comlink from 'comlink';
 import { simplify } from '@turf/turf';
 import { sanitizeFileName } from '$lib/export_utils';
 import type { RouteEntity } from '$lib/db_data/routes.datatypes';
-import type { ExportOptions } from '$lib/export_utils';
+import type { ExportOptions } from '$lib/db_data/config.datatypes';
 import type { ImageProcessorWorker } from './imageProcessor.worker';
 
 export interface ExportProgress {
@@ -50,10 +50,10 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
     }
 
     private formatImageNameToURL(filename: string, options: ExportOptions) {
-        if (options.imagesUrlPrefix === '' && options.imagesUrlSuffix === '') {
+        if (options.staticFilesUrls.imagesUrlPrefix === '' && options.staticFilesUrls.imagesUrlSuffix === '') {
             return `images/${filename}`;
         }
-        return `${options.filesUrlPrefix}${filename}${options.filesUrlSuffix}`;
+        return `${options.staticFilesUrls.filesUrlPrefix}${filename}${options.staticFilesUrls.filesUrlSuffix}`;
     }
 
     private async processImageBatch(
@@ -282,8 +282,8 @@ class ExportProcessorWorkerImpl implements ExportProcessorWorker {
 
                 // Generate simplified GeoJSON (this doesn't need DOM)
                 const simplifiedGeoJSON = simplify(route.routeData.route, {
-                    tolerance: options.simplifyConfig.tolerance,
-                    highQuality: options.simplifyConfig.highQuality
+                    tolerance: options.routeSimplification.tolerance,
+                    highQuality: options.routeSimplification.highQuality
                 });
 
                 currentWorkUnit++; // Count route processing as 1 work unit

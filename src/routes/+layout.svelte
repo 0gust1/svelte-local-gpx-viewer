@@ -19,6 +19,7 @@
 	</h1>
 	<nav class="ml-auto mr-4">
 	<ul class="flex h-full place-self-end-safe gap-3">
+		<li><a href="{base}/config">Config</a></li>
 		<li><a href="{base}/modal-demo">Modal Demo</a></li>
 		<li><a href="{base}/about">About/help</a></li>
 	</ul>

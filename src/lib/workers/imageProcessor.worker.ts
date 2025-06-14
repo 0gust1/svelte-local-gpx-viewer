@@ -1,10 +1,14 @@
 import * as Comlink from 'comlink';
 import { encode as encodeJPEG } from '@jsquash/jpeg';
-import {type EncodeOptions as JPEGEncodeOptions} from "@jsquash/jpeg/meta"
 import { encode as encodeWebP } from '@jsquash/webp';
-import {type EncodeOptions as WebpEncodeOptions} from "@jsquash/webp/meta"
 import { encode as encodeAVIF } from '@jsquash/avif';
-import {type EncodeOptions as AvifEncodeOptions} from "@jsquash/avif/meta"
+import {
+	type ImageProcessingOptions,
+	DEFAULT_IMAGE_PROCESSING_OPTIONS,
+	type FormatSpecificOptions,
+	DEFAULT_FORMAT_OPTIONS
+} from '$lib/db_data/config.datatypes';
+
 import resize from '@jsquash/resize';
 
 export interface ImageVariant {
@@ -22,82 +26,6 @@ export interface ProcessedImage {
 	originalWidth: number;
 	originalHeight: number;
 }
-
-export interface FormatSpecificOptions {
-	// https://deepwiki.com/jamsinclair/jSquash/2.3-jpeg-codec
-  jpeg?: Partial<JPEGEncodeOptions>;
-	// https://deepwiki.com/jamsinclair/jSquash/2.4-webp-codec
-	webp?: Partial<WebpEncodeOptions>;
-	// https://deepwiki.com/jamsinclair/jSquash/2.2-avif-codec
-	avif?: Partial<AvifEncodeOptions>;
-}
-
-export interface ImageProcessingOptions {
-	widths?: number[];
-	formats?: ('webp' | 'avif' | 'jpeg')[];
-	quality?: number; // Global fallback quality
-	generateFallback?: boolean;
-	progressive?: boolean;
-	effort?: number;
-	formatOptions?: FormatSpecificOptions;
-}
-
-const DEFAULT_FORMAT_OPTIONS: Required<FormatSpecificOptions> = {
-	jpeg: {
-		quality: 80,
-		progressive: true,
-		optimize_coding: true,
-		smoothing: 0,
-		color_space: 3, // YCbCr
-		quant_table: 3,
-		auto_subsample: true,
-		chroma_subsample: 2
-	},
-	webp: {
-		quality: 65, // Lower quality for WebP as it's more efficient
-		method: 6, // Best compression method
-		segments: 4,
-		sns_strength: 50,
-		filter_strength: 60,
-		filter_sharpness: 0,
-		filter_type: 1,
-		autofilter: 0,
-		alpha_compression: 1,
-		alpha_filtering: 1,
-		alpha_quality: 100,
-		pass: 1,
-		show_compressed: 0,
-		preprocessing: 0,
-		partitions: 0,
-		partition_limit: 0,
-		emulate_jpeg_size: 0,
-		thread_level: 0,
-		low_memory: 0,
-		near_lossless: 100,
-		exact: 0,
-		use_delta_palette: 0,
-		use_sharp_yuv: 0
-	},
-	avif: {
-		quality: 50, // Much lower quality for AVIF as it's very efficient
-		speed: 2, // Good balance between speed and compression (0=slowest/best, 8=fastest/worst)
-		subsample: 1, // 4:2:0 chroma subsampling
-		tileRowsLog2: 0,
-		tileColsLog2: 0
-	}
-};
-
-const DEFAULT_OPTIONS: Required<Omit<ImageProcessingOptions, 'formatOptions'>> & {
-	formatOptions: Required<FormatSpecificOptions>;
-} = {
-	widths: [400, 800, 1200, 1600],
-	formats: ['avif', 'webp', 'jpeg'],
-	quality: 80,
-	generateFallback: true,
-	progressive: true,
-	effort: 4,
-	formatOptions: DEFAULT_FORMAT_OPTIONS
-};
 
 export interface ImageProcessorWorker {
 	processImage(
@@ -134,10 +62,7 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		}
 	}
 
-	private async arrayBufferToImageData(
-		arrayBuffer: ArrayBuffer
-	): Promise<ImageData> {
-
+	private async arrayBufferToImageData(arrayBuffer: ArrayBuffer): Promise<ImageData> {
 		// Create a blob from the array buffer
 		const blob = new Blob([arrayBuffer]);
 
@@ -171,7 +96,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 			formatOptions: Required<FormatSpecificOptions>;
 		}
 	): Promise<ArrayBuffer> {
-
 		// Add debugging info
 		const startTime = performance.now();
 
@@ -217,7 +141,7 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		};
 
 		const opts = {
-			...DEFAULT_OPTIONS,
+			...DEFAULT_IMAGE_PROCESSING_OPTIONS,
 			...options,
 			formatOptions: mergedFormatOptions
 		};
@@ -237,7 +161,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 		try {
 			// Generate variants for each width and format combination
 			for (const width of opts.widths) {
-
 				// Skip if requested width is larger than original
 				if (width > originalWidth) continue;
 
@@ -250,17 +173,9 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 					method: 'lanczos3'
 				});
 
-
-
 				for (const format of opts.formats) {
-
 					try {
-
-						const encodedBuffer = await this.encodeImage(
-							resizedImageData,
-							format,
-							opts
-						);
+						const encodedBuffer = await this.encodeImage(resizedImageData, format, opts);
 
 						const blob = new Blob([encodedBuffer], {
 							type: this.getMimeType(format)
@@ -294,7 +209,6 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 			// Generate fallback (JPEG at medium size)
 			let fallback = '';
 			if (opts.generateFallback) {
-
 				try {
 					const fallbackWidth = Math.min(800, originalWidth);
 					const fallbackHeight = Math.round(fallbackWidth / aspectRatio);

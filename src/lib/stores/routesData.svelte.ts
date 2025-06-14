@@ -2,7 +2,8 @@ import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '../db_
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import { RouteEntitySchema } from '../db_data/routes.generated.zod';
-import { routesExport, type ExportOptions, defaultExportOptions } from '$lib/export_utils';
+import { routesExport } from '$lib/export_utils';
+import { type ExportOptions, defaultExportOptions } from '$lib/db_data/config.datatypes';
 import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
