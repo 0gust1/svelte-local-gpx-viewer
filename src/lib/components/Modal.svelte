@@ -86,11 +86,12 @@
 		<!-- Modal Content -->
 		<div class="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
 			{#if modal.component}
-				<svelte:component this={modal.component} {...(modal.props || {})} />
-			{:else}
+				{@const Component = modal.component}
+				<Component {...(modal.props || {})} />
+			<!-- {:else}
 				<slot>
 					<p class="text-stone-600">No content provided for this modal.</p>
-				</slot>
+				</slot> -->
 			{/if}
 		</div>
 	</div>
