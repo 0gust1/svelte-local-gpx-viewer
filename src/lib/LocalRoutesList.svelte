@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type RouteEntity } from '$lib/db_data/localDB';
 	import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import {base} from '$app/paths';
 
 	let routeListElem: HTMLDivElement;

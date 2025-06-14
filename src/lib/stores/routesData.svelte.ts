@@ -1,7 +1,7 @@
-import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './localDB';
+import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '../db_data/localDB';
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
-import { RouteEntitySchema } from './routes.generated.zod';
+import { RouteEntitySchema } from '../db_data/routes.generated.zod';
 import { routesExport, type ExportOptions, defaultExportOptions } from '$lib/export_utils';
 import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
 

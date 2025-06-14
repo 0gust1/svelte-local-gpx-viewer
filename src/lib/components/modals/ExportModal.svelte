@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 	import { modalStore } from '$lib/stores/modal.svelte.js';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import { cancelExport, defaultExportOptions } from '$lib/export_utils';
 	import { fileSave } from 'browser-fs-access';
 	import { onMount } from 'svelte';

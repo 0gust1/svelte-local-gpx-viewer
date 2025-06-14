@@ -4,7 +4,7 @@
 	import { base } from '$app/paths';
 	import SimpleRoute from '$lib/widgets/SimpleRoute.svelte';
 
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 
 	interface Props {
 		routeIdToPreview: string;

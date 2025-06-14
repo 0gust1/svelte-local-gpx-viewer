@@ -5,7 +5,7 @@
 	import { page } from '$app/state';
 	import { onDestroy } from 'svelte';
 	import { defaultStyle } from '$lib/maplibreStyles';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import RouteEditMap from './RouteMap.svelte';
 	import RouteDataEdit from './RouteDataEdit.svelte';
 	import DataPlots from './DataPlots.svelte';
