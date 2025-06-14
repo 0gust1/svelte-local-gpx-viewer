@@ -23,7 +23,7 @@ export interface ImageProcessingOptions {
 
 export interface AppConfiguration {
 	// General application settings
-  //...
+  //...may come later
   // Export options for routes
 	exportOptions: ExportOptions;
 }

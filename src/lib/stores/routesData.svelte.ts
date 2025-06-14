@@ -1,9 +1,9 @@
-import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from '../db_data/localDB';
+import { db, liveJSONRoutes, getCurrentAppConfig, type RouteEntityIn, type RouteEntity } from '../db_data/localDB';
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
 import { RouteEntitySchema } from '../db_data/routes.generated.zod';
 import { routesExport } from '$lib/export_utils';
-import { type ExportOptions, DEFAULT_EXPORT_OPTIONS } from '$lib/db_data/config.datatypes';
+import { type ExportOptions } from '$lib/db_data/config.datatypes';
 import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
@@ -59,13 +59,15 @@ export const getUIRoutesManager = () => {
 		async updateRoute(obj: RouteEntity) {
 			//console.log('updateRoute', obj);
 			// TODO: validation
-			obj.updatedAt = new Date().toUTCString();
+			obj.updatedAt = new Date();
 
 			try {
 				// Validate using Zod
 				RouteEntitySchema.parse(obj);
 			} catch (error) {
-				console.error(error.errors);
+				if (error instanceof Error) {
+					console.error(error.message);
+				}
 				console.dir(obj);
 				throw new Error('Invalid route entity', { cause: error });
 			}
@@ -80,7 +82,7 @@ export const getUIRoutesManager = () => {
 		},
 		async exportSelectedRoutes(
 			routesIds: number[],
-			config: ExportOptions = DEFAULT_EXPORT_OPTIONS,
+			config?: ExportOptions,
 			onProgress?: (progress: ExportProgress) => void
 		) {
 			const routes =
@@ -92,11 +94,14 @@ export const getUIRoutesManager = () => {
 				throw new Error('No routes selected', { cause: 'No routes to export' });
 			}
 
+			// If no config provided, get the current config from database
+			const exportConfig = config || (await getCurrentAppConfig()).exportOptions;
+
 			return await routesExport(
 				routes,
 				routes.length > 1 ? 'routes-archives' : routes[0].name,
 				'Routes archive',
-				config,
+				exportConfig,
 				onProgress
 			);
 		}

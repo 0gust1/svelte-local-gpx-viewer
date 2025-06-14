@@ -3,7 +3,6 @@
 	import { modalStore } from '$lib/stores/modal.svelte.js';
 	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import { cancelExport } from '$lib/export_utils';
-	import { DEFAULT_EXPORT_OPTIONS } from '$lib/db_data/config.datatypes';
 	import { fileSave } from 'browser-fs-access';
 	import { onMount } from 'svelte';
 
@@ -95,7 +94,7 @@
 
 			try {
 				archive = await uiRoutes
-					.exportSelectedRoutes([route.id], DEFAULT_EXPORT_OPTIONS, (progress) => {
+					.exportSelectedRoutes([route.id], undefined, (progress) => {
 						// Don't update progress if we're cancelling
 						if (exportProgress.isCancelling) return;
 
