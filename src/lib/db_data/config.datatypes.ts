@@ -23,12 +23,18 @@ export interface ImageProcessingOptions {
 
 export interface AppConfiguration {
 	// General application settings
-  //...may come later
-  // Export options for routes
+	//...may come later
+	// Export options for routes
+	preferedMapStyle: string;
 	exportOptions: ExportOptions;
 }
 
 export interface ExportOptions {
+	defaultMapStyle: string;
+	includeOriginalFiles: boolean;
+	includeSensorsData: boolean;
+	includeNotes: boolean;
+	includePhotos: boolean;
 	staticFilesUrls: {
 		filesUrlPrefix: string;
 		filesUrlSuffix: string;
@@ -41,7 +47,6 @@ export interface ExportOptions {
 	};
 	imageProcessing: {
 		enabled: boolean;
-		includeOriginal: boolean;
 		options: ImageProcessingOptions;
 	};
 }
@@ -49,65 +54,65 @@ export interface ExportOptions {
 export const DEFAULT_IMG_ENCODERS_OPTIONS: Required<FormatSpecificOptions> = {
 	jpeg: {
 		quality: 75,
-    baseline: false,
-    arithmetic: false,
-    progressive: true,
-    optimize_coding: true,
-    smoothing: 0,
-    color_space: 3 /* MozJpegColorSpace.YCbCr */,
-    quant_table: 3,
-    trellis_multipass: false,
-    trellis_opt_zero: false,
-    trellis_opt_table: false,
-    trellis_loops: 1,
-    auto_subsample: true,
-    chroma_subsample: 2,
-    separate_chroma_quality: false,
-    chroma_quality: 75,
+		baseline: false,
+		arithmetic: false,
+		progressive: true,
+		optimize_coding: true,
+		smoothing: 0,
+		color_space: 3 /* MozJpegColorSpace.YCbCr */,
+		quant_table: 3,
+		trellis_multipass: false,
+		trellis_opt_zero: false,
+		trellis_opt_table: false,
+		trellis_loops: 1,
+		auto_subsample: true,
+		chroma_subsample: 2,
+		separate_chroma_quality: false,
+		chroma_quality: 75
 	},
 	webp: {
-    quality: 75,
-    target_size: 0,
-    target_PSNR: 0,
-    method: 4,
-    sns_strength: 50,
-    filter_strength: 60,
-    filter_sharpness: 0,
-    filter_type: 1,
-    partitions: 0,
-    segments: 4,
-    pass: 1,
-    show_compressed: 0,
-    preprocessing: 0,
-    autofilter: 0,
-    partition_limit: 0,
-    alpha_compression: 1,
-    alpha_filtering: 1,
-    alpha_quality: 100,
-    lossless: 0,
-    exact: 0,
-    image_hint: 0,
-    emulate_jpeg_size: 0,
-    thread_level: 0,
-    low_memory: 0,
-    near_lossless: 100,
-    use_delta_palette: 0,
-    use_sharp_yuv: 0,
+		quality: 75,
+		target_size: 0,
+		target_PSNR: 0,
+		method: 4,
+		sns_strength: 50,
+		filter_strength: 60,
+		filter_sharpness: 0,
+		filter_type: 1,
+		partitions: 0,
+		segments: 4,
+		pass: 1,
+		show_compressed: 0,
+		preprocessing: 0,
+		autofilter: 0,
+		partition_limit: 0,
+		alpha_compression: 1,
+		alpha_filtering: 1,
+		alpha_quality: 100,
+		lossless: 0,
+		exact: 0,
+		image_hint: 0,
+		emulate_jpeg_size: 0,
+		thread_level: 0,
+		low_memory: 0,
+		near_lossless: 100,
+		use_delta_palette: 0,
+		use_sharp_yuv: 0
 	},
 	avif: {
-    quality: 50,
-    qualityAlpha: -1,
-    denoiseLevel: 0,
-    tileColsLog2: 0,
-    tileRowsLog2: 0,
-    speed: 6,
-    subsample: 1,
-    chromaDeltaQ: false,
-    sharpness: 0,
-    tune: 0 /* AVIFTune.auto */,
-    enableSharpYUV: false,
-    bitDepth: 8,
-    lossless: false,
+		quality: 50,
+		qualityAlpha: -1,
+		denoiseLevel: 0,
+		tileColsLog2: 0,
+		tileRowsLog2: 0,
+		speed: 6,
+		subsample: 1,
+		chromaDeltaQ: false,
+		sharpness: 0,
+		tune: 0 /* AVIFTune.auto */,
+		enableSharpYUV: false,
+		bitDepth: 8,
+		lossless: false
 	}
 };
 
@@ -122,6 +127,12 @@ export const DEFAULT_IMAGE_PROCESSING_OPTIONS: Required<ImageProcessingOptions> 
 };
 
 export const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
+	defaultMapStyle:
+		'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json',
+	includeOriginalFiles: false,
+	includeSensorsData: false,
+	includeNotes: false,
+	includePhotos: true,
 	staticFilesUrls: {
 		filesUrlPrefix: '',
 		filesUrlSuffix: '',
@@ -135,7 +146,12 @@ export const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
 	},
 	imageProcessing: {
 		enabled: true,
-		includeOriginal: true,
 		options: DEFAULT_IMAGE_PROCESSING_OPTIONS
 	}
+};
+
+export const DEFAULT_APP_CONFIG: AppConfiguration = {
+	preferedMapStyle:
+		'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json',
+	exportOptions: DEFAULT_EXPORT_OPTIONS
 };

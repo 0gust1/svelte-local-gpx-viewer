@@ -2,10 +2,9 @@ import type { RouteEntity } from '$lib/db_data/routes.datatypes';
 import type { ExportOptions } from '$lib/db_data/config.datatypes';
 import { getWorkerManager } from './workers/workerManager';
 import type { ExportProgress, ProcessedRoute } from './workers/exportProcessor.worker';
+import type { RouteManifest } from './db_data/exported_route.datatypes';
 import GeoJsonToGpx from '@dwayneparton/geojson-to-gpx';
 import JSZipConstructor from 'jszip';
-
-
 
 export const sanitizeFileName = (fileName: string): string => {
 	// Normalize to NFC (precomposed form)
@@ -77,6 +76,17 @@ async function generateZipFromProcessedRoutes(
 		// Add full entity file
 		const fullEntityData = JSON.stringify(processedRoute.fullEntity, null, 2);
 		folder.file(`${processedRoute.name}.json`, fullEntityData);
+
+		// Add manifest file
+		const manifest: RouteManifest = {
+			paths: {
+				geojson: `${processedRoute.name}.geojson`,
+				json: `${processedRoute.name}.json`,
+				gpx: `${processedRoute.name}_simplified.gpx`,
+				fit: processedRoute.originalFitData ? `${processedRoute.name}_original.fit` : ''
+			}
+		};
+		folder.file(`route_manifest.json`, JSON.stringify(manifest, null, 2));
 	}
 
 	// Add all image files to the zip
