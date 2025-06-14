@@ -11,7 +11,42 @@ export interface FormatSpecificOptions {
 	avif?: Partial<AvifEncodeOptions>;
 }
 
-export const DEFAULT_FORMAT_OPTIONS: Required<FormatSpecificOptions> = {
+export interface ImageProcessingOptions {
+	widths?: number[];
+	formats?: ('webp' | 'avif' | 'jpeg')[];
+	quality?: number; // Global fallback quality
+	generateFallback?: boolean;
+	progressive?: boolean;
+	effort?: number;
+	formatOptions?: FormatSpecificOptions;
+}
+
+export interface AppConfiguration {
+	// General application settings
+  //...
+  // Export options for routes
+	exportOptions: ExportOptions;
+}
+
+export interface ExportOptions {
+	staticFilesUrls: {
+		filesUrlPrefix: string;
+		filesUrlSuffix: string;
+		imagesUrlPrefix: string;
+		imagesUrlSuffix: string;
+	};
+	routeSimplification: {
+		tolerance: number;
+		highQuality: boolean;
+	};
+	imageProcessing: {
+		enabled: boolean;
+		includeOriginal: boolean;
+		options: ImageProcessingOptions;
+	};
+}
+
+export const DEFAULT_IMG_ENCODERS_OPTIONS: Required<FormatSpecificOptions> = {
 	jpeg: {
 		quality: 75,
     baseline: false,
@@ -83,45 +118,10 @@ export const DEFAULT_IMAGE_PROCESSING_OPTIONS: Required<ImageProcessingOptions> 
 	generateFallback: true,
 	progressive: true,
 	effort: 4,
-	formatOptions: DEFAULT_FORMAT_OPTIONS
+	formatOptions: DEFAULT_IMG_ENCODERS_OPTIONS
 };
 
-export interface ImageProcessingOptions {
-	widths?: number[];
-	formats?: ('webp' | 'avif' | 'jpeg')[];
-	quality?: number; // Global fallback quality
-	generateFallback?: boolean;
-	progressive?: boolean;
-	effort?: number;
-	formatOptions?: FormatSpecificOptions;
-}
-
-export interface AppConfiguration {
-	// General application settings
-  //...
-  // Export options for routes
-	exportOptions: ExportOptions;
-}
-
-export interface ExportOptions {
-	staticFilesUrls: {
-		filesUrlPrefix: string;
-		filesUrlSuffix: string;
-		imagesUrlPrefix: string;
-		imagesUrlSuffix: string;
-	};
-	routeSimplification: {
-		tolerance: number;
-		highQuality: boolean;
-	};
-	imageProcessing: {
-		enabled: boolean;
-		includeOriginal: boolean;
-		options: ImageProcessingOptions;
-	};
-}
-
-export const defaultExportOptions: ExportOptions = {
+export const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
 	staticFilesUrls: {
 		filesUrlPrefix: '',
 		filesUrlSuffix: '',

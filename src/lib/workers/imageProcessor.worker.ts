@@ -6,7 +6,7 @@ import {
 	type ImageProcessingOptions,
 	DEFAULT_IMAGE_PROCESSING_OPTIONS,
 	type FormatSpecificOptions,
-	DEFAULT_FORMAT_OPTIONS
+	DEFAULT_IMG_ENCODERS_OPTIONS
 } from '$lib/db_data/config.datatypes';
 
 import resize from '@jsquash/resize';
@@ -135,9 +135,9 @@ class ImageProcessorWorkerImpl implements ImageProcessorWorker {
 
 		// Merge options with defaults, handling the deep merge for formatOptions
 		const mergedFormatOptions: Required<FormatSpecificOptions> = {
-			jpeg: { ...DEFAULT_FORMAT_OPTIONS.jpeg, ...options.formatOptions?.jpeg },
-			webp: { ...DEFAULT_FORMAT_OPTIONS.webp, ...options.formatOptions?.webp },
-			avif: { ...DEFAULT_FORMAT_OPTIONS.avif, ...options.formatOptions?.avif }
+			jpeg: { ...DEFAULT_IMG_ENCODERS_OPTIONS.jpeg, ...options.formatOptions?.jpeg },
+			webp: { ...DEFAULT_IMG_ENCODERS_OPTIONS.webp, ...options.formatOptions?.webp },
+			avif: { ...DEFAULT_IMG_ENCODERS_OPTIONS.avif, ...options.formatOptions?.avif }
 		};
 
 		const opts = {
