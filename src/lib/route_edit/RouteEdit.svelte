@@ -91,7 +91,7 @@
 		if (routeState) {
 			modalStore.open({
 				id: 'export-modal',
-				title: 'Export Route',
+				title: `Export Route: ${routeState.name|| routeState.id}`,
 				component: ExportModal as any,
 				props: { route: routeState },
 				size: 'lg',

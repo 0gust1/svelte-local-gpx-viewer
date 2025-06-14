@@ -4,7 +4,6 @@
 	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import { cancelExport } from '$lib/export_utils';
 	import { fileSave } from 'browser-fs-access';
-	import { onMount } from 'svelte';
 
 	let { route }: { route: RouteEntity } = $props();
 
@@ -34,9 +33,9 @@
 		$state(null);
 
 	// Start export automatically when modal opens
-	onMount(() => {
-		exportRoute();
-	});
+	// onMount(() => {
+	// 	exportRoute();
+	// });
 
 	async function downloadArchive() {
 		if (archive) {
@@ -174,16 +173,16 @@
 			}
 		}
 	}
+	const navigate_to_options = () => {
+		modalStore.close();
+	};
 </script>
 
 <div class="export-modal-container space-y-4">
 	<div class="mb-4">
-		<h3 class="mb-2 text-lg font-semibold text-stone-800">
-			Exporting {route.name || `Route ${route.id}`}
-		</h3>
-    {#if exportProgress.isExporting}
-		<p class="text-sm text-stone-600">Please wait while we prepare your route export...</p>
-    {/if}
+		{#if exportProgress.isExporting}
+			<p class="text-sm text-stone-600">Please wait while files are being processed...</p>
+		{/if}
 	</div>
 
 	{#if exportProgress.isExporting}
@@ -314,6 +313,29 @@
 				</div>
 			{/if}
 		</div>
+	{:else if !exportProgress.isExportReady}
+		<!-- Initial state before export starts -->
+		 <p class="text-sm text-stone-600">
+				Click the button below to start exporting the route. You can cancel the export at any time.
+			</p>
+		<div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+			
+			<p class="text-sm text-stone-600">
+				<a href="config/" class="text-blue-500 underline" onclick={navigate_to_options}
+					>Take a look at export configuration before exporting ?</a
+				>
+			</p>
+			
+		</div>
+		<p>
+				<button
+					type="button"
+					onclick={exportRoute}
+					class="mt-2 w-full rounded bg-blue-500 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+				>
+					Start Export
+				</button>
+			</p>
 	{/if}
 
 	{#if exportProgress.isExportReady && archive}
