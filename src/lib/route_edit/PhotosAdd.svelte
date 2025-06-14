@@ -127,7 +127,7 @@ function getPhotoStatusText(feature: PhotoGeoPoint): string {
 	class="mb-2 border bg-slate-200 p-1"
 	type="file"
 	id="fileInput"
-	accept="image/*, .webp, .avif, .heif, .heic"
+	accept=".jpg,.jpeg"
 	multiple
 	bind:files
 />
