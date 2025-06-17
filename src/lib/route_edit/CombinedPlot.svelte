@@ -57,10 +57,12 @@
 		const heartRateExtent = extent(routeDataValues, (d) => d.heartRate) as [number, number];
 		const speedExtent = extent(routeDataValues, (d) => d.speed) as [number, number];
 		const powerExtent = extent(routeDataValues, (d) => d.power) as [number, number];
+		const cadenceExtent = extent(routeDataValues, (d) => d.cadence) as [number, number];
 
 		const normalizeHeartRate = scaleLinear().domain(heartRateExtent).range(altitudeExtent);
 		const normalizedSpeed = scaleLinear().domain(speedExtent).range(altitudeExtent);
 		const normalizedPower = scaleLinear().domain(powerExtent).range(altitudeExtent);
+		const normalizedCadence = scaleLinear().domain(cadenceExtent).range(altitudeExtent);
 		
 		const normalizedHeartRateValues = routeDataValues.map((d) => ({
 			...d,
@@ -75,6 +77,11 @@
 		const normalizedPowerValues = routeDataValues.map((d) => ({
 			...d,
 			normalizedPowerVal: normalizedPower(d.power)
+		}));
+
+		const normalizedCadenceValues = routeDataValues.map((d) => ({
+			...d,
+			normalizedCadence: normalizedCadence(d.cadence)
 		}));
 
 		const plot = Plot.plot({
@@ -141,6 +148,19 @@
 						x: 'distance',
 						y: 'normalizedPowerVal',
 						stroke: '#ff880099'
+					})
+				),
+				Plot.lineY(normalizedCadenceValues, {
+					x: 'distance',
+					y: 'normalizedCadence',
+					stroke: '#88008866'
+				}),
+				Plot.dot(
+					normalizedCadenceValues,
+					Plot.pointerX({
+						x: 'distance',
+						y: 'normalizedCadence',
+						stroke: '#88008888'
 					})
 				)
 			],
