@@ -45,6 +45,9 @@ export interface ExportOptions {
 		tolerance: number;
 		highQuality: boolean;
 	};
+	sensorsSimplification: {
+		minDistance: number; // Minimum distance (in km) between points to keep
+	};
 	imageProcessing: {
 		enabled: boolean;
 		options: ImageProcessingOptions;
@@ -136,13 +139,15 @@ export const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
 	staticFilesUrls: {
 		filesUrlPrefix: '',
 		filesUrlSuffix: '',
-
 		imagesUrlPrefix: '',
 		imagesUrlSuffix: ''
 	},
 	routeSimplification: {
 		tolerance: 0.00001,
 		highQuality: true
+	},
+	sensorsSimplification: {
+		minDistance: 0.001 // Minimum distance (in km) between points to keep
 	},
 	imageProcessing: {
 		enabled: true,
