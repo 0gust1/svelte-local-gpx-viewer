@@ -1,6 +1,11 @@
 import { bbox, length } from '@turf/turf';
 import type { Feature, GeoJsonProperties, FeatureCollection, Geometry } from 'geojson';
-import type { Route, RoutePaths, TrackerDataGeoPoint, RouteData } from './routes.datatypes';
+import type {
+	Route,
+	RoutePaths,
+	TrackerDataGeoPoint,
+	RouteData
+} from '$lib/db_data/routes.datatypes';
 import { gpx } from '@tmcw/togeojson';
 import { Decoder, Stream } from '@garmin/fitsdk';
 
@@ -341,10 +346,7 @@ function extractFitData(recordMesgs): TrackerDataGeoPoint[] {
 				type: 'Tracker Data'
 			};
 
-			// Only add altitude if either enhancedAltitude or altitude exists
-			if (message.enhancedAltitude !== undefined || message.altitude !== undefined) {
-				properties.altitude = message.enhancedAltitude || message.altitude;
-			}
+			properties.altitude = message.enhancedAltitude || message.altitude || 0; // Use enhanced altitude if available, otherwise use regular altitude
 
 			// Only add heartRate if it exists
 			if (message.heartRate !== undefined) {
