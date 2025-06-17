@@ -73,8 +73,8 @@ async function generateZipFromProcessedRoutes(
 		const geoJSONData = JSON.stringify(processedRoute.rawGeoJSON, null, 2);
 		folder.file(`${processedRoute.name}.geojson`, geoJSONData);
 
-		// Add full entity file
-		const fullEntityData = JSON.stringify(processedRoute.fullEntity, null, 2);
+		// Add exported entity file
+		const fullEntityData = JSON.stringify(processedRoute.exportEntity, null, 2);
 		folder.file(`${processedRoute.name}.json`, fullEntityData);
 
 		// Add manifest file
