@@ -6,11 +6,11 @@
 
 	interface Props {
 		route: RouteEntity;
-		photoSelection: {hovered: number | null; selected: number | null};
-		routePoint: { coords: [number, number]; distance: number; elevation: number } | null;
+		photoSelection?: {hovered: number | null; selected: number | null} | null;
+		routePoint?: { coords: [number, number]; distance: number; elevation: number } | null;
 	}
 
-	let { route: localRouteEntity, photoSelection, routePoint }: Props = $props();
+	let { route: localRouteEntity, photoSelection = null, routePoint = null }: Props = $props();
 
 	const { map, loaded } = $derived(getMapContext());
 	$effect(() => {
@@ -74,22 +74,6 @@
 	{/each}
 	{#each localRouteEntity.routeData.photos.features as feature,i}
 	{@const imageUrl = feature.properties.binaryContent?URL.createObjectURL(feature.properties.binaryContent):null}
-		{#if feature.geometry.type === 'LineString'}
-			<GeoJSON data={feature}>
-				<LineLayer
-					layout={{
-						'line-cap': 'round',
-						'line-join': 'round'
-					}}
-					paint={{
-						'line-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`#bada55`,
-						'line-width': 5,
-						'line-opacity': 0.8,
-						'line-blur': 0
-					}}
-				/>
-			</GeoJSON>
-		{/if}
 		{#if feature.geometry.type === 'Point'}
 			<GeoJSON data={feature}>
 				<CircleLayer
@@ -98,7 +82,7 @@
 						'circle-color': 'transparent',
 						'circle-opacity': 1.0,
 						'circle-stroke-width': 2,
-						'circle-stroke-color': photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`transparent`
+						'circle-stroke-color': photoSelection?.hovered != null && photoSelection.hovered ==i?`#ff0000`:`transparent`
 					}}
 				/>
 				<div class="relative">
@@ -116,7 +100,7 @@
 							y1="0"
 							x2="0"
 							y2="30"
-							stroke={photoSelection.hovered != null && photoSelection.hovered ==i?`#ff0000`:`red`}
+							stroke={photoSelection?.hovered != null && photoSelection.hovered ==i?`#ff0000`:`red`}
 							stroke-width="2"/>
 						<!-- <polygon
 								points="0,20 10,0 20,20"

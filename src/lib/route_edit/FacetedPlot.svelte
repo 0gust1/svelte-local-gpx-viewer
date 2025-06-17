@@ -18,7 +18,8 @@
 		{ name: 'altitude', label: 'Elevation (m)', stroke: '#000099', normalize: false },
 		{ name: 'heartRate', label: 'Heart Rate (bpm)', stroke: '#ff0000', normalize: true },
 		{ name: 'speed', label: 'Speed (km/h)', stroke: '#008800', normalize: true },
-		{ name: 'power', label: 'Power (W)', stroke: '#ff8800', normalize: true }
+		{ name: 'power', label: 'Power (W)', stroke: '#ff8800', normalize: true },
+		{ name: 'cadence', label: 'Power (W)', stroke: '#0000AA', normalize: true }
 	];
 
 	$effect(() => {
@@ -29,11 +30,13 @@
 		const heartRateExtent = extent(routeDataValues, (d) => d.heartRate);
 		const speedExtent = extent(routeDataValues, (d) => d.speed);
 		const powerExtent = extent(routeDataValues, (d) => d.power);
+		const cadenceExtent = extent(routeDataValues, (d) => d.cadence);
 
 		// Create normalization scales based on altitude extent
 		const heartRateScale = scaleLinear().domain(heartRateExtent).range(altitudeExtent);
 		const speedScale = scaleLinear().domain(speedExtent).range(altitudeExtent);
 		const powerScale = scaleLinear().domain(powerExtent).range(altitudeExtent);
+		const cadenceScale = scaleLinear().domain(cadenceExtent).range(altitudeExtent);
 
 		// Normalize the data
 		const normalizedRouteDataValues = routeDataValues.map((d) => {
@@ -42,13 +45,15 @@
 				heartRateScale && heartRateExtent ? heartRateScale(d.heartRate) : d.heartRate;
 			const normalizedSpeed = speedScale && speedExtent ? speedScale(d.speed) : d.speed;
 			const normalizedPower = powerScale && powerExtent ? powerScale(d.power) : d.power;
+			const normalizedCadence = cadenceScale && cadenceExtent ? cadenceScale(d.cadence) : d.cadence;
 
 			return {
 				...d,
 				normalizedAltitude: normalizedAltitude,
 				normalizedHeartRate: normalizedHeartRate,
 				normalizedSpeed: normalizedSpeed,
-				normalizedPower: normalizedPower
+				normalizedPower: normalizedPower,
+				normalizedCadence: normalizedCadence
 			};
 		});
 
@@ -64,6 +69,8 @@
 					return speedExtent && speedExtent[0] !== undefined && speedExtent[1] !== undefined;
 				} else if (metric.name === 'power') {
 					return powerExtent && powerExtent[0] !== undefined && powerExtent[1] !== undefined;
+				} else if (metric.name === 'cadence') {
+					return cadenceExtent && cadenceExtent[0] !== undefined && cadenceExtent[1] !== undefined;
 				}
 				return false;
 			})
@@ -78,7 +85,10 @@
 						value = d.normalizedSpeed;
 					} else if (metric.name === 'power') {
 						value = d.normalizedPower;
-					} else {
+					} else if (metric.name === 'cadence') {
+						value = d.normalizedCadence;
+					} 
+					else {
 						value = d[metric.name]; // Use original value if not normalized
 					}
 
@@ -100,6 +110,8 @@
 				return speedExtent && speedExtent[0] !== undefined && speedExtent[1] !== undefined;
 			} else if (metric.name === 'power') {
 				return powerExtent && powerExtent[0] !== undefined && powerExtent[1] !== undefined;
+			} else if (metric.name === 'cadence') {
+				return cadenceExtent && cadenceExtent[0] !== undefined && cadenceExtent[1] !== undefined;
 			}
 			return false;
 		});

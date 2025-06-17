@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RoutesUpload from '$lib/RoutesUpload.svelte';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import { prepareRoutesFromFiles } from './route_utils.js';
 
 	let files = $state<FileList | null>(null);

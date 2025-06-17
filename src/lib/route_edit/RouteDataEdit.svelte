@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { bbox, booleanPointInPolygon, distance, point, polygon } from '@turf/turf';
 	import type { RouteEntity } from '$lib';
 	import Crayon from '$lib/route_edit/Crayon.svelte';
 	import ObjectDisplay from '$lib/ObjectDisplay.svelte';
@@ -6,12 +7,21 @@
 
 	let {
 		route = $bindable(),
-		photoSelection = $bindable()
-	}: { route: RouteEntity; photoSelection: { hovered: number | null; selected: number | null } } = $props();
+		photoSelection = $bindable(),
+		isDirty = $bindable()
+	}: { 
+		route: RouteEntity; 
+		photoSelection: { hovered: number | null; selected: number | null };
+		isDirty?: boolean;
+	} = $props();
 
 	let routeDate = $state(formatDate(route.date));
 	let createdAt = $state(formatDate(route.createdAt));
 	let updatedAt = $state(formatDate(route.updatedAt));
+
+	// Track original values to detect changes
+	let originalRoute = $state($state.snapshot(route));
+	let originalRouteDate = $state(routeDate);
 
 	function formatDate(date: Date | string | undefined): string {
 		if (!date) return '';
@@ -26,27 +36,99 @@
 		return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 	}
 
+	// Helper function to create comparable photo data (excluding binary content)
+	function getComparablePhotos(photos: typeof route.routeData.photos) {
+		return photos.features.map(feature => ({
+			type: feature.type,
+			geometry: feature.geometry,
+			properties: {
+				type: feature.properties.type,
+				title: feature.properties.title,
+				filename: feature.properties.filename,
+				extension: feature.properties.extension,
+				textContent: feature.properties.textContent,
+				alternativeText: feature.properties.alternativeText
+				// Exclude binaryContent from comparison as it's not serializable
+			}
+		}));
+	}
 
-	// $effect(() => {
-	// 	if (createdAt && createdAt !== '') {
-	// 		route.createdAt = new Date(createdAt);
-	// 	}
-	// 	if (updatedAt && updatedAt !== '') {
-	// 		route.updatedAt = new Date(updatedAt);
-	// 	}
-	// 	if (routeDate && routeDate !== '') {
-	// 		route.date = new Date(routeDate);
-	// 	}
-	// });
+	// Update route.date when routeDate changes
+	$effect(() => {
+		if (routeDate && routeDate !== '') {
+			route.date = new Date(routeDate);
+		}
+	});
 
-	// $effect(() => {
-	// 	if (hasChanged) {
-	// 		console.log('PERSIST');
-	// 		persistencePromise = uiRoutes.updateRoute($state.snapshot(route) as RouteEntity);
-	// 		// persistencePromise = uiRoutes.updateRoute({} as RouteEntity);
-	// 		hasChanged = false;
-	// 	}
-	// });
+	// Track dirty state with comprehensive photo comparison
+	$effect(() => {
+		const hasNameChanged = route.name !== originalRoute.name;
+		const hasContentChanged = route.textContent !== originalRoute.textContent;
+		const hasDateChanged = routeDate !== originalRouteDate;
+		
+		// Deep comparison of photos
+		const currentPhotos = getComparablePhotos(route.routeData.photos);
+		const originalPhotos = getComparablePhotos(originalRoute.routeData.photos);
+		const hasPhotosChanged = JSON.stringify(currentPhotos) !== JSON.stringify(originalPhotos);
+		
+		isDirty = hasNameChanged || hasContentChanged || hasDateChanged || hasPhotosChanged;
+	});
+
+	// Reset dirty state when route is saved (called from parent)
+	export function markAsSaved() {
+		originalRoute = $state.snapshot(route);
+		originalRouteDate = routeDate;
+		isDirty = false;
+	}
+
+	// Helper function to check if photo coordinates are within route bounding box using Turf.js
+	function isPhotoWithinRouteBounds(photoLng: number, photoLat: number, tolerance: number = 0.01): boolean {
+		if (!route.bbox || route.bbox.length < 4) return false;
+
+		const [minLng, minLat, maxLng, maxLat] = route.bbox;
+
+		
+		// Create a polygon from the bounding box with tolerance
+		const bboxPolygon = polygon([[
+			[minLng - tolerance, minLat - tolerance],
+			[maxLng + tolerance, minLat - tolerance],
+			[maxLng + tolerance, maxLat + tolerance],
+			[minLng - tolerance, maxLat + tolerance],
+			[minLng - tolerance, minLat - tolerance]
+		]]);
+
+		const photoPoint = point([photoLng, photoLat]);
+		
+		return booleanPointInPolygon(photoPoint, bboxPolygon);
+	}
+
+	// More precise distance-based check using Turf.js
+	function isPhotoNearRoute(photoLng: number, photoLat: number, maxDistanceKm: number = 5): boolean {
+		const coordinates = route.routeData.route.features[0]?.geometry.coordinates;
+		if (!coordinates) return false;
+		
+		const photoPoint = point([photoLng, photoLat]);
+		
+		for (const [routeLng, routeLat] of coordinates) {
+			const routePoint = point([routeLng, routeLat]);
+			const dist = distance(photoPoint, routePoint, { units: 'kilometers' });
+			if (dist <= maxDistanceKm) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Alternative: Use Turf.js to get bounding box from route geometry
+	function getRouteBoundingBoxFromGeometry(): number[] | null {
+		const routeFeature = route.routeData.route.features[0];
+		if (!routeFeature) return null;
+		
+		return bbox(routeFeature);
+	}
+
+	// Export these functions so PhotosAdd can use them
+	export { isPhotoWithinRouteBounds, isPhotoNearRoute };
 </script>
 
 <Crayon bind:dataToEdit={route.name} field={'name'}>
@@ -102,7 +184,7 @@
 			Photos ({route.routeData.photos.features.length})
 		</h3>
 	</summary>
-	<PhotosAdd bind:photosToEdit={route.routeData.photos} bind:photoSelection />
+	<PhotosAdd bind:photosToEdit={route.routeData.photos} bind:photoSelection {isPhotoNearRoute} {isPhotoWithinRouteBounds} />
 </details>
 
 <h3 class="text-lg font-medium">Notes ({route.routeData.notes.features.length})</h3>

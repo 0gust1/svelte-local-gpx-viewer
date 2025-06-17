@@ -4,7 +4,7 @@
 	import { GeoJSON, LineLayer, getMapContext, SymbolLayer } from 'svelte-maplibre';
 	import { type RouteEntity } from '$lib/db_data/localDB';
 	import bbox from '@turf/bbox';
-	import { getUIRoutesManager } from '$lib/db_data/routesData.svelte';
+	import { getUIRoutesManager } from '$lib/stores/routesData.svelte';
 	import { onDestroy } from 'svelte';
 
 

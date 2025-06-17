@@ -5,7 +5,8 @@
 	import { stylesList, defaultStyle } from '$lib/maplibreStyles';
 
 	import AllRoutes from './AllRoutes.svelte';
-	import Route from './Route.svelte';
+	import RouteEdit from './Edit.svelte';
+	import RoutePreview from './Preview.svelte';
 
 	let selectedStyle = $state(defaultStyle);
 	let pitch = $state(0);
@@ -21,19 +22,29 @@
 		return urlSearchParams?.get('edit') === 'true';
 	});
 
-	let routeIdToEdit = $derived.by(() => {
+	let shouldPreview = $derived.by(() => {
+		return urlSearchParams?.get('preview') === 'true';
+	});
+
+	let routeId = $derived.by(() => {
 		return urlSearchParams?.get('id');
 	});
 </script>
 
 <!-- url search: {@debug urlSearchParams} -->
 
-{#if shouldEdit && routeIdToEdit}
-<div transition:fade={{ duration: 50 }}>
-	<Route routeIdToEdit={routeIdToEdit} selectedStyle={selectedStyle} pitch={pitch} />
-</div>
+{#if routeId}
+	{#if shouldPreview}
+		<div transition:fade={{ duration: 50 }}>
+			<RoutePreview routeIdToPreview={routeId} {selectedStyle} {pitch} />
+		</div>
+	{:else if shouldEdit}
+		<div transition:fade={{ duration: 50 }}>
+			<RouteEdit routeIdToEdit={routeId} {selectedStyle} {pitch} />
+		</div>
+	{/if}
 {:else}
-<div transition:fade={{ duration: 50 }}>
-	<AllRoutes selectedStyle={selectedStyle} pitch={pitch} />
-</div>
+	<div transition:fade={{ duration: 50 }}>
+		<AllRoutes {selectedStyle} {pitch} />
+	</div>
 {/if}

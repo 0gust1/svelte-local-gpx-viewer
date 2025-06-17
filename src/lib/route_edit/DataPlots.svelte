@@ -91,7 +91,7 @@
 	});
 </script>
 
-<div class="flex h-2 gap-2">
+<div class="flex gap-2">
 	<div class="text-xs flex gap-2">
 		<label>
 			<input
@@ -134,6 +134,16 @@
 		{#if routePoint.power}
 			<span class="text-xs text-gray-500">
 				⚡️ {routePoint.power} W
+			</span>
+		{/if}
+		{#if routePoint.cadence}
+			<span class="text-xs text-gray-500">
+				⚙ {routePoint.cadence} rpm
+			</span>
+		{/if}
+		{#if routePoint.temperature}
+			<span class="text-xs text-gray-500">
+				🌡️ {routePoint.temperature} °C
 			</span>
 		{/if}
 	{/if}

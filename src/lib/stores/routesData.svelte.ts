@@ -1,10 +1,10 @@
-import { db, liveJSONRoutes, type RouteEntityIn, type RouteEntity } from './localDB';
+import { db, liveJSONRoutes, getCurrentAppConfig, type RouteEntityIn, type RouteEntity } from '../db_data/localDB';
 import { get, type Readable } from 'svelte/store';
 import { SvelteSet } from 'svelte/reactivity';
-import { RouteEntitySchema } from './routes.generated.zod';
-import { routesExport, type ExportOptions } from '$lib/export_utils';
-
-const defaultExportOptions = {filesUrlPrefix:'', filesUrlSuffix:'', imagesUrlPrefix:'', imagesUrlSuffix:'', simplifyConfig:{tolerance:0.00001, highQuality:true}}
+import { RouteEntitySchema } from '../db_data/routes.generated.zod';
+import { routesExport } from '$lib/export_utils';
+import { type ExportOptions } from '$lib/db_data/config.datatypes';
+import type { ExportProgress } from '$lib/workers/exportProcessor.worker';
 
 let uiRoutes: RouteEntity[] = $state.raw(get(liveJSONRoutes as unknown as Readable<RouteEntity[]>));
 
@@ -59,14 +59,17 @@ export const getUIRoutesManager = () => {
 		async updateRoute(obj: RouteEntity) {
 			//console.log('updateRoute', obj);
 			// TODO: validation
-			obj.updatedAt = new Date().toUTCString();
+			obj.updatedAt = new Date();
 
 			try {
 				// Validate using Zod
 				RouteEntitySchema.parse(obj);
 			} catch (error) {
-				console.error(error.errors);
-				throw new Error('Invalid route entity');
+				if (error instanceof Error) {
+					console.error(error.message);
+				}
+				console.dir(obj);
+				throw new Error('Invalid route entity', { cause: error });
 			}
 
 			return await db.geoRoutes.put(obj);
@@ -77,17 +80,30 @@ export const getUIRoutesManager = () => {
 		async createRoute(obj: RouteEntityIn) {
 			await db.geoRoutes.add(obj);
 		},
-		async exportSelectedRoutes(routesIds: number[], config: ExportOptions = defaultExportOptions) {
+		async exportSelectedRoutes(
+			routesIds: number[],
+			config?: ExportOptions,
+			onProgress?: (progress: ExportProgress) => void
+		) {
 			const routes =
 				routesIds.length === 0
 					? uiRoutes
 					: uiRoutes.filter((route) => routesIds.includes(route.id));
 
 			if (routes.length === 0) {
-				throw new Error('No routes selected');
+				throw new Error('No routes selected', { cause: 'No routes to export' });
 			}
 
-			await routesExport(routes, 'routes-archives', 'Routes archive', config);
+			// If no config provided, get the current config from database
+			const exportConfig = config || (await getCurrentAppConfig()).exportOptions;
+
+			return await routesExport(
+				routes,
+				routes.length > 1 ? 'routes-archives' : routes[0].name,
+				'Routes archive',
+				exportConfig,
+				onProgress
+			);
 		}
 	};
 };
