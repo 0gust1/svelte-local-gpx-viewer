@@ -42,7 +42,7 @@
 		"dev": "vite dev",
 		"build": "rm -rf dist/ && vite build && npm run build:ce && npm run copy_ce_to_static && npm run prepack",
 		"build:ce": "vite build --config vite.widgets.config.ts --outDir dist/custom-elements/ --emptyOutDir false",
-		"copy_ce_to_static": "mkdir -p static/ce-widgets && cp dist-ce/widgets/* static/ce-widgets/",
+		"copy_ce_to_static": "mkdir -p static/ce-widgets && cp dist/custom-elements/* static/ce-widgets/",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "svelte-kit sync && svelte-package -i src/lib/widgets && npm run build:ce && publint",
